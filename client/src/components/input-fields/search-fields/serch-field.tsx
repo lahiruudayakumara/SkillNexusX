@@ -1,44 +1,60 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from "react";
 
 interface TextInputProps {
+  label?: string;
   value: string;
   onChange: (value: string) => void;
-  placeholder: string;
+  placeholder?: string;
   validation?: (value: string) => string | null;
   className?: string;
 }
 
 const SearchField: React.FC<TextInputProps> = ({
+  label,
   value,
   onChange,
-  placeholder,
+  placeholder = "Search...",
   validation,
-  className,
+  className = "",
 }) => {
   const [error, setError] = useState<string | null>(null);
+
+  const validateInput = useMemo(() => validation, [validation]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     onChange(newValue);
 
-    if (validation) {
-      const errorMessage = validation(newValue);
-      setError(errorMessage);
-    } else {
-      setError(null);
+    if (validateInput) {
+      setError(validateInput(newValue));
+    }
+  };
+
+  const handleBlur = () => {
+    if (validateInput) {
+      setError(validateInput(value));
     }
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-1">
+      {label && (
+        <label htmlFor="search-field" className="text-sm font-medium text-gray-700">
+          {label}
+        </label>
+      )}
       <input
+        id="search-field"
         type="text"
         placeholder={placeholder}
         value={value}
         onChange={handleChange}
-        className={`px-4 py-2 border border-gray-400 outline-0 rounded-md ${className}`}
+        onBlur={handleBlur}
+        aria-label={label || "Search input"}
+        aria-describedby={error ? "error-text" : undefined}
+        className={`px-4 py-2 border outline-0 rounded-md outline-none transition ${error ? "border-red-500" : "border-gray-300"} ${className}`}
       />
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+      {error && <p id="error-text" className="text-red-500 text-xs">{error}</p>}
     </div>
   );
 };
