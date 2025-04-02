@@ -1,0 +1,1 @@
+export { default as LoginView } from '@/sections/auth/login/view/login-view';
