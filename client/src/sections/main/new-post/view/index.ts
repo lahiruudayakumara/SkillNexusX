@@ -1,0 +1,1 @@
+export { default as NewPostView } from '@/sections/main/new-post/view/new-post-view';
