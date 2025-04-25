@@ -8,17 +8,15 @@ import ProfilePage from "@/pages/account/setting";
 import RegisterPage from "@/pages/auth/register";
 import SettingsPage from "@/pages/account/profile";
 import SignUpPage from "@/pages/auth/sign-up";
-<<<<<<< HEAD
 import ProgressDashboard from "@/pages/progress/dashboard";
 import CreateProgress from "@/pages/progress/create-progress";
 import UpdateProgress from "@/pages/progress/update-progress";
 import ViewProgress from "@/pages/progress/view-progress";
-=======
 import CreatePlanPage from "@/pages/plan/create-plan";
 import UpdatePlanPage from "@/pages/plan/update-plan";
 import ViewPlanPage from "@/pages/plan/view-plan";
 import PlansListPage from "@/pages/plan/plans-list";
->>>>>>> 66583b05e4e6be6eb2056535789415984ac84fb9
+
 import { createBrowserRouter } from "react-router-dom";
 
 export const router = createBrowserRouter([
@@ -63,7 +61,6 @@ export const router = createBrowserRouter([
                     },
                     {
                         path: "settings",
-<<<<<<< HEAD
                         Component: SettingsPage,
                     },
                 ],
@@ -89,37 +86,29 @@ export const router = createBrowserRouter([
                     },
                 ],
             },
-        ],
-    },
-=======
-                        Component: SettingsPage
-                    }
-                ]
-            },
-            // Learning Plan Routes
             {
                 path: "/plans",
                 children: [
                     {
                         index: true,
-                        Component: PlansListPage
+                        Component: PlansListPage,
                     },
-                    
                     {
                         path: "create",
-                        Component: CreatePlanPage
+                        Component: CreatePlanPage,
                     },
                     {
                         path: ":id",
-                        Component: ViewPlanPage
+                        Component: ViewPlanPage,
                     },
                     {
                         path: ":id/edit",
-                        Component: UpdatePlanPage
-                    }
-                ]
-            }
-        ]
-    }
->>>>>>> 66583b05e4e6be6eb2056535789415984ac84fb9
+                        Component: UpdatePlanPage,
+                    },
+                ],
+            },
+        ],
+    },
 ]);
+
+export default router;
