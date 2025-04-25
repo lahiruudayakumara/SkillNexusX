@@ -4,11 +4,11 @@ import ProtectedRoute from "../protected-route";
 
 const Main = () => {
   return (
-    <ProtectedRoute>
+    // <ProtectedRoute>
       <MainLayout>
         <Outlet />
       </MainLayout>
-    </ProtectedRoute>
+    // </ProtectedRoute>
   );
 };
 
