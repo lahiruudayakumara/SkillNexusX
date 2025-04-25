@@ -3,10 +3,11 @@ export interface LearningPlan {
     userId: string;
     title: string;
     description?: string;
-    startDate?: string; // Added startDate as an optional property
+    startDate?: string;
     endDate: string;
     topics: string[];
     resources: string[];
+    completedResources?: string[]; // Added to track completed resources
     shared: boolean;
     createdAt: string;
     updatedAt: string;
