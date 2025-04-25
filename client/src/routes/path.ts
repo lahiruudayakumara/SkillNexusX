@@ -15,7 +15,6 @@ import ViewProgress from "@/pages/progress/view-progress";
 import CreatePlanPage from "@/pages/plan/create-plan";
 import UpdatePlanPage from "@/pages/plan/update-plan";
 import ViewPlanPage from "@/pages/plan/view-plan";
-import PlansListPage from "@/pages/plan/plans-list";
 
 import { createBrowserRouter } from "react-router-dom";
 
@@ -70,7 +69,7 @@ export const router = createBrowserRouter([
                 children: [
                     {
                         index: true,
-                        Component: ProgressDashboard, // Progress Dashboard
+                        Component: ProgressDashboard, // Progress Dashboard (merged with plans list)
                     },
                     {
                         path: "create",
@@ -90,20 +89,16 @@ export const router = createBrowserRouter([
                 path: "/plans",
                 children: [
                     {
-                        index: true,
-                        Component: PlansListPage,
-                    },
-                    {
                         path: "create",
-                        Component: CreatePlanPage,
+                        Component: CreatePlanPage, // Create Plan
                     },
                     {
                         path: ":id",
-                        Component: ViewPlanPage,
+                        Component: ViewPlanPage, // View Plan
                     },
                     {
                         path: ":id/edit",
-                        Component: UpdatePlanPage,
+                        Component: UpdatePlanPage, // Update Plan
                     },
                 ],
             },

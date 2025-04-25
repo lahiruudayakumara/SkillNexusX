@@ -44,7 +44,7 @@ export default function CreatePlanPage() {
             // Simulate network delay
             await new Promise(resolve => setTimeout(resolve, 500));
 
-            navigate('/plans'); // Redirect to plans list
+            navigate('/progress'); // Redirect to plans list
         } catch (err) {
             console.error('Failed to create plan:', err);
             setError(
