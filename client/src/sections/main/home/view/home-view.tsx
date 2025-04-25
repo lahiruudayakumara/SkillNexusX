@@ -12,19 +12,22 @@ const HomeView = () => {
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [completionPosts, setCompletionPosts] = useState<any[]>([]);
 
-  // Fetch available plans on component mount
+  // Fetch available plans and completion posts on component mount
   useEffect(() => {
-    const fetchPlans = () => {
+    const fetchPlansAndPosts = () => {
       try {
-        const storedPlans = JSON.parse(localStorage.getItem('learning-plans') || '[]');
+        const storedPlans = JSON.parse(localStorage.getItem("learning-plans") || "[]");
+        const storedCompletionPosts = JSON.parse(localStorage.getItem("posts") || "[]");
         setPlans(storedPlans);
+        setCompletionPosts(storedCompletionPosts);
       } catch (err) {
-        console.error('Failed to fetch plans:', err);
+        console.error("Failed to fetch plans or posts:", err);
       }
     };
 
-    fetchPlans();
+    fetchPlansAndPosts();
   }, []);
 
   const handleAddToPlan = (post: any) => {
@@ -40,7 +43,7 @@ const HomeView = () => {
 
     try {
       // Get the selected plan
-      const existingPlans = JSON.parse(localStorage.getItem('learning-plans') || '[]');
+      const existingPlans = JSON.parse(localStorage.getItem("learning-plans") || "[]");
       const planIndex = existingPlans.findIndex((p: LearningPlan) => p.id === selectedPlanId);
 
       if (planIndex === -1) {
@@ -55,11 +58,11 @@ const HomeView = () => {
       const updatedPlans = [...existingPlans];
       updatedPlans[planIndex].resources = [
         ...updatedPlans[planIndex].resources,
-        postResource
+        postResource,
       ];
 
       // Update the plan in localStorage
-      localStorage.setItem('learning-plans', JSON.stringify(updatedPlans));
+      localStorage.setItem("learning-plans", JSON.stringify(updatedPlans));
 
       setSuccess(`Post added to "${updatedPlans[planIndex].title}" plan!`);
 
@@ -70,15 +73,15 @@ const HomeView = () => {
 
       setShowPlanSelector(false);
     } catch (err) {
-      console.error('Failed to add post to plan:', err);
+      console.error("Failed to add post to plan:", err);
       setError("Failed to add post to plan");
     }
   };
 
   const createNewPlanWithPost = () => {
     // Store the current post data in sessionStorage
-    sessionStorage.setItem('pending-post-for-plan', JSON.stringify(selectedPost));
-    navigate('/plans/create');
+    sessionStorage.setItem("pending-post-for-plan", JSON.stringify(selectedPost));
+    navigate("/plans/create");
   };
 
   const posts = [
@@ -88,7 +91,7 @@ const HomeView = () => {
       avatar: "https://via.placeholder.com/50",
       content: "Check out this awesome view!",
       mediaUrl: "https://via.placeholder.com/600",
-      mediaType: "image"
+      mediaType: "image",
     },
     {
       id: 2,
@@ -96,7 +99,7 @@ const HomeView = () => {
       avatar: "https://via.placeholder.com/50",
       content: "Learning React has been an amazing journey!",
       mediaUrl: "https://via.placeholder.com/600",
-      mediaType: "image"
+      mediaType: "image",
     },
     {
       id: 3,
@@ -104,8 +107,8 @@ const HomeView = () => {
       avatar: "https://via.placeholder.com/50",
       content: "Just finished a great coding tutorial",
       mediaUrl: "https://via.placeholder.com/600",
-      mediaType: "image"
-    }
+      mediaType: "image",
+    },
   ];
 
   return (
@@ -117,7 +120,8 @@ const HomeView = () => {
           </div>
         )}
 
-        {posts.map(post => (
+        {/* Display normal posts */}
+        {posts.map((post) => (
           <div key={post.id} className="pt-8 first:pt-0">
             <PostCard
               username={post.username}
@@ -134,6 +138,22 @@ const HomeView = () => {
                 <BookOpen size={16} />
                 Add to Learning Plan
               </button>
+            </div>
+          </div>
+        ))}
+
+        {/* Display completion posts */}
+        {completionPosts.map((post) => (
+          <div key={post.id} className="pt-8 first:pt-0">
+            <PostCard
+              username="You"
+              avatar="https://via.placeholder.com/50"
+              content={post.content}
+              mediaUrl={undefined}
+              mediaType={undefined}
+            />
+            <div className="mt-2 text-gray-500 text-sm">
+              <p>Posted on: {new Date(post.createdAt).toLocaleString()}</p>
             </div>
           </div>
         ))}
@@ -158,20 +178,17 @@ const HomeView = () => {
             {plans.length > 0 ? (
               <>
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-            
-                  </label>
                   <label htmlFor="plan-selector" className="block text-sm font-medium text-gray-700 mb-2">
                     Select a learning plan:
                   </label>
                   <select
                     id="plan-selector"
-                    value={selectedPlanId || ''}
+                    value={selectedPlanId || ""}
                     onChange={(e) => setSelectedPlanId(e.target.value)}
                     className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="">-- Select a plan --</option>
-                    {plans.map(plan => (
+                    {plans.map((plan) => (
                       <option key={plan.id} value={plan.id}>
                         {plan.title}
                       </option>

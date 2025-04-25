@@ -8,7 +8,6 @@ import ProfilePage from "@/pages/account/setting";
 import RegisterPage from "@/pages/auth/register";
 import SettingsPage from "@/pages/account/profile";
 import SignUpPage from "@/pages/auth/sign-up";
-import ProgressDashboard from "@/pages/progress/dashboard";
 import CreateProgress from "@/pages/progress/create-progress";
 import UpdateProgress from "@/pages/progress/update-progress";
 import ViewProgress from "@/pages/progress/view-progress";
@@ -17,6 +16,7 @@ import UpdatePlanPage from "@/pages/plan/update-plan";
 import ViewPlanPage from "@/pages/plan/view-plan";
 
 import { createBrowserRouter } from "react-router-dom";
+import PlansListPage from "@/pages/plan/plans-list";
 
 export const router = createBrowserRouter([
     {
@@ -50,7 +50,11 @@ export const router = createBrowserRouter([
             {
                 path: "/new-post",
                 Component: NewPostPage,
-            },
+            }
+            ,  {
+                path: "/account/settings",
+                Component: ProfilePage,
+              },
             {
                 path: "/me",
                 children: [
@@ -67,10 +71,8 @@ export const router = createBrowserRouter([
             {
                 path: "/progress",
                 children: [
-                    {
-                        index: true,
-                        Component: ProgressDashboard, // Progress Dashboard (merged with plans list)
-                    },
+                    
+                
                     {
                         path: "create",
                         Component: CreateProgress, // Create Progress
@@ -80,7 +82,7 @@ export const router = createBrowserRouter([
                         Component: UpdateProgress, // Update Progress
                     },
                     {
-                        path: "view/:id",
+                        path: "view",
                         Component: ViewProgress, // View Progress
                     },
                 ],
@@ -89,18 +91,23 @@ export const router = createBrowserRouter([
                 path: "/plans",
                 children: [
                     {
+                        index: true,
+                        Component: PlansListPage
+                    },
+                    
+                    {
                         path: "create",
-                        Component: CreatePlanPage, // Create Plan
+                        Component: CreatePlanPage
                     },
                     {
                         path: ":id",
-                        Component: ViewPlanPage, // View Plan
+                        Component: ViewPlanPage
                     },
                     {
                         path: ":id/edit",
-                        Component: UpdatePlanPage, // Update Plan
-                    },
-                ],
+                        Component: UpdatePlanPage
+                    }
+                ]
             },
         ],
     },

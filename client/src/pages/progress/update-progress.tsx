@@ -2,47 +2,54 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ProgressForm from '../../sections/main/progress/progress-form';
 
+interface ProgressData {
+  id: string;
+  title: string;
+  content: string;
+  startDate: string;
+  endDate: string;
+  shared: boolean;
+}
+
 const UpdateProgress = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [initialData, setInitialData] = useState<{
-    title: string;
-    content: string;
-    startDate: string;
-    endDate: string;
-    shared: boolean;
-  } | null>(null);
+  const [initialData, setInitialData] = useState<ProgressData | null>(null);
 
   useEffect(() => {
-    // In a real app, fetch the progress data by ID from the API
-    if (id === '1') {
-      setInitialData({
-        title: 'React Fundamentals',
-        content:
-          'Completed chapters 1-3 of React course. The fundamentals covered component creation, props, state management, and event handling.',
-        startDate: '2025-04-01',
-        endDate: '2025-04-30',
-        shared: true,
-      });
-    } else {
-      console.error('Progress not found');
-    }
+    const fetchProgressData = () => {
+      // Fetch progress data from local storage
+      const storedProgress = JSON.parse(localStorage.getItem('posts') || '[]');
+      const progressItem = storedProgress.find((item: ProgressData) => item.id === id);
+
+      if (progressItem) {
+        setInitialData(progressItem);
+      } else {
+        console.error('Progress not found');
+      }
+    };
+
+    fetchProgressData();
   }, [id]);
 
-  const handleSubmit = (data: {
-    title: string;
-    content: string;
-    startDate: string;
-    endDate: string;
-    shared: boolean;
-  }) => {
-    // In a real app, make an API call to update progress
-    console.log('Updating progress:', data);
-    navigate('/progress'); // Redirect to progress dashboard
+  const handleSubmit = (data: Omit<ProgressData, 'id'>) => {
+    // Fetch existing progress data from local storage
+    const storedProgress = JSON.parse(localStorage.getItem('posts') || '[]');
+
+    // Update the specific progress item
+    const updatedProgress = storedProgress.map((item: ProgressData) =>
+      item.id === id ? { ...item, ...data, id } : item
+    );
+
+    // Save the updated progress data back to local storage
+    localStorage.setItem('posts', JSON.stringify(updatedProgress));
+
+    console.log('Progress updated:', data);
+    navigate('/progress/view'); // Redirect to progress dashboard
   };
 
   if (!initialData) {
-    return <div>Loading...</div>;
+    return <div className="p-4">Loading...</div>;
   }
 
   return (
