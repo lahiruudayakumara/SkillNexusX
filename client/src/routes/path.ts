@@ -9,6 +9,7 @@ import RegisterPage from "@/pages/auth/register";
 import SettingsPage from "@/pages/account/profile";
 import SignUpPage from "@/pages/auth/sign-up";
 import { createBrowserRouter } from "react-router-dom";
+import MentorCollaborationPage from "@/pages/main/mentor-collaboration";
 
 export const router = createBrowserRouter([
     {
@@ -55,6 +56,10 @@ export const router = createBrowserRouter([
                         Component: SettingsPage
                     }
                 ]
+            },
+            {
+                path: "/mentor-collaboration",
+                Component: MentorCollaborationPage,
             }
         ]
     }
