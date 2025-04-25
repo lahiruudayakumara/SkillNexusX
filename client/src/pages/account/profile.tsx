@@ -1,8 +1,10 @@
 import { Helmet } from "react-helmet";
-import { useState } from "react";
+import { use, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState("profile");
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState({
     email: true,
     push: true,
@@ -11,6 +13,7 @@ const SettingsPage = () => {
     systemUpdates: false,
     marketing: false
   });
+
   const [profile, setProfile] = useState({
     name: "Alex Johnson",
     email: "alex.johnson@example.com",
@@ -98,6 +101,11 @@ const SettingsPage = () => {
     }
   };
 
+  const handleNavigation = (path: string) => {
+    navigate(path); // Navigate to the specified path
+  };
+
+
   return (
     <>
       <Helmet>
@@ -150,6 +158,19 @@ const SettingsPage = () => {
                   >
                     Billing & Subscription
                   </button>
+                      {/* New Tabs */}
+                      <button
+                    onClick={() => handleNavigation("/plans")}
+                    className="block w-full text-left px-4 py-2 rounded text-gray-700 hover:bg-gray-200"
+                  >
+                    My Learning Plans
+                  </button>
+                  <button
+                    onClick={() => handleNavigation("/progress/view")}
+                    className="block w-full text-left px-4 py-2 rounded text-gray-700 hover:bg-gray-200"
+                  >
+                    My Learning Progress
+                  </button>
                 </nav>
               </div>
 
@@ -168,7 +189,7 @@ const SettingsPage = () => {
                     <div className="space-y-6">
                       <div className="flex items-center space-x-6">
                         <div className="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
-                          <img src="/api/placeholder/100/100" alt="Profile" className="w-full h-full object-cover" />
+                          <img src="client/src/assets/user.png" alt="Profile" className="w-full h-full object-cover" />
                         </div>
                         <div>
                           <button className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
