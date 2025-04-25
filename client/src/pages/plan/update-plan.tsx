@@ -3,10 +3,15 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { PlanForm } from '../../sections/main/plan/plan-form';
 import { LearningPlan } from '../../types/learning-type';
 
+// Extended type to track completed resources
+interface ExtendedPlan extends LearningPlan {
+    completedResources?: string[];
+}
+
 export default function UpdatePlanPage() {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
-    const [plan, setPlan] = useState<LearningPlan | null>(null);
+    const [plan, setPlan] = useState<ExtendedPlan | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -21,6 +26,10 @@ export default function UpdatePlanPage() {
                 const foundPlan = existingPlans.find((p: LearningPlan) => p.id === id);
 
                 if (foundPlan) {
+                    // If completedResources isn't in the plan, initialize it
+                    if (!foundPlan.completedResources) {
+                        foundPlan.completedResources = [];
+                    }
                     setPlan(foundPlan);
                 } else {
                     setError('Learning plan not found');
@@ -51,16 +60,18 @@ export default function UpdatePlanPage() {
                 throw new Error('End date is required');
             }
 
+            // Preserve completedResources when updating the plan
+            const updatedPlan = {
+                ...plan,
+                ...planData,
+                completedResources: plan.completedResources,
+                updatedAt: new Date().toISOString()
+            };
+
             // Update plan in localStorage
             const existingPlans = JSON.parse(localStorage.getItem('learning-plans') || '[]');
             const updatedPlans = existingPlans.map((p: LearningPlan) =>
-                p.id === id
-                    ? {
-                        ...p,
-                        ...planData,
-                        updatedAt: new Date().toISOString()
-                    }
-                    : p
+                p.id === id ? updatedPlan : p
             );
 
             localStorage.setItem('learning-plans', JSON.stringify(updatedPlans));
