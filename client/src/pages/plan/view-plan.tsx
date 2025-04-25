@@ -1,13 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { LearningPlan } from '../../types/learning-type';
+import { Check, X } from 'lucide-react';
+
+// Extended type to track completed resources
+interface ExtendedPlan extends LearningPlan {
+    completedResources?: string[];
+}
 
 export default function ViewPlanPage() {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
-    const [plan, setPlan] = useState<LearningPlan | null>(null);
+    const [plan, setPlan] = useState<ExtendedPlan | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     useEffect(() => {
         async function fetchPlan() {
@@ -19,6 +26,10 @@ export default function ViewPlanPage() {
                 const foundPlan = existingPlans.find((p: LearningPlan) => p.id === id);
 
                 if (foundPlan) {
+                    // If completedResources isn't in the plan, initialize it
+                    if (!foundPlan.completedResources) {
+                        foundPlan.completedResources = [];
+                    }
                     setPlan(foundPlan);
                 } else {
                     setError('Learning plan not found');
@@ -59,6 +70,43 @@ export default function ViewPlanPage() {
         }
     };
 
+    // Toggle resource completion status
+    const toggleResourceCompletion = (resourceUrl: string) => {
+        if (!plan) return;
+
+        const isCompleted = plan.completedResources?.includes(resourceUrl);
+        let updatedCompletedResources: string[];
+
+        if (isCompleted) {
+            // Remove from completed resources
+            updatedCompletedResources = (plan.completedResources || []).filter(url => url !== resourceUrl);
+        } else {
+            // Add to completed resources
+            updatedCompletedResources = [...(plan.completedResources || []), resourceUrl];
+        }
+
+        // Update the plan locally
+        const updatedPlan = {
+            ...plan,
+            completedResources: updatedCompletedResources,
+            updatedAt: new Date().toISOString()
+        };
+
+        setPlan(updatedPlan);
+
+        // Update in localStorage
+        const existingPlans = JSON.parse(localStorage.getItem('learning-plans') || '[]');
+        const updatedPlans = existingPlans.map((p: LearningPlan) =>
+            p.id === id ? updatedPlan : p
+        );
+
+        localStorage.setItem('learning-plans', JSON.stringify(updatedPlans));
+
+        // Show success message
+        setSuccessMessage('Progress updated');
+        setTimeout(() => setSuccessMessage(null), 2000);
+    };
+
     // Format date string for display
     const formatDateString = (dateString?: string) => {
         if (!dateString) return 'Not set';
@@ -70,42 +118,26 @@ export default function ViewPlanPage() {
         }
     };
 
-    // Calculate progress based on dates
+    // Calculate progress based on completed resources
     const calculateProgress = () => {
-        if (!plan) return 0;
+        if (!plan || !plan.resources || plan.resources.length === 0) return 0;
 
-        const now = new Date();
-        const start = plan.startDate ? new Date(plan.startDate) : new Date(plan.createdAt);
-        const end = new Date(plan.endDate);
+        const totalResources = plan.resources.length;
+        const completedCount = plan.completedResources?.length || 0;
 
-        // Check if dates are valid
-        if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
-
-        // If plan hasn't started yet
-        if (now < start) return 0;
-
-        // If plan has ended
-        if (now > end) return 100;
-
-        // Calculate progress percentage
-        const totalDuration = end.getTime() - start.getTime();
-        if (totalDuration <= 0) return 0;
-
-        const elapsed = now.getTime() - start.getTime();
-        return Math.round((elapsed / totalDuration) * 100);
+        return Math.round((completedCount / totalResources) * 100);
     };
 
-    // Get plan status
+    // Get plan status based on resource completion
     const getStatusText = () => {
         if (!plan) return '';
 
-        const now = new Date();
-        const start = plan.startDate ? new Date(plan.startDate) : new Date(plan.createdAt);
-        const end = new Date(plan.endDate);
+        if (!plan.resources || plan.resources.length === 0) return 'No resources added';
 
-        if (isNaN(start.getTime()) || isNaN(end.getTime())) return 'Invalid dates';
-        if (now < start) return 'Not started';
-        if (now > end) return 'Completed';
+        const progress = calculateProgress();
+
+        if (progress === 0) return 'Not started';
+        if (progress === 100) return 'Completed';
         return 'In progress';
     };
 
@@ -137,6 +169,12 @@ export default function ViewPlanPage() {
 
     return (
         <div className="container mx-auto px-4 py-8">
+            {successMessage && (
+                <div className="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50">
+                    {successMessage}
+                </div>
+            )}
+
             <div className="mb-6 flex justify-between items-center">
                 <h1 className="text-2xl font-bold">{plan.title}</h1>
                 <div className="space-x-2">
@@ -215,20 +253,38 @@ export default function ViewPlanPage() {
 
                 {Array.isArray(plan.resources) && plan.resources.length > 0 && (
                     <div className="mb-4">
-                        <h2 className="text-lg font-semibold mb-2">Resources</h2>
+                        <h2 className="text-lg font-semibold mb-2">Resources ({plan.completedResources?.length || 0}/{plan.resources.length})</h2>
                         <ul className="space-y-2">
-                            {plan.resources.map((resource, index) => (
-                                <li key={index} className="bg-gray-50 p-2 rounded">
-                                    <a
-                                        href={resource}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-blue-600 hover:underline"
+                            {plan.resources.map((resource, index) => {
+                                const isCompleted = plan.completedResources?.includes(resource);
+
+                                return (
+                                    <li
+                                        key={index}
+                                        className={`flex items-center p-2 rounded ${isCompleted ? 'bg-green-50' : 'bg-gray-50'}`}
                                     >
-                                        {resource}
-                                    </a>
-                                </li>
-                            ))}
+                                        <button
+                                            onClick={() => toggleResourceCompletion(resource)}
+                                            className={`mr-3 w-5 h-5 flex items-center justify-center rounded border ${isCompleted
+                                                    ? 'bg-green-500 border-green-600 text-white'
+                                                    : 'border-gray-400 hover:bg-gray-200'
+                                                }`}
+                                            aria-label={isCompleted ? "Mark as incomplete" : "Mark as completed"}
+                                        >
+                                            {isCompleted && <Check size={14} />}
+                                        </button>
+
+                                        <a
+                                            href={resource}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={`flex-grow text-blue-600 hover:underline ${isCompleted ? 'line-through opacity-70' : ''}`}
+                                        >
+                                            {resource}
+                                        </a>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     </div>
                 )}

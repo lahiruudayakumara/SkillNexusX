@@ -1,8 +1,13 @@
 import { Link } from 'react-router-dom';
 import { LearningPlan } from '../../../types/learning-type';
 
+// Extended type to track completed resources
+interface ExtendedPlan extends LearningPlan {
+    completedResources?: string[];
+}
+
 interface PlanCardProps {
-    plan: LearningPlan;
+    plan: ExtendedPlan;
 }
 
 export function PlanCard({ plan }: PlanCardProps) {
@@ -17,46 +22,24 @@ export function PlanCard({ plan }: PlanCardProps) {
         }
     };
 
-    // Calculate progress based on dates
+    // Calculate progress based on completed resources
     const calculateProgress = () => {
-        const now = new Date();
+        if (!plan.resources || plan.resources.length === 0) return 0;
 
-        // If start date isn't set, default to creation date
-        const start = plan.startDate ? new Date(plan.startDate) : new Date(plan.createdAt);
-        const end = new Date(plan.endDate);
+        const totalResources = plan.resources.length;
+        const completedCount = plan.completedResources?.length || 0;
 
-        // Check if dates are valid
-        if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
-
-        // If plan hasn't started yet
-        if (now < start) return 0;
-
-        // If plan has ended
-        if (now > end) return 100;
-
-        // Calculate progress percentage
-        const totalDuration = end.getTime() - start.getTime();
-        // Avoid division by zero
-        if (totalDuration <= 0) return 0;
-
-        const elapsed = now.getTime() - start.getTime();
-        return Math.round((elapsed / totalDuration) * 100);
+        return Math.round((completedCount / totalResources) * 100);
     };
 
     const progress = calculateProgress();
 
-    // Get status text
+    // Get status text based on resource completion
     const getStatusText = () => {
-        const now = new Date();
-        const start = plan.startDate ? new Date(plan.startDate) : new Date(plan.createdAt);
-        const end = new Date(plan.endDate);
+        if (!plan.resources || plan.resources.length === 0) return 'No resources';
 
-        // Check if dates are valid
-        if (isNaN(start.getTime()) || isNaN(end.getTime()))
-            return 'Invalid dates';
-
-        if (now < start) return 'Not started';
-        if (now > end) return 'Completed';
+        if (!plan.completedResources || plan.completedResources.length === 0) return 'Not started';
+        if (plan.completedResources.length === plan.resources.length) return 'Completed';
         return 'In progress';
     };
 
@@ -67,7 +50,13 @@ export function PlanCard({ plan }: PlanCardProps) {
             <div className="mb-4">
                 <div className="flex justify-between text-sm text-gray-600 mb-1">
                     <span>{getStatusText()}</span>
-                    <span>{progress}% complete</span>
+                    <span>
+                        {plan.resources && plan.resources.length > 0 ? (
+                            <>
+                                {plan.completedResources?.length || 0}/{plan.resources.length} resources • {progress}%
+                            </>
+                        ) : 'No resources added'}
+                    </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
