@@ -1,7 +1,14 @@
 import Logo from '@/assets/logo.png'
 import SearchField from "@/components/input-fields/search-fields/serch-field";
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
+  const navigate = useNavigate();
+
+  const handleProfileClick = () => {
+    navigate('/me/settings');
+  };
+
   return (
     <header className="flex items-center justify-between p-4 bg-white shadow-md">
       <div className="flex items-center gap-4">
@@ -11,11 +18,18 @@ const Header = () => {
         <SearchField onChange={() => {}} value="" />
       </div>
       <div className="user-info flex items-center gap-4">
-        <img
-          src="./assets/user.png"
-          alt="User"
-          className="w-10 h-10 rounded-full"
-        />
+        <button 
+          onClick={handleProfileClick}
+          className="rounded-full overflow-hidden hover:opacity-80 transition-opacity focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          aria-label="User settings"
+          title="User settings"
+        >
+          <img
+            src="./assets/user.png"
+            alt="User profile"
+            className="w-10 h-10 rounded-full"
+          />
+        </button>
       </div>
     </header>
   );
