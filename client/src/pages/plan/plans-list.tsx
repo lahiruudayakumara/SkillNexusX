@@ -3,8 +3,13 @@ import { Link } from 'react-router-dom';
 import { LearningPlan } from '../../types/learning-type';
 import { PlanCard } from '../../sections/main/plan/plan-card';
 
+// Extended type to track completed resources
+interface ExtendedPlan extends LearningPlan {
+    completedResources?: string[];
+}
+
 export default function PlansListPage() {
-    const [plans, setPlans] = useState<LearningPlan[]>([]);
+    const [plans, setPlans] = useState<ExtendedPlan[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [filter, setFilter] = useState<'all' | 'inProgress' | 'completed' | 'notStarted'>('all');
@@ -14,12 +19,18 @@ export default function PlansListPage() {
             try {
                 // Fetch plans from localStorage
                 const storedPlans = JSON.parse(localStorage.getItem('learning-plans') || '[]');
-                
+
+                // Ensure all plans have completedResources array
+                const plansWithCompletedResources = storedPlans.map((plan: LearningPlan) => ({
+                    ...plan,
+                    completedResources: (plan as ExtendedPlan).completedResources || []
+                }));
+
                 // Sort plans by creation date (newest first)
-                const sortedPlans = storedPlans.sort((a: LearningPlan, b: LearningPlan) => {
+                const sortedPlans = plansWithCompletedResources.sort((a: ExtendedPlan, b: ExtendedPlan) => {
                     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
                 });
-                
+
                 setPlans(sortedPlans);
             } catch (err) {
                 console.error('Failed to fetch plans:', err);
@@ -35,15 +46,12 @@ export default function PlansListPage() {
         return () => clearTimeout(timer);
     }, []);
 
-    // Function to determine the status of a plan
-    const getPlanStatus = (plan: LearningPlan): 'inProgress' | 'completed' | 'notStarted' => {
-        const now = new Date();
-        const start = plan.startDate ? new Date(plan.startDate) : new Date(plan.createdAt);
-        const end = new Date(plan.endDate);
-        
-        if (isNaN(start.getTime()) || isNaN(end.getTime())) return 'notStarted';
-        if (now < start) return 'notStarted';
-        if (now > end) return 'completed';
+    // Function to determine the status of a plan based on resource completion
+    const getPlanStatus = (plan: ExtendedPlan): 'inProgress' | 'completed' | 'notStarted' => {
+        if (!plan.resources || plan.resources.length === 0) return 'notStarted';
+
+        if (!plan.completedResources || plan.completedResources.length === 0) return 'notStarted';
+        if (plan.completedResources.length === plan.resources.length) return 'completed';
         return 'inProgress';
     };
 
@@ -119,8 +127,8 @@ export default function PlansListPage() {
             {filteredPlans.length === 0 ? (
                 <div className="text-center py-8">
                     <p className="text-gray-500 mb-4">
-                        {filter === 'all' 
-                            ? "You don't have any learning plans yet." 
+                        {filter === 'all'
+                            ? "You don't have any learning plans yet."
                             : `You don't have any ${filter === 'inProgress' ? 'in-progress' : filter} plans.`}
                     </p>
                     {filter !== 'all' && (
@@ -142,8 +150,8 @@ export default function PlansListPage() {
 
             {filteredPlans.length > 0 && filter === 'all' && (
                 <div className="mt-8 text-center text-gray-500">
-                    {plans.length === 1 
-                        ? 'Showing 1 learning plan' 
+                    {plans.length === 1
+                        ? 'Showing 1 learning plan'
                         : `Showing ${plans.length} learning plans`}
                 </div>
             )}
