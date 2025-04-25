@@ -24,7 +24,7 @@ export default function CreatePlanPage() {
             }
 
             // Create a new plan with generated ID and timestamps
-            const newPlan: LearningPlan = {
+            const newPlan = {
                 id: uuidv4(),
                 userId: 'current-user-id', // Mock user ID
                 startDate: planData.startDate,
@@ -32,9 +32,11 @@ export default function CreatePlanPage() {
                 topics: planData.topics || [],
                 resources: planData.resources || [],
                 shared: planData.shared || false,
+                completedResources: [], // Initialize empty completedResources array
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
-                title: ''
+                title: planData.title,
+                description: planData.description
             };
 
             // Mock API call: store the plan in localStorage
