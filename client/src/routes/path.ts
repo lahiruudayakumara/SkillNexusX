@@ -8,6 +8,10 @@ import ProfilePage from "@/pages/account/setting";
 import RegisterPage from "@/pages/auth/register";
 import SettingsPage from "@/pages/account/profile";
 import SignUpPage from "@/pages/auth/sign-up";
+import ProgressDashboard from "@/pages/progress/dashboard";
+import CreateProgress from "@/pages/progress/create-progress";
+import UpdateProgress from "@/pages/progress/update-progress";
+import ViewProgress from "@/pages/progress/view-progress";
 import { createBrowserRouter } from "react-router-dom";
 
 export const router = createBrowserRouter([
@@ -37,7 +41,7 @@ export const router = createBrowserRouter([
             },
             {
                 path: "/notifications",
-                Component: NotificationPage
+                Component: NotificationPage,
             },
             {
                 path: "/new-post",
@@ -48,14 +52,35 @@ export const router = createBrowserRouter([
                 children: [
                     {
                         index: true,
-                        Component: ProfilePage
+                        Component: ProfilePage,
                     },
                     {
                         path: "settings",
-                        Component: SettingsPage
-                    }
-                ]
-            }
-        ]
-    }
+                        Component: SettingsPage,
+                    },
+                ],
+            },
+            {
+                path: "/progress",
+                children: [
+                    {
+                        index: true,
+                        Component: ProgressDashboard, // Progress Dashboard
+                    },
+                    {
+                        path: "create",
+                        Component: CreateProgress, // Create Progress
+                    },
+                    {
+                        path: "update/:id",
+                        Component: UpdateProgress, // Update Progress
+                    },
+                    {
+                        path: "view/:id",
+                        Component: ViewProgress, // View Progress
+                    },
+                ],
+            },
+        ],
+    },
 ]);
