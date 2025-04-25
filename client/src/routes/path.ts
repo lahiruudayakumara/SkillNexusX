@@ -14,13 +14,10 @@ import ViewProgress from "@/pages/progress/view-progress";
 import CreatePlanPage from "@/pages/plan/create-plan";
 import UpdatePlanPage from "@/pages/plan/update-plan";
 import ViewPlanPage from "@/pages/plan/view-plan";
-
 import { createBrowserRouter } from "react-router-dom";
-<<<<<<< HEAD
 import PlansListPage from "@/pages/plan/plans-list";
-=======
 import MentorCollaborationPage from "@/pages/main/mentor-collaboration";
->>>>>>> 72f398e14925850102148d1bbd68e379b7eed1e3
+
 
 export const router = createBrowserRouter([
     {
@@ -113,18 +110,16 @@ export const router = createBrowserRouter([
                     }
                 ]
             },
-<<<<<<< HEAD
+            {
+                path: "/mentor-collaboration",
+                Component: MentorCollaborationPage,
+            },
+
         ],
     },
 ]);
 
 export default router;
-=======
-            {
-                path: "/mentor-collaboration",
-                Component: MentorCollaborationPage,
-            }
-        ]
-    }
-]);
->>>>>>> 72f398e14925850102148d1bbd68e379b7eed1e3
+
+         
+
