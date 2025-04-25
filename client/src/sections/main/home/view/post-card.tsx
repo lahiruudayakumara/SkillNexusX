@@ -1,6 +1,6 @@
-import { MessageCircle, Share2, ThumbsUp } from "lucide-react";
-
+import { MessageCircle, Share2, ThumbsUp, Shapes} from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface Comment {
   id: number;
@@ -18,11 +18,13 @@ interface PostCardProps {
 const PostCard: React.FC<PostCardProps> = ({ username, avatar, content, mediaUrl, mediaType }) => {
   const [likes, setLikes] = useState(0);
   const [comments, setComments] = useState<Comment[]>([]);
-
+  const navigate = useNavigate();
 
   const handleLike = () => setLikes(likes + 1);
-
-
+  
+  const handleCollaborate = () => {
+    navigate('/mentor-collaboration');
+  };
 
   return (
     <div className="mx-auto bg-white p-4 my-4">
@@ -59,6 +61,13 @@ const PostCard: React.FC<PostCardProps> = ({ username, avatar, content, mediaUrl
         <button className="flex items-center space-x-1 hover:text-blue-500">
           <Share2 size={18} />
           <span>Share</span>
+        </button>
+        <button 
+          className="flex items-center space-x-1 hover:text-blue-500" 
+          onClick={handleCollaborate}
+        >
+          <Shapes size={18} />
+          <span>Collaborate</span>
         </button>
       </div>
     </div>
