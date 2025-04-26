@@ -1,3 +1,6 @@
+import { MessageCircle, Share2, ThumbsUp, Shapes} from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import React from "react";
 import { ThumbsUp, MessageCircle, Share2, ListPlus } from "lucide-react";
 
@@ -23,6 +26,16 @@ interface PostBoxProps {
   post: Post;
   onAddToList?: (post: Post) => void;
 }
+
+const PostCard: React.FC<PostCardProps> = ({ username, avatar, content, mediaUrl, mediaType }) => {
+  const [likes, setLikes] = useState(0);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const navigate = useNavigate();
+
+  const handleLike = () => setLikes(likes + 1);
+  
+  const handleCollaborate = () => {
+    navigate('/mentor-collaboration');
 
 const PostBox: React.FC<PostBoxProps> = ({ post, onAddToList }) => {
   const renderContentBlock = (block: ContentBlock) => {
@@ -94,6 +107,13 @@ const PostBox: React.FC<PostBoxProps> = ({ post, onAddToList }) => {
           className="flex items-center gap-2 text-primary cursor-pointer hover:text-blue-600"
         >
           <ListPlus size={18} /> Add to List
+        </button>
+        <button 
+          className="flex items-center space-x-1 hover:text-blue-500" 
+          onClick={handleCollaborate}
+        >
+          <Shapes size={18} />
+          <span>Collaborate</span>
         </button>
       </div>
     </div>
