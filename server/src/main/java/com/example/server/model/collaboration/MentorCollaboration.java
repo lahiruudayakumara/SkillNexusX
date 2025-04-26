@@ -1,18 +1,36 @@
 package com.example.server.model.collaboration;
 
-import lombok.Builder;
-import lombok.Data;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Data
-@Builder
+@Entity
+@Table(name = "mentor_collaborations")
+@Getter
+@Setter
+@NoArgsConstructor
 public class MentorCollaboration {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private Long mentorId;
     private Long userId;
     private LocalDateTime scheduledTime;
     private Integer durationInMinutes;
-    private String resources;
+    private String topic;
+    private String status;
+
+    public MentorCollaboration(Long mentorId, Long userId, LocalDateTime scheduledTime, Integer durationInMinutes, String topic, String status) {
+        this.mentorId = mentorId;
+        this.userId = userId;
+        this.scheduledTime = scheduledTime;
+        this.durationInMinutes = durationInMinutes;
+        this.topic = topic;
+        this.status = status;
+    }
 }
