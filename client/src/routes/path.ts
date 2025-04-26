@@ -8,11 +8,16 @@ import ProfilePage from "@/pages/account/setting";
 import RegisterPage from "@/pages/auth/register";
 import SettingsPage from "@/pages/account/profile";
 import SignUpPage from "@/pages/auth/sign-up";
+import CreateProgress from "@/pages/progress/create-progress";
+import UpdateProgress from "@/pages/progress/update-progress";
+import ViewProgress from "@/pages/progress/view-progress";
 import CreatePlanPage from "@/pages/plan/create-plan";
 import UpdatePlanPage from "@/pages/plan/update-plan";
 import ViewPlanPage from "@/pages/plan/view-plan";
-import PlansListPage from "@/pages/plan/plans-list";
 import { createBrowserRouter } from "react-router-dom";
+import PlansListPage from "@/pages/plan/plans-list";
+
+
 
 export const router = createBrowserRouter([
     {
@@ -41,26 +46,48 @@ export const router = createBrowserRouter([
             },
             {
                 path: "/notifications",
-                Component: NotificationPage
+                Component: NotificationPage,
             },
             {
                 path: "/new-post",
                 Component: NewPostPage,
-            },
+            }
+            ,  {
+                path: "/account/settings",
+                Component: ProfilePage,
+              },
             {
                 path: "/me",
                 children: [
                     {
                         index: true,
-                        Component: ProfilePage
+                        Component: ProfilePage,
                     },
                     {
                         path: "settings",
-                        Component: SettingsPage
-                    }
-                ]
+                        Component: SettingsPage,
+                    },
+                ],
             },
-            // Learning Plan Routes
+            {
+                path: "/progress",
+                children: [
+                    
+                
+                    {
+                        path: "create",
+                        Component: CreateProgress, // Create Progress
+                    },
+                    {
+                        path: "update/:id",
+                        Component: UpdateProgress, // Update Progress
+                    },
+                    {
+                        path: "view",
+                        Component: ViewProgress, // View Progress
+                    },
+                ],
+            },
             {
                 path: "/plans",
                 children: [
@@ -82,7 +109,13 @@ export const router = createBrowserRouter([
                         Component: UpdatePlanPage
                     }
                 ]
-            }
-        ]
-    }
+            },
+           
+
+        ],
+    },
 ]);
+
+export default router;
+
+         
