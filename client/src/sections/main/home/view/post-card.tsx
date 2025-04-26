@@ -103,7 +103,7 @@ const PostBox: React.FC<PostBoxProps> = ({ post, onAddToList }) => {
           <ListPlus size={18} /> Add to List
         </button>
         <button 
-          className="flex items-center space-x-1 hover:text-blue-500" 
+          className="flex items-center gap-2 text-primary cursor-pointer hover:text-blue-600"
           onClick={handleCollaborate}
         >
           <Shapes size={18} />

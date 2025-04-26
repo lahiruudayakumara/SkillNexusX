@@ -53,6 +53,10 @@ const Header = () => {
             <a href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
               Profile
             </a>
+
+            <a href="/me/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              Settings
+            </a>
             <button 
               onClick={() => dispatch(logout())}
               className="block w-full cursor-pointer text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
