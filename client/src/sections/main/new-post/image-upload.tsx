@@ -16,6 +16,8 @@ const ImageUpload = ({ setSelectedImage }: ImageUploadProps) => {
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
     const file = e.target.files?.[0];
     if (file) {
       handleFile(file);
@@ -47,6 +49,7 @@ const ImageUpload = ({ setSelectedImage }: ImageUploadProps) => {
   return (
     <div className="mb-4">
       <button
+        type="button"
         onClick={handleClick}
         onDrop={handleDrop}
         onDragOver={handleDragOver}

@@ -8,32 +8,7 @@ import { getAllPublishedPosts } from "@/api/api-post";
 
 const AboutView: FC = memo(() => (
   <section className="w-full">
-    <h2 className="text-2xl font-bold mb-4">About Chamod Shehanka Perera</h2>
-    <p className="text-gray-700 mb-4">
-      Chamod Shehanka Perera is a passionate Software Engineer and GitHub Field
-      Expert based in Sri Lanka. With extensive experience in Golang and
-      Kubernetes, he leads the Sri Lanka chapter for Google Developer Groups
-      (GDG) and organizes Kubernetes Community Days (KCD) Sri Lanka.
-    </p>
-    <p className="text-gray-700 mb-4">
-      As a beginner surfer, Chamod enjoys exploring new challenges both in tech
-      and in life. He is committed to fostering open-source communities and
-      empowering developers through workshops, talks, and community events.
-    </p>
-    <div className="flex gap-4">
-      <a
-        href="https://github.com/chamodshehanka"
-        className="text-blue-600 hover:underline"
-      >
-        GitHub
-      </a>
-      <a
-        href="https://linkedin.com/in/chamodshehanka"
-        className="text-blue-600 hover:underline"
-      >
-        LinkedIn
-      </a>
-    </div>
+    <h2 className="text-2xl font-bold mb-4"></h2>
   </section>
 ));
 
@@ -73,10 +48,14 @@ const Overview: FC = () => {
 
   const following: FollowItem[] = [];
 
+  const handlePostDelete = (postId: number) => {
+    setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 font-sans">
       <header className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">Name</h1>
+        <h1 className="text-4xl font-bold">Lahiru Udayakumara</h1>
         <IconButton aria-label="More options">
           <DotsVerticalIcon className="h-6 w-6" />
         </IconButton>
@@ -113,7 +92,7 @@ const Overview: FC = () => {
         <section className="w-full md:w-2/3">
           {activeView === "home" ? (
             posts.map((post, index) => (
-              <ArticleCard key={index} {...post} />
+              <ArticleCard key={index} {...post} onDelete={handlePostDelete} />
             ))
           ) : (
             <AboutView />
@@ -127,7 +106,7 @@ const Overview: FC = () => {
               alt="user-name"
               className="w-20 h-20 rounded-full mb-2"
             />
-            <h2 className="text-lg font-medium mb-1">Name</h2>
+            <h2 className="text-lg font-medium mb-1">Lahiru Udayakumara</h2>
             <p className="text-gray-600 mb-2">4 Followers</p>
             <p className="text-gray-700 text-sm text-center mb-4"></p>
             <div className="flex space-x-2">
