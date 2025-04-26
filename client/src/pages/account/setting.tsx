@@ -1,3 +1,4 @@
+import { OverviewView } from "@/sections/profile/overview/view";
 import { Helmet } from "react-helmet";
 
 const ProfilePage = () => {
@@ -6,6 +7,7 @@ const ProfilePage = () => {
       <Helmet>
         <title>Profile : SkillNexus</title>
       </Helmet>
+      <OverviewView />
     </>
   );
 };
