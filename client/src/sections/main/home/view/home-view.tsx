@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getAllPublishedPosts } from "@/api/api-post";
-import PostCard from "./post-card";
 import { BookOpen, X } from "lucide-react";
 import { LearningPlan } from "../../../../types/learning-type";
+import PostBox from "./post-card";
 
 const HomeView = () => {
   const navigate = useNavigate();
@@ -21,17 +21,19 @@ const HomeView = () => {
   useEffect(() => {
     const fetchPlans = () => {
       try {
-        const storedPlans = JSON.parse(localStorage.getItem('learning-plans') || '[]');
+        const storedPlans = JSON.parse(
+          localStorage.getItem("learning-plans") || "[]"
+        );
         setPlans(storedPlans);
       } catch (err) {
-        console.error('Failed to fetch plans:', err);
+        console.error("Failed to fetch plans:", err);
       }
     };
 
     fetchPlans();
 
     // Check for newly created plan from redirect
-    const successMessage = new URLSearchParams(location.search).get('success');
+    const successMessage = new URLSearchParams(location.search).get("success");
     if (successMessage) {
       setSuccess(successMessage);
       // Clear the success parameter after showing the message
@@ -45,13 +47,13 @@ const HomeView = () => {
   // Prevent scrolling when modal is open
   useEffect(() => {
     if (showPlanSelector) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = "auto";
     }
 
     return () => {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = "auto";
     };
   }, [showPlanSelector]);
 
@@ -68,8 +70,12 @@ const HomeView = () => {
 
     try {
       // Get the selected plan
-      const existingPlans = JSON.parse(localStorage.getItem('learning-plans') || '[]');
-      const planIndex = existingPlans.findIndex((p: LearningPlan) => p.id === selectedPlanId);
+      const existingPlans = JSON.parse(
+        localStorage.getItem("learning-plans") || "[]"
+      );
+      const planIndex = existingPlans.findIndex(
+        (p: LearningPlan) => p.id === selectedPlanId
+      );
 
       if (planIndex === -1) {
         setError("Selected plan not found");
@@ -83,11 +89,11 @@ const HomeView = () => {
       const updatedPlans = [...existingPlans];
       updatedPlans[planIndex].resources = [
         ...updatedPlans[planIndex].resources,
-        postResource
+        postResource,
       ];
 
       // Update the plan in localStorage
-      localStorage.setItem('learning-plans', JSON.stringify(updatedPlans));
+      localStorage.setItem("learning-plans", JSON.stringify(updatedPlans));
 
       setSuccess(`Post added to "${updatedPlans[planIndex].title}" plan!`);
 
@@ -98,7 +104,7 @@ const HomeView = () => {
 
       setShowPlanSelector(false);
     } catch (err) {
-      console.error('Failed to add post to plan:', err);
+      console.error("Failed to add post to plan:", err);
       setError("Failed to add post to plan");
     }
   };
@@ -107,42 +113,18 @@ const HomeView = () => {
     // Store the current post data in sessionStorage
     if (selectedPost) {
       const postResource = `/posts/${selectedPost.id || Date.now()}`;
-      sessionStorage.setItem('pending-post-for-plan', JSON.stringify({
-        post: selectedPost,
-        resourceUrl: postResource
-      }));
-      navigate('/plans/create?from=home');
+      sessionStorage.setItem(
+        "pending-post-for-plan",
+        JSON.stringify({
+          post: selectedPost,
+          resourceUrl: postResource,
+        })
+      );
+      navigate("/plans/create?from=home");
     }
   };
 
-  const posts = [
-    {
-      id: 1,
-      username: "John Doe",
-      avatar: "https://via.placeholder.com/50",
-      content: "Check out this awesome view!",
-      mediaUrl: "https://via.placeholder.com/600",
-      mediaType: "image"
-    },
-    {
-      id: 2,
-      username: "Jane Smith",
-      avatar: "https://via.placeholder.com/50",
-      content: "Learning React has been an amazing journey!",
-      mediaUrl: "https://via.placeholder.com/600",
-      mediaType: "image"
-    },
-    {
-      id: 3,
-      username: "Alex Johnson",
-      avatar: "https://via.placeholder.com/50",
-      content: "Just finished a great coding tutorial",
-      mediaUrl: "https://via.placeholder.com/600",
-      mediaType: "image"
-    }
-  ];
-    
-      useEffect(() => {
+  useEffect(() => {
     const fetchPosts = async () => {
       try {
         const data = await getAllPublishedPosts();
@@ -166,13 +148,13 @@ const HomeView = () => {
           </div>
         )}
 
-        {posts.map(post => (
-    <div className="max-w-3xl mx-auto py-10 px-4 space-y-8">
-      {loading && <p>Loading posts...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-      {posts.map((post) => (
-        <PostBox key={post.id} post={post} />
-      ))}
+        {posts.map((post) => (
+          <div className="max-w-3xl mx-auto py-10 px-4 space-y-8">
+            {loading && <p>Loading posts...</p>}
+            {error && <p className="text-red-500">{error}</p>}
+            {posts.map((post) => (
+              <PostBox key={post.id} post={post} />
+            ))}
             <div className="mt-2 flex justify-end">
               <button
                 onClick={() => handleAddToPlan(post)}
@@ -186,13 +168,14 @@ const HomeView = () => {
         ))}
       </div>
 
-      <div className="hidden md:block md:w-1/3">
-        {/* Sidebar content */}
-      </div>
+      <div className="hidden md:block md:w-1/3">{/* Sidebar content */}</div>
 
       {/* Backdrop with blur effect */}
       {showPlanSelector && (
-        <div className="fixed inset-0 bg-white bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-40" onClick={() => setShowPlanSelector(false)}>
+        <div
+          className="fixed inset-0 bg-white bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-40"
+          onClick={() => setShowPlanSelector(false)}
+        >
           {/* Prevent clicks on the modal from closing the backdrop */}
           <div
             className="bg-white rounded-lg shadow-xl border border-gray-200 p-6 max-w-md w-full max-h-[80vh] overflow-y-auto z-50"
@@ -221,17 +204,20 @@ const HomeView = () => {
             {plans.length > 0 ? (
               <>
                 <div className="mb-4">
-                  <label htmlFor="plan-selector" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="plan-selector"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Select a learning plan:
                   </label>
                   <select
                     id="plan-selector"
-                    value={selectedPlanId || ''}
+                    value={selectedPlanId || ""}
                     onChange={(e) => setSelectedPlanId(e.target.value)}
                     className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="">-- Select a plan --</option>
-                    {plans.map(plan => (
+                    {plans.map((plan) => (
                       <option key={plan.id} value={plan.id}>
                         {plan.title}
                       </option>
@@ -261,7 +247,9 @@ const HomeView = () => {
               </>
             ) : (
               <div className="text-center py-4">
-                <p className="text-gray-600 mb-4">You don't have any learning plans yet.</p>
+                <p className="text-gray-600 mb-4">
+                  You don't have any learning plans yet.
+                </p>
                 <button
                   type="button"
                   onClick={createNewPlanWithPost}
@@ -286,5 +274,8 @@ const HomeView = () => {
           </div>
         </div>
       )}
+    </div>
+  );
+};
 
 export default HomeView;
