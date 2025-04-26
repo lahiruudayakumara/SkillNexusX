@@ -43,35 +43,24 @@ public class FileUploadController {
             String credentials = Base64.getEncoder().encodeToString((KEY_ID + ":" + APP_KEY).getBytes());
             HttpURLConnection authConn = (HttpURLConnection) new URL("https://api.backblazeb2.com/b2api/v2/b2_authorize_account").openConnection();
             authConn.setRequestProperty("Authorization", "Basic " + credentials);
-
             String authResponse = readResponse(authConn);
             JsonNode authJson = mapper.readTree(authResponse);
 
-            if (!authJson.has("apiUrl") || !authJson.has("authorizationToken")) {
-                return ResponseEntity.status(500).body(Map.of("error", "Missing API URL or Authorization Token.", "raw", authResponse));
-            }
-
             String apiUrl = authJson.get("apiUrl").asText();
             String authToken = authJson.get("authorizationToken").asText();
+            String downloadUrl = authJson.get("downloadUrl").asText(); // Needed for final URL
 
             // Step 2: Get Upload URL
             HttpURLConnection uploadUrlConn = (HttpURLConnection) new URL(apiUrl + "/b2api/v2/b2_get_upload_url").openConnection();
             uploadUrlConn.setDoOutput(true);
             uploadUrlConn.setRequestMethod("POST");
             uploadUrlConn.setRequestProperty("Authorization", authToken);
-
             String body = "{\"bucketId\":\"" + BUCKET_ID + "\"}";
             try (OutputStream os = uploadUrlConn.getOutputStream()) {
                 os.write(body.getBytes(StandardCharsets.UTF_8));
             }
 
-            String uploadUrlResponse = readResponse(uploadUrlConn);
-            JsonNode uploadJson = mapper.readTree(uploadUrlResponse);
-
-            if (!uploadJson.has("uploadUrl") || !uploadJson.has("authorizationToken")) {
-                return ResponseEntity.status(500).body(Map.of("error", "Missing Upload URL or Token.", "raw", uploadUrlResponse));
-            }
-
+            JsonNode uploadJson = mapper.readTree(readResponse(uploadUrlConn));
             String finalUploadUrl = uploadJson.get("uploadUrl").asText();
             String uploadAuthToken = uploadJson.get("authorizationToken").asText();
 
@@ -84,35 +73,45 @@ public class FileUploadController {
             fileUploadConn.setRequestProperty("Content-Type", "b2/x-auto");
             fileUploadConn.setRequestProperty("X-Bz-Content-Sha1", "do_not_verify");
             fileUploadConn.setFixedLengthStreamingMode(file.getSize());
-
             try (OutputStream os = fileUploadConn.getOutputStream()) {
                 os.write(file.getBytes());
             }
 
-            String rawUploadResponse = readResponse(fileUploadConn);
-            System.out.println("Upload response: " + rawUploadResponse); // Debug log
-
-            JsonNode uploadedFileJson;
-            try {
-                uploadedFileJson = mapper.readTree(rawUploadResponse);
-            } catch (Exception ex) {
-                return ResponseEntity.status(500).body(Map.of(
-                        "error", "Invalid JSON response from Backblaze.",
-                        "raw", rawUploadResponse
-                ));
-            }
-
-            if (!uploadedFileJson.has("fileName")) {
-                return ResponseEntity.status(500).body(Map.of("error", "'fileName' missing", "raw", rawUploadResponse));
-            }
-
+            JsonNode uploadedFileJson = mapper.readTree(readResponse(fileUploadConn));
             String fileName = uploadedFileJson.get("fileName").asText();
-            if (fileName == null || fileName.isEmpty() || BUCKET_NAME == null || BUCKET_NAME.isEmpty()) {
-                return ResponseEntity.status(500).body(Map.of("error", "Invalid fileName or bucketName."));
-            }
-            String fileUrl = "https://f000.backblazeb2.com/file/" + BUCKET_NAME + "/" + fileName;
 
-            return ResponseEntity.ok(Map.of("url", fileUrl));
+            // ✅ Step 4: Generate Signed URL (Valid 7 Days)
+            int validForSeconds = 7 * 24 * 60 * 60; // 7 days
+            String downloadAuthBody = String.format("""
+            {
+              "bucketId": "%s",
+              "fileNamePrefix": "%s",
+              "validDurationInSeconds": %d
+            }
+            """, BUCKET_ID, fileName, validForSeconds);
+
+            HttpURLConnection downloadAuthConn = (HttpURLConnection) new URL(apiUrl + "/b2api/v2/b2_get_download_authorization").openConnection();
+            downloadAuthConn.setDoOutput(true);
+            downloadAuthConn.setRequestMethod("POST");
+            downloadAuthConn.setRequestProperty("Authorization", authToken);
+            downloadAuthConn.setRequestProperty("Content-Type", "application/json");
+            try (OutputStream os = downloadAuthConn.getOutputStream()) {
+                os.write(downloadAuthBody.getBytes(StandardCharsets.UTF_8));
+            }
+
+            JsonNode downloadAuthJson = mapper.readTree(readResponse(downloadAuthConn));
+            String downloadAuthToken = downloadAuthJson.get("authorizationToken").asText();
+
+            // Step 5: Final Signed URL
+            String signedUrl = String.format(
+                    "%s/file/%s/%s?Authorization=%s",
+                    downloadUrl,
+                    BUCKET_NAME,
+                    URLEncoder.encode(fileName, StandardCharsets.UTF_8),
+                    URLEncoder.encode(downloadAuthToken, StandardCharsets.UTF_8)
+            );
+
+            return ResponseEntity.ok(Map.of("url", signedUrl));
 
         } catch (Exception e) {
             e.printStackTrace();
