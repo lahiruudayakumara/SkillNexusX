@@ -8,6 +8,10 @@ import ProfilePage from "@/pages/account/setting";
 import RegisterPage from "@/pages/auth/register";
 import SettingsPage from "@/pages/account/profile";
 import SignUpPage from "@/pages/auth/sign-up";
+import CreatePlanPage from "@/pages/plan/create-plan";
+import UpdatePlanPage from "@/pages/plan/update-plan";
+import ViewPlanPage from "@/pages/plan/view-plan";
+import PlansListPage from "@/pages/plan/plans-list";
 import { createBrowserRouter } from "react-router-dom";
 
 export const router = createBrowserRouter([
@@ -53,6 +57,29 @@ export const router = createBrowserRouter([
                     {
                         path: "settings",
                         Component: SettingsPage
+                    }
+                ]
+            },
+            // Learning Plan Routes
+            {
+                path: "/plans",
+                children: [
+                    {
+                        index: true,
+                        Component: PlansListPage
+                    },
+                    
+                    {
+                        path: "create",
+                        Component: CreatePlanPage
+                    },
+                    {
+                        path: ":id",
+                        Component: ViewPlanPage
+                    },
+                    {
+                        path: ":id/edit",
+                        Component: UpdatePlanPage
                     }
                 ]
             }
