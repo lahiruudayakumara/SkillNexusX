@@ -136,25 +136,26 @@ const HomeView = () => {
       }
     };
 
-    fetchPosts();
+    if (posts.length === 0) {
+      fetchPosts();
+    }
   }, []);
 
   return (
     <div className="flex relative">
-      <div className="w-full md:w-2/3 space-y-8 py-8 divide-y-[1px] divide-slate-400">
+      <div className="w-full md:w-2/3 space-y-8 py-8 divide-y-[1px] divide-slate-200">
         {success && (
           <div className="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50">
             {success}
           </div>
         )}
 
+        {loading && <p>Loading posts...</p>}
+        {error && <p className="text-red-500">{error}</p>}
+
         {posts.map((post) => (
-          <div className="max-w-3xl mx-auto py-10 px-4 space-y-8">
-            {loading && <p>Loading posts...</p>}
-            {error && <p className="text-red-500">{error}</p>}
-            {posts.map((post) => (
-              <PostBox key={post.id} post={post} />
-            ))}
+          <div key={post.id} className="max-w-3xl mx-auto py-10 px-4 space-y-8">
+            <PostBox post={post} />
             <div className="mt-2 flex justify-end">
               <button
                 onClick={() => handleAddToPlan(post)}

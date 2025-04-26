@@ -10,6 +10,7 @@ import SocialMediaButton from "@/components/buttons/social-media-button";
 import TextField from "@/components/input-fields/text-inputs/text-input";
 import { login } from "@/stores/slices/auth/auth-actions";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const LoginView = () => {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ const LoginView = () => {
       await dispatch(login(credentials)).unwrap();
     } catch (err: any) {
       Logger.error(err.message);
-      // toast.error("Login failed. Please check your credentials.");
+      toast.error("Login failed. Please check your credentials.");
     }
   };
 

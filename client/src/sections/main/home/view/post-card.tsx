@@ -48,7 +48,7 @@ const PostBox: React.FC<PostBoxProps> = ({ post }) => {
         );
       case "CODE":
         return (
-          <pre className="bg-gray-900 text-white p-4 rounded overflow-x-auto mb-4 whitespace-pre-wrap">
+          <pre className="bg-gray-200 text-black p-4 rounded overflow-x-auto mb-4 whitespace-pre-wrap">
             <code>{block.content}</code>
           </pre>
         );
