@@ -1,5 +1,5 @@
 import React from "react";
-import { ThumbsUp, MessageCircle, Share2, PlusSquare } from "lucide-react";
+import { ThumbsUp, MessageCircle, Share2, ListPlus } from "lucide-react";
 
 type ContentBlock = {
   id: number;
@@ -21,9 +21,10 @@ type Post = {
 
 interface PostBoxProps {
   post: Post;
+  onAddToList?: (post: Post) => void;
 }
 
-const PostBox: React.FC<PostBoxProps> = ({ post }) => {
+const PostBox: React.FC<PostBoxProps> = ({ post, onAddToList }) => {
   const renderContentBlock = (block: ContentBlock) => {
     switch (block.type) {
       case "SECTION":
@@ -57,6 +58,12 @@ const PostBox: React.FC<PostBoxProps> = ({ post }) => {
     }
   };
 
+  const handleAddToList = () => {
+    if (onAddToList) {
+      onAddToList(post);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
       <h1 className="text-2xl font-semibold text-gray-900">{post.title}</h1>
@@ -82,8 +89,11 @@ const PostBox: React.FC<PostBoxProps> = ({ post }) => {
         <button className="flex items-center gap-2 text-primary cursor-pointer">
           <Share2 size={18} /> Share
         </button>
-        <button className="flex items-center gap-2 text-primary cursor-pointer">
-          <PlusSquare size={18} /> Add to List
+        <button
+          onClick={handleAddToList}
+          className="flex items-center gap-2 text-primary cursor-pointer hover:text-blue-600"
+        >
+          <ListPlus size={18} /> Add to List
         </button>
       </div>
     </div>
