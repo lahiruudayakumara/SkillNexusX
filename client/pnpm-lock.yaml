@@ -29,6 +29,9 @@ importers:
       react-helmet:
         specifier: ^6.1.0
         version: 6.1.0(react@19.0.0)
+      react-helmet-pro:
+        specifier: ^1.1.1
+        version: 1.1.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react-redux:
         specifier: ^9.2.0
         version: 9.2.0(@types/react@19.0.12)(react@19.0.0)(redux@5.0.1)
@@ -1269,6 +1272,12 @@ packages:
 
   react-fast-compare@3.2.2:
     resolution: {integrity: sha512-nsO+KSNgo1SbJqJEYRE9ERzo7YtYbou/OqjSQKxV7jcKox7+usiUVZOAC+XnDOABXggQTno0Y1CpVnuWEc1boQ==}
+
+  react-helmet-pro@1.1.1:
+    resolution: {integrity: sha512-G59PhxPgaemyUVUmwvD4dD+aFF9A/Z0XkL0y2SBtp0YbpML1h/CiBDV+yX+3dsJfdIRDxu/NvIQ/Q9oYPZ85zg==}
+    peerDependencies:
+      react: ^18.2.0 || ^19.0.0
+      react-dom: ^18.2.0 || ^19.0.0
 
   react-helmet@6.1.0:
     resolution: {integrity: sha512-4uMzEY9nlDlgxr61NL3XbKRy1hEkXmKNXhjbAIOVw5vcFrsdYbH2FEwcNyWvWinl103nXgzYNlns9ca+8kFiWw==}
@@ -2591,6 +2600,11 @@ snapshots:
       scheduler: 0.25.0
 
   react-fast-compare@3.2.2: {}
+
+  react-helmet-pro@1.1.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+    dependencies:
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
 
   react-helmet@6.1.0(react@19.0.0):
     dependencies:
