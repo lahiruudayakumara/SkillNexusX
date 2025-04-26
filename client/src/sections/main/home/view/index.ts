@@ -1,0 +1,1 @@
+export { default as HomeView } from '@/sections/main/home/view/home-view';
