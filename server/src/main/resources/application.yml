@@ -79,6 +79,13 @@ spring:
 server:
   port: ${SERVER_PORT}
 
+storage:
+  key-id: ${STORAGE_KEY_ID}
+  app-key: ${STORAGE_APP_KEY}
+  bucket-id: ${STORAGE_BUCKET_ID}
+  bucket-name: ${STORAGE_BUCKET_NAME}
+
+
 jwt:
   secret: ${JWT_SECRET}
   refresh-secret: ${JWT_REFRESH_SECRET}
