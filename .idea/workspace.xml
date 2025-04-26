@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="41d0de79-fa6e-4456-8752-f2e3828332d3" name="Changes" comment="" />
+    <list default="true" id="76c03aeb-0f67-44e4-b018-688cf1f76da9" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -10,22 +10,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "malmiwithanage"
-  }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/lahiruudayakumara/SkillNexusX.git",
-    "accountId": "79f0899e-aee0-4c56-8392-bb6938e64767"
-  }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 8
-}]]></component>
-  <component name="ProjectId" id="2wFhhRCuAiGOEeyHwBRXeQHElR3" />
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="2wEe2ukMPzCOEt7mmg5WbIN3zQW" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -34,31 +22,21 @@
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "mentor-collaboration-",
+    "git-widget-placeholder": "progress__management",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/SkillNexusX/server"
+    "last_opened_file_path": "C:/Users/Udari/Desktop/PAF Project/SkillNexusX",
+    "settings.editor.selected.configurable": "advanced.settings"
   }
 }]]></component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="41d0de79-fa6e-4456-8752-f2e3828332d3" name="Changes" comment="" />
-      <created>1745643347614</created>
+      <changelist id="76c03aeb-0f67-44e4-b018-688cf1f76da9" name="Changes" comment="" />
+      <created>1745610957058</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1745643347614</updated>
+      <updated>1745610957058</updated>
     </task>
     <servers />
-  </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
   </component>
 </project>

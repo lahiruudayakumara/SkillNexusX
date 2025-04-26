@@ -12,7 +12,7 @@ export interface PostCreateDTO {
 }
 
 export interface ContentBlock {
-    type: "SECTION" | "IMAGE" | "PARAGRAPH" | "CODE";
+    type: "SECTION" | "IMAGE" | "VIDEO" | "PARAGRAPH" | "CODE";
     content: string;
     url: string;
     position: number;

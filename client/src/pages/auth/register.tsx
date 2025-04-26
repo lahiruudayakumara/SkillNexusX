@@ -1,3 +1,4 @@
+import { RegisterView } from "@/sections/auth/register/view";
 import { Helmet } from "react-helmet";
 
 const RegisterPage = () => {
@@ -6,6 +7,7 @@ const RegisterPage = () => {
       <Helmet>
         <title>SkillNexus : Register</title>
       </Helmet>
+      <RegisterView />
     </>
   );
 };

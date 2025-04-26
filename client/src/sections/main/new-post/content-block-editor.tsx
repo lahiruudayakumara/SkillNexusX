@@ -1,12 +1,19 @@
+import React, { useState } from "react";
 import { ContentBlock } from "@/types/post";
-import React from "react";
 import RichTextToolbar from "./rich-text-toolbar";
 import { Trash2 } from "lucide-react";
+import { imageUpload, videoUpload } from "@/api/api-upload";
+import ImageUpload from "./image-upload";
+import VideoUpload from "./video-upload";
 
 interface Props {
   block: ContentBlock;
   index: number;
-  updateContentBlock: (index: number, field: keyof ContentBlock, value: string) => void;
+  updateContentBlock: (
+    index: number,
+    field: keyof ContentBlock,
+    value: string
+  ) => void;
   removeContentBlock: (index: number) => void;
   execCommand: (command: string, value?: string) => void;
 }
@@ -18,6 +25,60 @@ const ContentBlockEditor: React.FC<Props> = ({
   removeContentBlock,
   execCommand,
 }) => {
+  const [uploading, setUploading] = useState(false);
+
+  // Helper function to upload file
+  const handleFileUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setUploading(true);
+
+      let url = "";
+
+      if (file.type.startsWith("image/")) {
+        url = await imageUpload(formData);
+      } else if (file.type.startsWith("video/")) {
+        // Validate video duration
+        const videoDuration = await getVideoDuration(file);
+        if (videoDuration > 30) {
+          alert("Video must be 30 seconds or less.");
+          return;
+        }
+
+        url = await videoUpload(formData);
+      }
+
+      if (url) {
+        updateContentBlock(index, "url", url);
+      }
+    } catch (error) {
+      console.error("File upload failed:", error);
+      alert("Upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Get duration of video file
+  const getVideoDuration = (file: File): Promise<number> => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement("video");
+      video.preload = "metadata";
+
+      video.onloadedmetadata = () => {
+        resolve(video.duration);
+      };
+
+      video.onerror = () => {
+        reject("Failed to load video.");
+      };
+
+      video.src = URL.createObjectURL(file);
+    });
+  };
+
   return (
     <div className="mb-6 relative group">
       <button
@@ -64,24 +125,47 @@ const ContentBlockEditor: React.FC<Props> = ({
 
       {block.type === "IMAGE" && (
         <div className="flex flex-col gap-2">
-          <input
-            type="text"
-            value={block.url}
-            onChange={(e) => updateContentBlock(index, "url", e.target.value)}
-            placeholder="Image URL"
-            className="border rounded p-2"
+          <ImageUpload
+            setSelectedImage={(file) => {
+              if (file instanceof File) handleFileUpload(file);
+            }}
           />
-          {block.url && (
-            <img
+          {uploading && <LoadingBar />}
+        </div>
+      )}
+
+      {block.type === "VIDEO" && (
+        <div className="flex flex-col gap-2">
+          <VideoUpload
+            setSelectedVideo={(file) => {
+              if (file instanceof File) handleFileUpload(file);
+            }}
+          />
+          {uploading && <LoadingBar />}
+          {/* {block.url && (
+            <video
               src={block.url}
-              alt="Preview"
-              className="rounded max-w-full max-h-[300px] object-contain border"
+              controls
+              className="rounded max-w-full max-h-[300px] object-contain border mt-2"
             />
-          )}
+          )} */}
         </div>
       )}
     </div>
   );
 };
+
+const LoadingBar = () => (
+  <div className="w-full bg-gray-200 rounded-full h-3 mt-2 overflow-hidden relative">
+    <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 animate-[loading_1.5s_linear_infinite]" />
+    <style>{`
+      @keyframes loading {
+        0% { transform: translateX(-100%); }
+        50% { transform: translateX(0%); }
+        100% { transform: translateX(100%); }
+      }
+    `}</style>
+  </div>
+);
 
 export default ContentBlockEditor;
