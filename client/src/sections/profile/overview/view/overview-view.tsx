@@ -5,6 +5,7 @@ import ArticleCard from "../post-card";
 import FollowItem from "../follow-item";
 import Avatar from "@assets/avatar.svg";
 import { getAllPublishedPosts } from "@/api/api-post";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const AboutView: FC = memo(() => (
   <section className="w-full">
@@ -14,20 +15,27 @@ const AboutView: FC = memo(() => (
 
 // Icon Components
 
+
+
 const Overview: FC = () => {
   const [isFollowing, setIsFollowing] = useState(true);
-  const [activeView, setActiveView] = useState<"home" | "about">("home");
+  const [activeView, setActiveView] = useState<"home" | "about" | "plans">("home");
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const toggleFollow = useCallback(() => {
     setIsFollowing((prev) => !prev);
   }, []);
 
-  const handleViewChange = useCallback((view: "home" | "about") => {
-    setActiveView(view);
-  }, []);
+  const handleViewChange = useCallback((view: "home" | "about" | "plans") => {
+    if (view === "plans") {
+      navigate("/plans"); // Navigate to /plans when the My Learning Plans tab is clicked
+    } else {
+      setActiveView(view);
+    }
+  }, [navigate]);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -84,6 +92,17 @@ const Overview: FC = () => {
             )}
           >
             Draft
+          </button>
+          <button
+            onClick={() => handleViewChange("plans")}
+            className={clsx(
+              "pb-2 font-medium cursor-pointer",
+              activeView === "plans"
+                ? "text-black border-b-2 border-black"
+                : "text-gray-500 hover:text-black"
+            )}
+          >
+            My Learning Plans
           </button>
         </div>
       </nav>
@@ -145,7 +164,6 @@ const Overview: FC = () => {
               {following.map((item, index) => (
                 <FollowItem key={index} {...item} />
               ))}
-              {/* <button className="text-gray-500 text-sm mt-2">See all (74)</button> */}
             </div>
           </div>
         </aside>
