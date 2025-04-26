@@ -1,9 +1,14 @@
 <<<<<<< HEAD
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+<<<<<<< HEAD
 import PostCard from "./post-card";
+=======
+import { getAllPublishedPosts } from "@/api/api-post";
+>>>>>>> 071ef34 (refactor: improve HomeView structure and enhance plan fetching logic)
 import { BookOpen, X } from "lucide-react";
 import { LearningPlan } from "../../../../types/learning-type";
+import PostBox from "./post-card";
 
 const HomeView = () => {
   const navigate = useNavigate();
@@ -20,12 +25,22 @@ const HomeView = () => {
   useEffect(() => {
     const fetchPlansAndPosts = () => {
       try {
+<<<<<<< HEAD
         const storedPlans = JSON.parse(localStorage.getItem("learning-plans") || "[]");
         const storedCompletionPosts = JSON.parse(localStorage.getItem("posts") || "[]");
+=======
+        const storedPlans = JSON.parse(
+          localStorage.getItem("learning-plans") || "[]"
+        );
+>>>>>>> 071ef34 (refactor: improve HomeView structure and enhance plan fetching logic)
         setPlans(storedPlans);
         setCompletionPosts(storedCompletionPosts);
       } catch (err) {
+<<<<<<< HEAD
         console.error("Failed to fetch plans or posts:", err);
+=======
+        console.error("Failed to fetch plans:", err);
+>>>>>>> 071ef34 (refactor: improve HomeView structure and enhance plan fetching logic)
       }
     };
 
@@ -36,7 +51,7 @@ const HomeView = () => {
     fetchPlans();
 
     // Check for newly created plan from redirect
-    const successMessage = new URLSearchParams(location.search).get('success');
+    const successMessage = new URLSearchParams(location.search).get("success");
     if (successMessage) {
       setSuccess(successMessage);
       // Clear the success parameter after showing the message
@@ -50,13 +65,13 @@ const HomeView = () => {
   // Prevent scrolling when modal is open
   useEffect(() => {
     if (showPlanSelector) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = "auto";
     }
 
     return () => {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = "auto";
     };
   }, [showPlanSelector]);
 >>>>>>> 29c0476 (refactor: enhance CreatePlanView with resource and tag management, and improve HomeView for plan selection)
@@ -74,8 +89,17 @@ const HomeView = () => {
 
     try {
       // Get the selected plan
+<<<<<<< HEAD
       const existingPlans = JSON.parse(localStorage.getItem("learning-plans") || "[]");
       const planIndex = existingPlans.findIndex((p: LearningPlan) => p.id === selectedPlanId);
+=======
+      const existingPlans = JSON.parse(
+        localStorage.getItem("learning-plans") || "[]"
+      );
+      const planIndex = existingPlans.findIndex(
+        (p: LearningPlan) => p.id === selectedPlanId
+      );
+>>>>>>> 071ef34 (refactor: improve HomeView structure and enhance plan fetching logic)
 
       if (planIndex === -1) {
         setError("Selected plan not found");
@@ -117,15 +141,19 @@ const HomeView = () => {
 =======
     if (selectedPost) {
       const postResource = `/posts/${selectedPost.id || Date.now()}`;
-      sessionStorage.setItem('pending-post-for-plan', JSON.stringify({
-        post: selectedPost,
-        resourceUrl: postResource
-      }));
-      navigate('/plans/create?from=home');
+      sessionStorage.setItem(
+        "pending-post-for-plan",
+        JSON.stringify({
+          post: selectedPost,
+          resourceUrl: postResource,
+        })
+      );
+      navigate("/plans/create?from=home");
     }
 >>>>>>> 29c0476 (refactor: enhance CreatePlanView with resource and tag management, and improve HomeView for plan selection)
   };
 
+<<<<<<< HEAD
   const posts = [
     {
       id: 1,
@@ -152,6 +180,22 @@ const HomeView = () => {
       mediaType: "image",
     },
   ];
+=======
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const data = await getAllPublishedPosts();
+        setPosts(data);
+      } catch (e) {
+        setError("Failed to load posts");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+>>>>>>> 071ef34 (refactor: improve HomeView structure and enhance plan fetching logic)
 
   return (
     <div className="flex relative">
@@ -162,6 +206,7 @@ const HomeView = () => {
           </div>
         )}
 
+<<<<<<< HEAD
         {/* Display normal posts */}
         {posts.map((post) => (
           <div key={post.id} className="pt-8 first:pt-0">
@@ -172,6 +217,15 @@ const HomeView = () => {
               mediaUrl={post.mediaUrl}
               mediaType={post.mediaType as "image" | "video" | undefined}
             />
+=======
+        {posts.map((post) => (
+          <div className="max-w-3xl mx-auto py-10 px-4 space-y-8">
+            {loading && <p>Loading posts...</p>}
+            {error && <p className="text-red-500">{error}</p>}
+            {posts.map((post) => (
+              <PostBox key={post.id} post={post} />
+            ))}
+>>>>>>> 071ef34 (refactor: improve HomeView structure and enhance plan fetching logic)
             <div className="mt-2 flex justify-end">
               <button
                 onClick={() => handleAddToPlan(post)}
@@ -201,13 +255,14 @@ const HomeView = () => {
         ))}
       </div>
 
-      <div className="hidden md:block md:w-1/3">
-        {/* Sidebar content */}
-      </div>
+      <div className="hidden md:block md:w-1/3">{/* Sidebar content */}</div>
 
       {/* Backdrop with blur effect */}
       {showPlanSelector && (
-        <div className="fixed inset-0 bg-white bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-40" onClick={() => setShowPlanSelector(false)}>
+        <div
+          className="fixed inset-0 bg-white bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-40"
+          onClick={() => setShowPlanSelector(false)}
+        >
           {/* Prevent clicks on the modal from closing the backdrop */}
           <div
             className="bg-white rounded-lg shadow-xl border border-gray-200 p-6 max-w-md w-full max-h-[80vh] overflow-y-auto z-50"
@@ -236,7 +291,10 @@ const HomeView = () => {
             {plans.length > 0 ? (
               <>
                 <div className="mb-4">
-                  <label htmlFor="plan-selector" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="plan-selector"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Select a learning plan:
                   </label>
                   <select
@@ -276,7 +334,9 @@ const HomeView = () => {
               </>
             ) : (
               <div className="text-center py-4">
-                <p className="text-gray-600 mb-4">You don't have any learning plans yet.</p>
+                <p className="text-gray-600 mb-4">
+                  You don't have any learning plans yet.
+                </p>
                 <button
                   type="button"
                   onClick={createNewPlanWithPost}
@@ -301,6 +361,7 @@ const HomeView = () => {
           </div>
         </div>
       )}
+<<<<<<< HEAD
 =======
 import { useEffect, useState } from "react";
 import { getAllPublishedPosts } from "@/api/api-post";
@@ -335,6 +396,8 @@ const HomeView = () => {
         <PostBox key={post.id} post={post} />
       ))}
 >>>>>>> b20d558 (add post creation and content management features with image and video uploads)
+=======
+>>>>>>> 071ef34 (refactor: improve HomeView structure and enhance plan fetching logic)
     </div>
   );
 };
