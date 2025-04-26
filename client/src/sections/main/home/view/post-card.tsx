@@ -1,8 +1,6 @@
-import { MessageCircle, Share2, ThumbsUp, Shapes} from "lucide-react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import React from "react";
-import { ThumbsUp, MessageCircle, Share2, ListPlus } from "lucide-react";
+import { ThumbsUp, MessageCircle, Share2, ListPlus, Shapes } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 type ContentBlock = {
   id: number;
@@ -27,17 +25,13 @@ interface PostBoxProps {
   onAddToList?: (post: Post) => void;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ username, avatar, content, mediaUrl, mediaType }) => {
-  const [likes, setLikes] = useState(0);
-  const [comments, setComments] = useState<Comment[]>([]);
+const PostBox: React.FC<PostBoxProps> = ({ post, onAddToList }) => {
   const navigate = useNavigate();
-
-  const handleLike = () => setLikes(likes + 1);
   
   const handleCollaborate = () => {
-    navigate('/mentor-collaboration');
-
-const PostBox: React.FC<PostBoxProps> = ({ post, onAddToList }) => {
+    navigate('/me/settings');
+  };
+  
   const renderContentBlock = (block: ContentBlock) => {
     switch (block.type) {
       case "SECTION":
