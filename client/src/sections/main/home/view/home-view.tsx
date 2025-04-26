@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getAllPublishedPosts } from "@/api/api-post";
-import { BookOpen, X } from "lucide-react";
+import { ListPlus, X } from "lucide-react";
 import { LearningPlan } from "../../../../types/learning-type";
 import PostBox from "./post-card";
 
@@ -57,14 +57,14 @@ const HomeView = () => {
     };
   }, [showPlanSelector]);
 
-  const handleAddToPlan = (post: any) => {
+  const handleAddToList = (post: any) => {
     setSelectedPost(post);
     setShowPlanSelector(true);
   };
 
   const addPostToExistingPlan = () => {
     if (!selectedPlanId || !selectedPost) {
-      setError("Please select a plan");
+      setError("Please select a list");
       return;
     }
 
@@ -78,7 +78,7 @@ const HomeView = () => {
       );
 
       if (planIndex === -1) {
-        setError("Selected plan not found");
+        setError("Selected list not found");
         return;
       }
 
@@ -95,7 +95,7 @@ const HomeView = () => {
       // Update the plan in localStorage
       localStorage.setItem("learning-plans", JSON.stringify(updatedPlans));
 
-      setSuccess(`Post added to "${updatedPlans[planIndex].title}" plan!`);
+      setSuccess(`Post added to "${updatedPlans[planIndex].title}" list!`);
 
       // Hide success message after 3 seconds
       setTimeout(() => {
@@ -104,8 +104,8 @@ const HomeView = () => {
 
       setShowPlanSelector(false);
     } catch (err) {
-      console.error("Failed to add post to plan:", err);
-      setError("Failed to add post to plan");
+      console.error("Failed to add post to list:", err);
+      setError("Failed to add post to list");
     }
   };
 
@@ -155,16 +155,10 @@ const HomeView = () => {
 
         {posts.map((post) => (
           <div key={post.id} className="max-w-3xl mx-auto py-10 px-4 space-y-8">
-            <PostBox post={post} />
-            <div className="mt-2 flex justify-end">
-              <button
-                onClick={() => handleAddToPlan(post)}
-                className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm"
-              >
-                <BookOpen size={16} />
-                Add to Learning Plan
-              </button>
-            </div>
+            <PostBox
+              post={post}
+              onAddToList={handleAddToList}
+            />
           </div>
         ))}
       </div>
@@ -183,7 +177,7 @@ const HomeView = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Add to Learning Plan</h2>
+              <h2 className="text-xl font-semibold">Add to List</h2>
               <button
                 onClick={() => {
                   setShowPlanSelector(false);
@@ -209,7 +203,7 @@ const HomeView = () => {
                     htmlFor="plan-selector"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Select a learning plan:
+                    Select a list:
                   </label>
                   <select
                     id="plan-selector"
@@ -217,7 +211,7 @@ const HomeView = () => {
                     onChange={(e) => setSelectedPlanId(e.target.value)}
                     className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   >
-                    <option value="">-- Select a plan --</option>
+                    <option value="">-- Select a list --</option>
                     {plans.map((plan) => (
                       <option key={plan.id} value={plan.id}>
                         {plan.title}
@@ -242,21 +236,21 @@ const HomeView = () => {
                     onClick={addPostToExistingPlan}
                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                   >
-                    Add to Plan
+                    Add to List
                   </button>
                 </div>
               </>
             ) : (
               <div className="text-center py-4">
                 <p className="text-gray-600 mb-4">
-                  You don't have any learning plans yet.
+                  You don't have any lists yet.
                 </p>
                 <button
                   type="button"
                   onClick={createNewPlanWithPost}
                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >
-                  Create a New Plan
+                  Create a New List
                 </button>
               </div>
             )}
@@ -268,7 +262,7 @@ const HomeView = () => {
                   onClick={createNewPlanWithPost}
                   className="w-full text-blue-600 hover:underline text-center"
                 >
-                  Create a new plan instead
+                  Create a new list instead
                 </button>
               </div>
             )}
