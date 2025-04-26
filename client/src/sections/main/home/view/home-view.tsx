@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import PostCard from "./post-card";
-import { BookOpen } from "lucide-react";
+import { BookOpen, X } from "lucide-react";
 import { LearningPlan } from "../../../../types/learning-type";
 
 const HomeView = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [showPlanSelector, setShowPlanSelector] = useState(false);
   const [plans, setPlans] = useState<LearningPlan[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
@@ -25,7 +26,31 @@ const HomeView = () => {
     };
 
     fetchPlans();
-  }, []);
+
+    // Check for newly created plan from redirect
+    const successMessage = new URLSearchParams(location.search).get('success');
+    if (successMessage) {
+      setSuccess(successMessage);
+      // Clear the success parameter after showing the message
+      setTimeout(() => {
+        setSuccess(null);
+        navigate(location.pathname, { replace: true });
+      }, 3000);
+    }
+  }, [location, navigate]);
+
+  // Prevent scrolling when modal is open
+  useEffect(() => {
+    if (showPlanSelector) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [showPlanSelector]);
 
   const handleAddToPlan = (post: any) => {
     setSelectedPost(post);
@@ -77,8 +102,14 @@ const HomeView = () => {
 
   const createNewPlanWithPost = () => {
     // Store the current post data in sessionStorage
-    sessionStorage.setItem('pending-post-for-plan', JSON.stringify(selectedPost));
-    navigate('/plans/create');
+    if (selectedPost) {
+      const postResource = `/posts/${selectedPost.id || Date.now()}`;
+      sessionStorage.setItem('pending-post-for-plan', JSON.stringify({
+        post: selectedPost,
+        resourceUrl: postResource
+      }));
+      navigate('/plans/create?from=home');
+    }
   };
 
   const posts = [
@@ -109,7 +140,7 @@ const HomeView = () => {
   ];
 
   return (
-    <div className="flex">
+    <div className="flex relative">
       <div className="w-full md:w-2/3 space-y-8 py-8 divide-y-[1px] divide-slate-400">
         {success && (
           <div className="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50">
@@ -143,14 +174,30 @@ const HomeView = () => {
         {/* Sidebar content */}
       </div>
 
-      {/* Plan Selector Modal */}
+      {/* Backdrop with blur effect */}
       {showPlanSelector && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">Add to Learning Plan</h2>
+        <div className="fixed inset-0 bg-white bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-40" onClick={() => setShowPlanSelector(false)}>
+          {/* Prevent clicks on the modal from closing the backdrop */}
+          <div
+            className="bg-white rounded-lg shadow-xl border border-gray-200 p-6 max-w-md w-full max-h-[80vh] overflow-y-auto z-50"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Add to Learning Plan</h2>
+              <button
+                onClick={() => {
+                  setShowPlanSelector(false);
+                  setError(null);
+                }}
+                className="text-gray-500 hover:text-gray-700"
+                title="Close"
+              >
+                <X size={20} />
+              </button>
+            </div>
 
             {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm">
                 {error}
               </div>
             )}
@@ -158,9 +205,6 @@ const HomeView = () => {
             {plans.length > 0 ? (
               <>
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-            
-                  </label>
                   <label htmlFor="plan-selector" className="block text-sm font-medium text-gray-700 mb-2">
                     Select a learning plan:
                   </label>
@@ -179,7 +223,7 @@ const HomeView = () => {
                   </select>
                 </div>
 
-                <div className="flex justify-between">
+                <div className="flex justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => {
