@@ -29,7 +29,7 @@ const PostBox: React.FC<PostBoxProps> = ({ post, onAddToList }) => {
   const navigate = useNavigate();
   
   const handleCollaborate = () => {
-    navigate('/me/settings');
+    navigate('/mentor-collaboration');
   };
   
   const renderContentBlock = (block: ContentBlock) => {
