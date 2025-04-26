@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { LearningPlan } from '../../types/learning-type';
-import { Check, X } from 'lucide-react';
+import { Check, ArrowLeft, Calendar } from 'lucide-react';
 
 // Extended type to track completed resources
 interface ExtendedPlan extends LearningPlan {
@@ -15,6 +15,8 @@ export default function ViewPlanPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedPlan, setEditedPlan] = useState<ExtendedPlan | null>(null);
 
     useEffect(() => {
         async function fetchPlan() {
@@ -31,6 +33,7 @@ export default function ViewPlanPage() {
                         foundPlan.completedResources = [];
                     }
                     setPlan(foundPlan);
+                    setEditedPlan(foundPlan);
                 } else {
                     setError('Learning plan not found');
                 }
@@ -43,9 +46,6 @@ export default function ViewPlanPage() {
         }
 
         fetchPlan();
-        // Simulate network latency
-        const timer = setTimeout(() => setIsLoading(false), 500);
-        return () => clearTimeout(timer);
     }, [id]);
 
     const handleDelete = async () => {
@@ -68,6 +68,63 @@ export default function ViewPlanPage() {
                 setError('Failed to delete learning plan. Please try again.');
             }
         }
+    };
+
+    const handleSave = () => {
+        if (!editedPlan || !id) return;
+
+        try {
+            // Update in localStorage
+            const existingPlans = JSON.parse(localStorage.getItem('learning-plans') || '[]');
+            const updatedPlan = {
+                ...editedPlan,
+                updatedAt: new Date().toISOString()
+            };
+
+            const updatedPlans = existingPlans.map((p: LearningPlan) =>
+                p.id === id ? updatedPlan : p
+            );
+
+            localStorage.setItem('learning-plans', JSON.stringify(updatedPlans));
+            setPlan(updatedPlan);
+            setIsEditing(false);
+
+            // Show success message
+            setSuccessMessage('Plan updated successfully');
+            setTimeout(() => setSuccessMessage(null), 2000);
+        } catch (err) {
+            console.error('Failed to save plan:', err);
+            setError('Failed to update learning plan. Please try again.');
+        }
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        if (!editedPlan) return;
+
+        const { name, value } = e.target;
+        setEditedPlan({
+            ...editedPlan,
+            [name]: value
+        });
+    };
+
+    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!editedPlan) return;
+
+        const { name, checked } = e.target;
+        setEditedPlan({
+            ...editedPlan,
+            [name]: checked
+        });
+    };
+
+    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>, dateField: 'startDate' | 'endDate') => {
+        if (!editedPlan) return;
+
+        setEditedPlan({
+            ...editedPlan,
+            [dateField]: e.target.value
+        });
     };
 
     // Toggle resource completion status
@@ -128,19 +185,6 @@ export default function ViewPlanPage() {
         return Math.round((completedCount / totalResources) * 100);
     };
 
-    // Get plan status based on resource completion
-    const getStatusText = () => {
-        if (!plan) return '';
-
-        if (!plan.resources || plan.resources.length === 0) return 'No resources added';
-
-        const progress = calculateProgress();
-
-        if (progress === 0) return 'Not started';
-        if (progress === 100) return 'Completed';
-        return 'In progress';
-    };
-
     if (isLoading) {
         return (
             <div className="container mx-auto px-4 py-8">
@@ -165,147 +209,247 @@ export default function ViewPlanPage() {
         );
     }
 
-    const progress = calculateProgress();
-
     return (
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
             {successMessage && (
                 <div className="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50">
                     {successMessage}
                 </div>
             )}
 
-            <div className="mb-6 flex justify-between items-center">
-                <h1 className="text-2xl font-bold">{plan.title}</h1>
-                <div className="space-x-2">
-                    <Link
-                        to={`/plans/${id}/edit`}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                    >
-                        Edit
-                    </Link>
+            <div className="bg-white shadow rounded-lg p-6">
+                <div className="mb-6">
                     <button
-                        onClick={handleDelete}
-                        className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                        onClick={() => navigate('/plans')}
+                        className="flex items-center text-blue-600 hover:text-blue-800"
                     >
-                        Delete
+                        <ArrowLeft size={18} className="mr-1" />
+                        Back to Plans
                     </button>
                 </div>
-            </div>
 
-            {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    {error}
-                </div>
-            )}
-
-            <div className="bg-white shadow rounded-lg p-6 mb-6">
-                <div className="mb-4">
-                    <h2 className="text-lg font-semibold mb-2">Progress</h2>
-                    <div className="flex justify-between text-sm text-gray-600 mb-1">
-                        <span>{getStatusText()}</span>
-                        <span>{progress}% complete</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div
-                            className={`h-2.5 rounded-full ${progress === 100 ? 'bg-green-500' : 'bg-blue-500'}`}
-                            style={{ width: `${progress}%` }}
-                        ></div>
-                    </div>
-                </div>
-
-                <div className="mb-4">
-                    <h2 className="text-lg font-semibold mb-2">Schedule</h2>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <span className="text-gray-600 text-sm">Start Date:</span>
-                            <p>{formatDateString(plan.startDate)}</p>
-                        </div>
-                        <div>
-                            <span className="text-gray-600 text-sm">End Date:</span>
-                            <p>{formatDateString(plan.endDate)}</p>
-                        </div>
-                    </div>
-                </div>
-
-                {plan.description && (
-                    <div className="mb-4">
-                        <h2 className="text-lg font-semibold mb-2">Description</h2>
-                        <p className="text-gray-700">{plan.description}</p>
+                {error && (
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                        {error}
                     </div>
                 )}
 
-                {Array.isArray(plan.topics) && plan.topics.length > 0 && (
-                    <div className="mb-4">
-                        <h2 className="text-lg font-semibold mb-2">Topics</h2>
-                        <div className="flex flex-wrap gap-2">
-                            {plan.topics.map((topic, index) => (
-                                <span
-                                    key={index}
-                                    className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
+                <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+                    <p className="text-blue-700">
+                        Track your learning journey by marking resources as completed. Your progress is automatically calculated based on completed items.
+                    </p>
+                </div>
+
+                {isEditing ? (
+                    // Edit Form
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-gray-700 mb-2">Learning Title</label>
+                            <input
+                                type="text"
+                                name="title"
+                                value={editedPlan?.title || ''}
+                                onChange={handleInputChange}
+                                placeholder="Enter the title of your learning"
+                                className="w-full border rounded-md p-2"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-gray-700 mb-2">Visibility</label>
+                            <div className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    name="shared"
+                                    checked={editedPlan?.shared || false}
+                                    onChange={handleCheckboxChange}
+                                    className="mr-2"
+                                    title="Shared with community"
+                                />
+                                <span>Share with community</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-gray-700 mb-2">Learning Details</label>
+                            <textarea
+                                name="description"
+                                value={editedPlan?.description || ''}
+                                onChange={handleInputChange}
+                                placeholder="Describe what you're learning and your goals"
+                                className="w-full border rounded-md p-2 h-32"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-gray-700 mb-2">Start Date</label>
+                                <input
+                                    type="date"
+                                    value={editedPlan?.startDate || ''}
+                                    onChange={(e) => handleDateChange(e, 'startDate')}
+                                    className="w-full border rounded-md p-2"
+                                    title="Shared with community"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-gray-700 mb-2">End Date</label>
+                                <input
+                                    type="date"
+                                    value={editedPlan?.endDate || ''}
+                                    onChange={(e) => handleDateChange(e, 'endDate')}
+                                    className="w-full border rounded-md p-2"
+                                    title="Shared with community"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end space-x-2">
+                            <button
+                                onClick={() => setIsEditing(false)}
+                                className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSave}
+                                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                            >
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    // View Mode
+                    <div className="space-y-6">
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <h2 className="text-xl font-semibold">{plan.title}</h2>
+                            </div>
+                            <div className="space-x-2">
+                                <button
+                                    onClick={() => setIsEditing(true)}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                                 >
-                                    {topic}
-                                </span>
-                            ))}
+                                    Edit
+                                </button>
+                                <button
+                                    onClick={handleDelete}
+                                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-gray-700 mb-2">Visibility</label>
+                            <div className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    checked={plan.shared || false}
+                                    readOnly
+                                    disabled
+                                    className="mr-2"
+                                    title="Shared with community"
+                                />
+                                <span>{plan.shared ? "Shared with community" : "Private"}</span>
+                            </div>
+                        </div>
+
+                        {plan.description && (
+                            <div>
+                                <label className="block text-gray-700 mb-2">Learning Details</label>
+                                <div className="bg-gray-50 p-3 rounded border">
+                                    {plan.description}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-gray-700 mb-2">Start Date</label>
+                                <div className="flex items-center">
+                                    <Calendar size={18} className="mr-2 text-gray-500" />
+                                    <span>{formatDateString(plan.startDate)}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-gray-700 mb-2">End Date</label>
+                                <div className="flex items-center">
+                                    <Calendar size={18} className="mr-2 text-gray-500" />
+                                    <span>{formatDateString(plan.endDate)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {Array.isArray(plan.topics) && plan.topics.length > 0 && (
+                            <div>
+                                <label className="block text-gray-700 mb-2">Topics</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {plan.topics.map((topic, index) => (
+                                        <span
+                                            key={index}
+                                            className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
+                                        >
+                                            {topic}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {Array.isArray(plan.resources) && plan.resources.length > 0 && (
+                            <div>
+                                <label className="block text-gray-700 mb-2">
+                                    Learning Resources ({plan.completedResources?.length || 0}/{plan.resources.length})
+                                </label>
+                                <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                                    <div
+                                        className={`h-2.5 rounded-full ${calculateProgress() === 100 ? 'bg-green-500' : 'bg-blue-600'}`}
+                                        style={{ width: `${calculateProgress()}%` }}
+                                    ></div>
+                                </div>
+                                <ul className="space-y-2">
+                                    {plan.resources.map((resource, index) => {
+                                        const isCompleted = plan.completedResources?.includes(resource);
+
+                                        return (
+                                            <li
+                                                key={index}
+                                                className={`flex items-center p-2 rounded ${isCompleted ? 'bg-green-50' : 'bg-gray-50'}`}
+                                            >
+                                                <button
+                                                    onClick={() => toggleResourceCompletion(resource)}
+                                                    className={`mr-3 w-5 h-5 flex items-center justify-center rounded border ${isCompleted
+                                                        ? 'bg-green-500 border-green-600 text-white'
+                                                        : 'border-gray-400 hover:bg-gray-200'
+                                                        }`}
+                                                    aria-label={isCompleted ? "Mark as incomplete" : "Mark as completed"}
+                                                >
+                                                    {isCompleted && <Check size={14} />}
+                                                </button>
+
+                                                <a
+                                                    href={resource}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className={`flex-grow text-blue-600 hover:underline ${isCompleted ? 'line-through opacity-70' : ''}`}
+                                                >
+                                                    {resource}
+                                                </a>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                            </div>
+                        )}
+
+                        <div className="text-sm text-gray-500">
+                            <div>Created: {formatDateString(plan.createdAt)}</div>
+                            <div>Last updated: {formatDateString(plan.updatedAt)}</div>
                         </div>
                     </div>
-                )}
-
-                {Array.isArray(plan.resources) && plan.resources.length > 0 && (
-                    <div className="mb-4">
-                        <h2 className="text-lg font-semibold mb-2">Resources ({plan.completedResources?.length || 0}/{plan.resources.length})</h2>
-                        <ul className="space-y-2">
-                            {plan.resources.map((resource, index) => {
-                                const isCompleted = plan.completedResources?.includes(resource);
-
-                                return (
-                                    <li
-                                        key={index}
-                                        className={`flex items-center p-2 rounded ${isCompleted ? 'bg-green-50' : 'bg-gray-50'}`}
-                                    >
-                                        <button
-                                            onClick={() => toggleResourceCompletion(resource)}
-                                            className={`mr-3 w-5 h-5 flex items-center justify-center rounded border ${isCompleted
-                                                    ? 'bg-green-500 border-green-600 text-white'
-                                                    : 'border-gray-400 hover:bg-gray-200'
-                                                }`}
-                                            aria-label={isCompleted ? "Mark as incomplete" : "Mark as completed"}
-                                        >
-                                            {isCompleted && <Check size={14} />}
-                                        </button>
-
-                                        <a
-                                            href={resource}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className={`flex-grow text-blue-600 hover:underline ${isCompleted ? 'line-through opacity-70' : ''}`}
-                                        >
-                                            {resource}
-                                        </a>
-                                    </li>
-                                );
-                            })}
-                        </ul>
-                    </div>
-                )}
-
-                <div className="mt-4 text-sm text-gray-500">
-                    <div>Created: {formatDateString(plan.createdAt)}</div>
-                    <div>Last updated: {formatDateString(plan.updatedAt)}</div>
-                </div>
-            </div>
-
-            <div className="flex justify-between">
-                <button
-                    onClick={() => navigate('/plans')}
-                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
-                >
-                    Back to Plans
-                </button>
-                {plan.shared && (
-                    <span className="px-4 py-2 bg-green-100 text-green-800 rounded">
-                        This plan is shared with the community
-                    </span>
                 )}
             </div>
         </div>
