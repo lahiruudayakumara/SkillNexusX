@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { getAllPublishedPosts } from "@/api/api-post";
 import PostCard from "./post-card";
 import { BookOpen, X } from "lucide-react";
 import { LearningPlan } from "../../../../types/learning-type";
@@ -11,6 +12,8 @@ const HomeView = () => {
   const [plans, setPlans] = useState<LearningPlan[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [selectedPost, setSelectedPost] = useState<any>(null);
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -138,6 +141,21 @@ const HomeView = () => {
       mediaType: "image"
     }
   ];
+    
+      useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const data = await getAllPublishedPosts();
+        setPosts(data);
+      } catch (e) {
+        setError("Failed to load posts");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
 
   return (
     <div className="flex relative">
@@ -149,14 +167,12 @@ const HomeView = () => {
         )}
 
         {posts.map(post => (
-          <div key={post.id} className="pt-8 first:pt-0">
-            <PostCard
-              username={post.username}
-              avatar={post.avatar}
-              content={post.content}
-              mediaUrl={post.mediaUrl}
-              mediaType={post.mediaType as "image" | "video" | undefined}
-            />
+    <div className="max-w-3xl mx-auto py-10 px-4 space-y-8">
+      {loading && <p>Loading posts...</p>}
+      {error && <p className="text-red-500">{error}</p>}
+      {posts.map((post) => (
+        <PostBox key={post.id} post={post} />
+      ))}
             <div className="mt-2 flex justify-end">
               <button
                 onClick={() => handleAddToPlan(post)}
@@ -270,8 +286,5 @@ const HomeView = () => {
           </div>
         </div>
       )}
-    </div>
-  );
-};
 
 export default HomeView;

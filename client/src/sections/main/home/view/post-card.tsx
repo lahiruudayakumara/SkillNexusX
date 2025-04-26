@@ -1,68 +1,93 @@
-import { MessageCircle, Share2, ThumbsUp } from "lucide-react";
+import React from "react";
+import { ThumbsUp, MessageCircle, Share2, PlusSquare } from "lucide-react";
 
-import { useState } from "react";
-
-interface Comment {
+type ContentBlock = {
   id: number;
-  text: string;
+  type: string;
+  content: string | null;
+  url: string | null;
+  videoDuration: string | null;
+  position: number;
+};
+
+type Post = {
+  id: number;
+  userId: number;
+  title: string;
+  contentBlocks: ContentBlock[];
+  createdAt: string;
+  isPublished: boolean;
+};
+
+interface PostBoxProps {
+  post: Post;
 }
 
-interface PostCardProps {
-  username: string;
-  avatar: string;
-  content: string;
-  mediaUrl?: string;
-  mediaType?: "image" | "video";
-}
-
-const PostCard: React.FC<PostCardProps> = ({ username, avatar, content, mediaUrl, mediaType }) => {
-  const [likes, setLikes] = useState(0);
-  const [comments, setComments] = useState<Comment[]>([]);
-
-
-  const handleLike = () => setLikes(likes + 1);
-
-
+const PostBox: React.FC<PostBoxProps> = ({ post }) => {
+  const renderContentBlock = (block: ContentBlock) => {
+    switch (block.type) {
+      case "SECTION":
+        return <h2 className="text-xl font-bold mb-2">{block.content}</h2>;
+      case "PARAGRAPH":
+        return <p className="text-gray-700 mb-2">{block.content}</p>;
+      case "IMAGE":
+        return (
+          <img
+            src={block.url || ""}
+            alt="Post Image"
+            className="w-full h-auto rounded-md mb-4"
+          />
+        );
+      case "VIDEO":
+        return (
+          <video
+            controls
+            src={block.url || ""}
+            className="w-full h-auto rounded-md mb-4"
+          />
+        );
+      case "CODE":
+        return (
+          <pre className="bg-gray-900 text-white p-4 rounded overflow-x-auto mb-4 whitespace-pre-wrap">
+            <code>{block.content}</code>
+          </pre>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
-    <div className="mx-auto bg-white p-4 my-4">
-      {/* User Info */}
-      <div className="flex items-center space-x-3">
-        <img src={avatar} alt={username} className="w-10 h-10 rounded-full" />
-        <span className="font-semibold">{username}</span>
+    <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
+      <h1 className="text-2xl font-semibold text-gray-900">{post.title}</h1>
+
+      {post.contentBlocks
+        .sort((a, b) => a.position - b.position)
+        .map((block) => (
+          <div key={block.id}>{renderContentBlock(block)}</div>
+        ))}
+
+      <div className="text-right text-sm text-gray-400">
+        Published on: {new Date(post.createdAt).toLocaleDateString()}
       </div>
 
-      {/* Post Content */}
-      <p className="mt-3 text-gray-800">{content}</p>
-
-      {/* Media (Image/Video) */}
-      {mediaUrl && mediaType === "image" && (
-        <img src={mediaUrl} alt="Post" className="mt-3 w-full rounded-lg" />
-      )}
-      {mediaUrl && mediaType === "video" && (
-        <video controls className="mt-3 w-full rounded-lg">
-          <source src={mediaUrl} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-      )}
-
-      {/* Like, Comment, Share */}
-      <div className="flex items-center justify-between mt-4 text-gray-600">
-        <button className="flex items-center space-x-1 hover:text-blue-500" onClick={handleLike}>
-          <ThumbsUp size={18} />
-          <span>{likes} Likes</span>
+      {/* Action buttons */}
+      <div className="flex justify-between mt-4 pt-4 border-t border-gray-200">
+        <button className="flex items-center gap-2 text-primary cursor-pointer">
+          <ThumbsUp size={18} /> Like
         </button>
-        <button className="flex items-center space-x-1 hover:text-blue-500">
-          <MessageCircle size={18} />
-          <span>{comments.length} Comments</span>
+        <button className="flex items-center gap-2 text-primary cursor-pointer">
+          <MessageCircle size={18} /> Comment
         </button>
-        <button className="flex items-center space-x-1 hover:text-blue-500">
-          <Share2 size={18} />
-          <span>Share</span>
+        <button className="flex items-center gap-2 text-primary cursor-pointer">
+          <Share2 size={18} /> Share
+        </button>
+        <button className="flex items-center gap-2 text-primary cursor-pointer">
+          <PlusSquare size={18} /> Add to List
         </button>
       </div>
     </div>
   );
 };
 
-export default PostCard;
+export default PostBox;
