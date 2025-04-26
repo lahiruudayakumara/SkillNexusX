@@ -1,32 +1,35 @@
-import PostCard from "./post-card";
+import { useEffect, useState } from "react";
+import { getAllPublishedPosts } from "@/api/api-post";
+import PostBox from "./post-card";
+
 
 const HomeView = () => {
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const data = await getAllPublishedPosts();
+        setPosts(data);
+      } catch (e) {
+        setError("Failed to load posts");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
   return (
-    <div className="flex">
-      <div className="w-2/3 space-y-8 py-8 divide-y-[1px] divide-slate-400">
-        <PostCard
-          username="John Doe"
-          avatar="https://via.placeholder.com/50"
-          content="Check out this awesome view!"
-          mediaUrl="https://via.placeholder.com/600"
-          mediaType="image"
-        />
-        <PostCard
-          username="John Doe"
-          avatar="https://via.placeholder.com/50"
-          content="Check out this awesome view!"
-          mediaUrl="https://via.placeholder.com/600"
-          mediaType="image"
-        />
-        <PostCard
-          username="John Doe"
-          avatar="https://via.placeholder.com/50"
-          content="Check out this awesome view!"
-          mediaUrl="https://via.placeholder.com/600"
-          mediaType="image"
-        />
-      </div>
-      <div></div>
+    <div className="max-w-3xl mx-auto py-10 px-4 space-y-8">
+      {loading && <p>Loading posts...</p>}
+      {error && <p className="text-red-500">{error}</p>}
+      {posts.map((post) => (
+        <PostBox key={post.id} post={post} />
+      ))}
     </div>
   );
 };
