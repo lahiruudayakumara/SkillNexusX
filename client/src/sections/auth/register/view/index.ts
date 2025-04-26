@@ -1,0 +1,1 @@
+export { default as RegisterView } from '@/sections/auth/register/view/register-view';
