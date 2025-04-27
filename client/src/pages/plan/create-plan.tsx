@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid"; // You might need to install this package
-import { Calendar, Clock, Target, BookOpen, Users, Flag } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
+import { ArrowLeft } from "lucide-react";
 
 const CreatePlanView = () => {
     const navigate = useNavigate();
@@ -9,16 +9,14 @@ const CreatePlanView = () => {
     const [description, setDescription] = useState("");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
-    const [goal, setGoal] = useState("");
-    const [difficulty, setDifficulty] = useState("beginner");
     const [isPublic, setIsPublic] = useState(false);
-    const [estimatedHours, setEstimatedHours] = useState("");
     const [tags, setTags] = useState<string[]>([]);
     const [tagInput, setTagInput] = useState("");
     const [resources, setResources] = useState<string[]>([]);
-    const [pendingPost, setPendingPost] = useState<any>(null);
+    const [pendingPost, setPendingPost] = useState<{ post?: { username: string; content?: string }; resourceUrl?: string } | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     // Set default start date to today
     useEffect(() => {
@@ -86,6 +84,9 @@ const CreatePlanView = () => {
             // Save to localStorage
             localStorage.setItem('learning-plans', JSON.stringify(existingPlans));
 
+            // Show success message
+            setSuccessMessage('Plan created successfully!');
+
             // Add a slight delay to simulate saving
             setTimeout(() => {
                 // If this was created from a post, return to home with success message
@@ -130,7 +131,7 @@ const CreatePlanView = () => {
     };
 
     // Handle tag input key press (add tag on Enter)
-    const handleTagKeyPress = (e: React.KeyboardEvent) => {
+    const handleTagKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             e.preventDefault();
             addTag();
@@ -143,196 +144,226 @@ const CreatePlanView = () => {
     };
 
     return (
-        <div className="max-w-2xl mx-auto p-6">
-            <h1 className="text-2xl font-bold mb-6">Create Learning Plan</h1>
+        <div className="w-full bg-white">
+            {/* SkillNexus Header */}
+            <div className="w-full bg-blue-600 py-6">
+                <div className="container mx-auto px-4">
+                    <h1 className="text-white text-2xl font-bold">SkillNexus</h1>
+                    <p className="text-white text-sm">Connect. Learn. Grow.</p>
+                </div>
+            </div>
 
-            {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    {error}
+            {successMessage && (
+                <div className="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50">
+                    {successMessage}
                 </div>
             )}
 
-            <div className="space-y-6">
-                <div>
-                    <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                        Plan Title *
-                    </label>
-                    <input
-                        id="title"
-                        type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Enter plan title"
-                        required
-                    />
+            <div className="container mx-auto px-4 py-8 max-w-4xl">
+                <div className="mb-6">
+                    <button
+                        onClick={() => navigate('/plans')}
+                        className="flex items-center text-gray-600 hover:text-blue-600"
+                    >
+                        <ArrowLeft size={18} className="mr-1" />
+                        <span className="text-xl font-medium">Create Learning Plan</span>
+                    </button>
                 </div>
 
-                <div>
-                    <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                        Description
-                    </label>
-                    <textarea
-                        id="description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Enter plan description"
-                        rows={4}
-                    />
+                {error && (
+                    <div className="bg-red-100 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded mb-4">
+                        {error}
+                    </div>
+                )}
+
+                <div className="bg-blue-50 border-l-4 border-blue-600 p-4 mb-6">
+                    <p className="text-blue-800">
+                        Create a structured learning path using community resources. Set clear milestones, track your progress, and share your journey with others looking to develop the same skills
+                    </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label htmlFor="startDate" className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                            <Calendar size={16} className="mr-1" />
-                            Start Date
+                <div className="space-y-6">
+                    <div className="mb-4">
+                        <label htmlFor="title" className="block text-gray-700 mb-2">
+                            Learning Title
                         </label>
                         <input
-                            id="startDate"
-                            type="date"
-                            value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                        />
-                    </div>
-
-                    <div>
-                        <label htmlFor="endDate" className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                            <Calendar size={16} className="mr-1" />
-                            End Date *
-                        </label>
-                        <input
-                            id="endDate"
-                            type="date"
-                            value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                            min={startDate}
-                            required
-                        />
-                    </div>
-                </div>
-
-                <div>
-                    <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                        <Flag size={16} className="mr-1" />
-                        Topics
-                    </label>
-                    <div className="flex flex-wrap gap-2 mb-2">
-                        {tags.map((tag, index) => (
-                            <span
-                                key={index}
-                                className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full flex items-center"
-                            >
-                                {tag}
-                                <button
-                                    type="button"
-                                    onClick={() => removeTag(tag)}
-                                    className="ml-1 text-blue-600 hover:text-blue-800"
-                                >
-                                    ×
-                                </button>
-                            </span>
-                        ))}
-                    </div>
-                    <div className="flex">
-                        <input
+                            id="title"
                             type="text"
-                            value={tagInput}
-                            onChange={(e) => setTagInput(e.target.value)}
-                            onKeyPress={handleTagKeyPress}
-                            className="flex-1 p-2 border border-gray-300 rounded-l-md focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Add topics (e.g., programming, javascript)"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            className="w-full p-3 border border-gray-300 rounded"
+                            placeholder="Enter the title of your learning"
                         />
-                        <button
-                            type="button"
-                            onClick={addTag}
-                            className="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-r-md"
-                        >
-                            Add
-                        </button>
                     </div>
-                </div>
 
-                <div className="flex items-center">
-                    <input
-                        id="isPublic"
-                        type="checkbox"
-                        checked={isPublic}
-                        onChange={(e) => setIsPublic(e.target.checked)}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <label htmlFor="isPublic" className="ml-2 flex items-center text-sm text-gray-700">
-                        <Users size={16} className="mr-1" />
-                        Make this plan public
-                    </label>
-                </div>
+                    <div className="mb-4">
+                        <label className="block text-gray-700 mb-2">
+                            Visibility
+                        </label>
+                        <div className="flex items-center">
+                            <input
+                                id="isPublic"
+                                type="checkbox"
+                                checked={isPublic}
+                                onChange={(e) => setIsPublic(e.target.checked)}
+                                className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                            />
+                            <label htmlFor="isPublic" className="ml-2 text-gray-700">
+                                Share with community
+                            </label>
+                        </div>
+                    </div>
 
-                <div>
-                    <label className="flex items-center text-sm font-medium text-gray-700 mb-2">
-                        <BookOpen size={16} className="mr-1" />
-                        Resources
-                    </label>
+                    <div className="mb-4">
+                        <label htmlFor="description" className="block text-gray-700 mb-2">
+                            Learning Details
+                        </label>
+                        <textarea
+                            id="description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            className="w-full p-3 border border-gray-300 rounded h-32"
+                            placeholder="Describe what you've learned, key insights, and how you plan to apply this knowledge"
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label htmlFor="startDate" className="block text-gray-700 mb-2">
+                                Start Date
+                            </label>
+                            <div className="relative">
+                                <input
+                                    id="startDate"
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                    className="w-full p-3 border border-gray-300 rounded pr-10"
+                                />
+                                <span className="absolute right-3 top-3 text-gray-400">
+                                    {/* Calendar icon is shown by the date input itself */}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label htmlFor="endDate" className="block text-gray-700 mb-2">
+                                End Date
+                            </label>
+                            <div className="relative">
+                                <input
+                                    id="endDate"
+                                    type="date"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                    className="w-full p-3 border border-gray-300 rounded pr-10"
+                                    min={startDate}
+                                />
+                                <span className="absolute right-3 top-3 text-gray-400">
+                                    {/* Calendar icon is shown by the date input itself */}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
 
                     {pendingPost && pendingPost.post && (
-                        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                        <div className="p-4 bg-blue-50 border-l-4 border-blue-600 rounded mb-4">
                             <p className="text-sm text-blue-800 mb-1">
                                 <span className="font-medium">Post from {pendingPost.post.username}</span> will be added to this plan
                             </p>
-                            <p className="text-xs text-blue-600">
+                            <p className="text-xs text-blue-700">
                                 "{pendingPost.post.content?.substring(0, 100)}..."
                             </p>
                         </div>
                     )}
 
-                    {resources.map((resource, index) => (
-                        <div key={index} className="flex items-center mb-2">
+                    {resources.length > 0 && (
+                        <div className="mb-4">
+                            <label className="block text-gray-700 mb-2">
+                                Resources
+                            </label>
+                            {resources.map((resource, index) => (
+                                <div key={index} className="flex items-center mb-2">
+                                    <input
+                                        type="text"
+                                        value={resource}
+                                        onChange={(e) => updateResource(index, e.target.value)}
+                                        className="flex-1 p-3 border border-gray-300 rounded"
+                                        placeholder="Resource URL or description"
+                                        readOnly={!!(pendingPost && pendingPost.resourceUrl === resource)}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeResource(index)}
+                                        className="ml-2 text-red-500 hover:text-red-700"
+                                        disabled={!!(pendingPost && pendingPost.resourceUrl === resource)}
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            ))}
+
+                            <button
+                                type="button"
+                                onClick={addResource}
+                                className="mt-2 px-4 py-2 text-sm text-blue-600 hover:text-blue-800 border border-blue-600 rounded"
+                            >
+                                + Add Resource
+                            </button>
+                        </div>
+                    )}
+
+                    <div className="mb-6">
+                        <label className="block text-gray-700 mb-2">
+                            Topics
+                        </label>
+                        <div className="flex flex-wrap gap-2 mb-2">
+                            {tags.map((tag, index) => (
+                                <span
+                                    key={index}
+                                    className="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full"
+                                >
+                                    {tag}
+                                    <button
+                                        type="button"
+                                        onClick={() => removeTag(tag)}
+                                        className="ml-1 text-blue-600 hover:text-blue-800"
+                                    >
+                                        ×
+                                    </button>
+                                </span>
+                            ))}
+                        </div>
+                        <div className="flex">
                             <input
                                 type="text"
-                                value={resource}
-                                onChange={(e) => updateResource(index, e.target.value)}
-                                className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="Resource URL or description"
-                                readOnly={pendingPost && pendingPost.resourceUrl === resource}
+                                value={tagInput}
+                                onChange={(e) => setTagInput(e.target.value)}
+                                onKeyPress={handleTagKeyPress}
+                                className="flex-1 p-3 border border-gray-300 rounded"
+                                placeholder="Add a topic and press Enter"
                             />
                             <button
                                 type="button"
-                                onClick={() => removeResource(index)}
-                                className="ml-2 text-red-500 hover:text-red-700"
-                                disabled={pendingPost && pendingPost.resourceUrl === resource}
+                                onClick={addTag}
+                                className="ml-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded"
                             >
-                                Remove
+                                Add
                             </button>
                         </div>
-                    ))}
+                    </div>
 
-                    <button
-                        type="button"
-                        onClick={addResource}
-                        className="mt-2 px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-md"
-                    >
-                        + Add Resource
-                    </button>
-                </div>
-
-                <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-                    <button
-                        type="button"
-                        onClick={() => navigate(-1)}
-                        className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        type="button"
-                        onClick={handleCreatePlan}
-                        disabled={isSubmitting}
-                        className={`px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center 
-                            ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
-                    >
-                        {isSubmitting ? 'Creating...' : 'Create Plan'}
-                    </button>
+                    <div className="flex justify-end pt-4 border-t border-gray-200">
+                        <button
+                            type="button"
+                            onClick={handleCreatePlan}
+                            disabled={isSubmitting}
+                            className={`px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        >
+                            {isSubmitting ? 'Creating...' : 'Create'}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

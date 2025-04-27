@@ -3,6 +3,8 @@ import React, { ChangeEvent, FormEvent, useState } from "react";
 import ContentBlockEditor from "../content-block-editor";
 import { Code, Heading, ImageIcon, Text, Video } from "lucide-react";
 import { createPost } from "@/api/api-post";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const CreatePost: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
@@ -12,8 +14,7 @@ const CreatePost: React.FC = () => {
   });
 
   const [contentBlocks, setContentBlocks] = useState<ContentBlock[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const blockIcons: Record<ContentBlock["type"], React.ReactNode> = {
     SECTION: <Heading size={18} />,
@@ -34,18 +35,6 @@ const CreatePost: React.FC = () => {
   };
 
   const addContentBlock = (type: ContentBlock["type"]) => {
-    const imageCount = contentBlocks.filter((b) => b.type === "IMAGE").length;
-    const videoCount = contentBlocks.filter((b) => b.type === "VIDEO").length;
-
-    if (type === "IMAGE" && imageCount >= 3) {
-      alert("You can only add up to 3 images.");
-      return;
-    }
-
-    if (type === "VIDEO" && videoCount >= 1) {
-      alert("You can only add 1 video.");
-      return;
-    }
 
     const newBlock: ContentBlock = {
       type,
@@ -69,7 +58,6 @@ const CreatePost: React.FC = () => {
     };
     setContentBlocks(updated);
   };
-  
 
   const removeContentBlock = (index: number) => {
     setContentBlocks(contentBlocks.filter((_, i) => i !== index));
@@ -86,7 +74,7 @@ const CreatePost: React.FC = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!formData.title.trim()) {
-      setError("Title is required");
+      toast.error("Title is required.");
       return;
     }
 
@@ -98,26 +86,18 @@ const CreatePost: React.FC = () => {
     createPost(payload)
       .then((response) => {
         console.log("Post created successfully:", response);
-        setSuccess("Post created successfully!");
-        setError(null);
+        toast.success("Post created successfully!");
+        navigate("/me");
       })
       .catch((error) => {
         console.error("Error creating post:", error);
-        setError("Failed to create post. Please try again.");
+        toast.error("Failed to create post. Please try again.");
       });
-
-    console.log("Submitting:", payload);
-
-    setSuccess("Post submitted!");
-    setError(null);
   };
 
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-4">
       <main className="max-w-3xl mx-auto bg-white shadow-lg rounded-lg p-6">
-        {error && <div className="text-red-500 mb-4">{error}</div>}
-        {success && <div className="text-green-500 mb-4">{success}</div>}
-
         <form onSubmit={handleSubmit}>
           <textarea
             name="title"
@@ -148,6 +128,10 @@ const CreatePost: React.FC = () => {
             {["SECTION", "PARAGRAPH", "IMAGE", "VIDEO", "CODE"].map((type) => (
               <button
                 key={type}
+                disabled={
+                  (type === "IMAGE" && contentBlocks.filter((b) => b.type === "IMAGE").length >= 3) ||
+                  (type === "VIDEO" && contentBlocks.filter((b) => b.type === "VIDEO").length >= 1)
+                }
                 type="button"
                 className="flex w-full justify-center cursor-pointer items-center gap-2 bg-gray-200 hover:bg-gray-300 px-3 py-1.5 rounded"
                 onClick={() => addContentBlock(type as ContentBlock["type"])}
