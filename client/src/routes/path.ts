@@ -15,7 +15,9 @@ import CreatePlanPage from "@/pages/plan/create-plan";
 import UpdatePlanPage from "@/pages/plan/update-plan";
 import ViewPlanPage from "@/pages/plan/view-plan";
 import { createBrowserRouter } from "react-router-dom";
-import MentorCollaborationPage from "@/pages/main/mentor-collaboration";
+import MentorCollaborationPage from "@/pages/main/mentor-collaboration-post";
+import GetAllMentorCollaborationPage from "@/pages/main/mentor-collaboration-get";
+import PutMentorCollaborationPage from "@/pages/main/mentor-collaboration-put";
 import PlansListPage from "@/pages/plan/plans-list";
 
 export const router = createBrowserRouter([
@@ -110,8 +112,20 @@ export const router = createBrowserRouter([
                 ]
             },
             {
-                path: "/mentor-collaboration",
+                path: "/mentor-collaboration-post",
                 Component: MentorCollaborationPage,
+            },
+            {
+                path: "/mentor-collaboration-get",
+                Component: GetAllMentorCollaborationPage,
+            },
+            {
+                path: "mentor-collaboration-put/:collaborationId",
+                Component: PutMentorCollaborationPage,
+            },
+            {
+                path: "mentor-collaboration-del/:collaborationId",
+                Component: PutMentorCollaborationPage,
             }
         ]
     }

@@ -38,4 +38,10 @@ public class MentorCollaborationController {
         mentorCollaborationService.deleteCollaboration(collaborationId, userId);
         return ResponseEntity.ok("Collaboration cancelled successfully.");
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<MentorCollaborationResponseDTO>> getAllCollaborations() {
+        return ResponseEntity.ok(mentorCollaborationService.getAllCollaborations());
+    }
+
 }

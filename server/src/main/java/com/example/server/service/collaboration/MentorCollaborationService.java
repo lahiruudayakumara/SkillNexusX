@@ -10,4 +10,6 @@ public interface MentorCollaborationService {
     List<MentorCollaborationResponseDTO> getCollaborations(Long userId);
     MentorCollaborationResponseDTO updateCollaboration(Long collaborationId, MentorCollaborationRequestDTO requestDTO);
     void deleteCollaboration(Long collaborationId, Long userId);
+    List<MentorCollaborationResponseDTO> getAllCollaborations();
+
 }

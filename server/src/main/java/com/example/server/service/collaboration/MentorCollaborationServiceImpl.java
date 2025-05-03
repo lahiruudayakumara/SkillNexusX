@@ -96,4 +96,12 @@ public class MentorCollaborationServiceImpl implements MentorCollaborationServic
         responseDTO.setStatus(collaboration.getStatus());
         return responseDTO;
     }
+
+    @Override
+    public List<MentorCollaborationResponseDTO> getAllCollaborations() {
+        return collaborationRepository.findAll().stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
 }
