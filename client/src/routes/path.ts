@@ -78,7 +78,7 @@ export const router = createBrowserRouter([
                         Component: CreateProgress, // Create Progress
                     },
                     {
-                        path: "update/:id",
+                        path: "update",
                         Component: UpdateProgress, // Update Progress
                     },
                     {
