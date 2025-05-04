@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.server.DTO.plan.PlanDTO;
 import com.example.server.model.plan.Plan;
-import com.example.server.repository.PlanRepository;
+import com.example.server.repository.plan.PlanRepository;
 
 @Service
 public class PlanServiceImpl implements PlanService {
