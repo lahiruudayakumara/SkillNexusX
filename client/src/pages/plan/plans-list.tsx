@@ -11,7 +11,7 @@ export default function PlansListPage() {
   const [plans, setPlans] = useState<ExtendedPlan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<'all' | 'inProgress' | 'completed' | 'notStarted'>('all');
+  const [filter, setFilter] = useState<'all' | 'inProgress' | 'completed'>('all');
 
   useEffect(() => {
     async function fetchPlans() {
@@ -123,16 +123,12 @@ export default function PlansListPage() {
               >
                 Completed
               </button>
-              <button
-                onClick={() => setFilter('notStarted')}
-                className={`pb-4 px-1 ${
-                  filter === 'notStarted'
-                    ? 'border-b-2 border-blue-600 text-blue-600 font-medium'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
+              <Link
+                to="/progress/view"
+                className="pb-4 px-1 text-gray-500 hover:text-gray-700"
               >
-                Not Started
-              </button>
+                My Progress
+              </Link>
             </nav>
           </div>
 
@@ -164,9 +160,7 @@ export default function PlansListPage() {
                   ? "You haven't created any learning plans yet."
                   : filter === 'inProgress'
                   ? "You don't have any in-progress plans."
-                  : filter === 'completed'
-                  ? "You haven't completed any plans yet."
-                  : "You don't have any plans ready to start."}
+                  : "You haven't completed any plans yet."}
               </p>
               <div className="mt-6">
                 <Link
