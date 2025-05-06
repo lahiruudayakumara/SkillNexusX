@@ -13,6 +13,19 @@ const ViewPlanPage: React.FC = () => {
     const [plan, setPlan] = useState<LearningPlan | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [completedResources, setCompletedResources] = useState<string[]>(() => {
+        const saved = localStorage.getItem(`completed-${id}`);
+        return saved ? JSON.parse(saved) : [];
+    });
+
+    const toggleResource = (resource: string) => {
+        const updated = completedResources.includes(resource)
+            ? completedResources.filter(r => r !== resource)
+            : [...completedResources, resource];
+
+        setCompletedResources(updated);
+        localStorage.setItem(`completed-${id}`, JSON.stringify(updated));
+    };
 
     useEffect(() => {
         if (id) {
@@ -77,12 +90,18 @@ const ViewPlanPage: React.FC = () => {
                 {plan.resources && plan.resources.length > 0 ? (
                     <ul className="list-disc ml-5 mt-1 space-y-1">
                         {plan.resources.map((resource, index) => (
-                            <li key={index}>
+                            <li key={index} className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    checked={completedResources.includes(resource)}
+                                    onChange={() => toggleResource(resource)}
+                                    title={`Mark resource as ${completedResources.includes(resource) ? "incomplete" : "complete"}`}
+                                />
                                 <a
                                     href={resource}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-blue-600 hover:underline"
+                                    className={`hover:underline ${completedResources.includes(resource) ? "line-through text-gray-500" : "text-blue-600"}`}
                                 >
                                     {resource}
                                 </a>
