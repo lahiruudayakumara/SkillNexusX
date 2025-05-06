@@ -73,10 +73,21 @@ const HomeView = () => {
         return;
       }
 
-      const postResource = `/posts/${selectedPost.id || Date.now()}`;
+      // Store both the post path and title
+      const postResource = {
+        path: `/posts/${selectedPost.id || Date.now()}`,
+        title: selectedPost.title,
+        type: 'post'
+      };
+      
       const updatedPlan = {
         ...selectedPlan,
-        resources: [...(selectedPlan.resources || []), postResource],
+        resources: [
+          ...(selectedPlan.resources || []).map((res: { path: string } | string) =>
+            typeof res === "string" ? res : res.path
+          ),
+          postResource.path,
+        ],
       };
 
       await updateLearningPlan(selectedPlanId, updatedPlan);
@@ -93,10 +104,11 @@ const HomeView = () => {
   const createNewPlanWithPost = () => {
     if (!selectedPost) return;
     
-    // Store the selected post ID in session storage to use it on the create plan page
+    // Store the selected post details in session storage to use it on the create plan page
     sessionStorage.setItem('pendingPostToAdd', JSON.stringify({
       id: selectedPost.id || Date.now(),
-      title: selectedPost.title
+      title: selectedPost.title,
+      type: 'post'
     }));
     
     // Close the modal
