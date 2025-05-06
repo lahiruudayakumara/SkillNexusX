@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { ArrowLeft } from "lucide-react";
+import { createLearningPlan } from "@/api/learning-plan-api"; // Assuming API utility is in this path
 
 const CreatePlanView = () => {
     const navigate = useNavigate();
@@ -45,7 +46,7 @@ const CreatePlanView = () => {
         }
     }, []);
 
-    const handleCreatePlan = () => {
+    const handleCreatePlan = async () => {
         if (!title.trim()) {
             setError("Plan title is required");
             return;
@@ -65,8 +66,8 @@ const CreatePlanView = () => {
                 userId: 'current-user-id', // Mock user ID
                 title: title.trim(),
                 description: description.trim(),
-                startDate: startDate || null,
-                endDate: endDate || null,
+                startDate: startDate || undefined,
+                endDate: endDate || undefined,
                 topics: tags, // Map tags to topics for consistency with our interface
                 resources: resources,
                 shared: isPublic,
@@ -75,14 +76,8 @@ const CreatePlanView = () => {
                 updatedAt: new Date().toISOString(),
             };
 
-            // Get existing plans or initialize empty array
-            const existingPlans = JSON.parse(localStorage.getItem('learning-plans') || '[]');
-
-            // Add new plan
-            existingPlans.push(newPlan);
-
-            // Save to localStorage
-            localStorage.setItem('learning-plans', JSON.stringify(existingPlans));
+            // Create plan via API instead of localStorage
+            const createdPlan = await createLearningPlan(newPlan);
 
             // Show success message
             setSuccessMessage('Plan created successfully!');
