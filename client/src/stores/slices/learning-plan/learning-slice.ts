@@ -5,19 +5,26 @@ import {
   createLearningPlan, 
   updateLearningPlan, 
   deleteLearningPlan 
-} from "./learning-actions";
+} from "./learning-action";
 
-// Define the learning plan interface
+// ... existing imports ...
+
+// Update the LearningPlan interface to match your data structure
 export interface LearningPlan {
   id: string;
+  userId: string;
   title: string;
   description: string;
-  goals: string[];
-  timeline?: string;
-  userId: string;
-  createdAt: string;
-  updatedAt: string;
+  startDate?: string;
+  endDate?: string;
+  topics?: string[];
+  resources?: string[];
+  shared?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
+
+// ... rest of the file remains the same ...
 
 // Define the state interface
 interface LearningState {
