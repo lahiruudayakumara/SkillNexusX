@@ -67,6 +67,17 @@ public class PlanController {
     }
 
     /**
+     * Get all plans
+     * 
+     * @return List of all plans
+     */
+    @GetMapping
+    public ResponseEntity<List<PlanDTO>> getAllPlans() {
+        List<PlanDTO> plans = planService.getAllPlans();
+        return new ResponseEntity<>(plans, HttpStatus.OK);
+    }
+
+    /**
      * Update an existing plan
      * 
      * @param id      The plan ID
