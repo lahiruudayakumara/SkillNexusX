@@ -296,4 +296,12 @@ public class PlanServiceImpl implements PlanService {
                 .updatedAt(planDTO.getUpdatedAt())
                 .build();
     }
+
+    @Override
+    public List<PlanDTO> getAllPlans() {
+        List<Plan> plans = planRepository.findAll();
+        return plans.stream()
+            .map(this::convertToDTO)
+            .collect(Collectors.toList());
+    }
 }
