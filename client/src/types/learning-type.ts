@@ -11,4 +11,5 @@ export interface LearningPlan {
     shared: boolean;
     createdAt: string;
     updatedAt: string;
+    
 }
