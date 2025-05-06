@@ -54,8 +54,8 @@ export const updateLearningPlan = createAsyncThunk(
     try {
       const transformedPlanData = {
         ...planData,
-        createdAt: planData.createdAt ? new Date(planData.createdAt) : undefined,
-        updatedAt: planData.updatedAt ? new Date(planData.updatedAt) : undefined,
+        createdAt: planData.createdAt ? new Date(planData.createdAt).toISOString() : undefined,
+        updatedAt: planData.updatedAt ? new Date(planData.updatedAt).toISOString() : undefined,
       };
       const data = await apiUpdateLearningPlan(id, transformedPlanData);
       return data;
