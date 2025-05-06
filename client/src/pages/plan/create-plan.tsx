@@ -13,7 +13,7 @@ const CreatePlanView = () => {
     const [isPublic, setIsPublic] = useState(false);
     const [tags, setTags] = useState<string[]>([]);
     const [tagInput, setTagInput] = useState("");
-    const [resources, setResources] = useState<string[]>([]);
+    const [resources, setResources] = useState<Array<{path: string, title?: string, type?: string}>>([]);
     const [pendingPost, setPendingPost] = useState<{ post?: { username: string; content?: string }; resourceUrl?: string } | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,11 +35,29 @@ const CreatePlanView = () => {
 
                 // If there's a resourceUrl, add it to resources automatically
                 if (postData.resourceUrl) {
-                    setResources([postData.resourceUrl]);
+                    setResources([{
+                        path: postData.resourceUrl,
+                        title: postData.post?.title || "Shared Post",
+                        type: 'post'
+                    }]);
                 }
 
                 // Clear the pending post data
                 sessionStorage.removeItem('pending-post-for-plan');
+            }
+            
+            // Check for any post added via the addPostToExistingPlan function
+            const pendingPostToAdd = sessionStorage.getItem('pendingPostToAdd');
+            if (pendingPostToAdd) {
+                const postToAdd = JSON.parse(pendingPostToAdd);
+                setResources([{
+                    path: `/posts/${postToAdd.id}`,
+                    title: postToAdd.title,
+                    type: postToAdd.type
+                }]);
+                
+                // Clear the pending post data
+                sessionStorage.removeItem('pendingPostToAdd');
             }
         } catch (err) {
             console.error('Failed to load pending post data:', err);
@@ -77,7 +95,10 @@ const CreatePlanView = () => {
             };
 
             // Create plan via API instead of localStorage
-            const createdPlan = await createLearningPlan(newPlan);
+            const createdPlan = await createLearningPlan({
+                ...newPlan,
+                resources: newPlan.resources.map(resource => resource.path),
+            });
 
             // Show success message
             setSuccessMessage('Plan created successfully!');
@@ -101,13 +122,17 @@ const CreatePlanView = () => {
 
     // Handle adding a new resource manually
     const addResource = () => {
-        setResources([...resources, ""]);
+        setResources([...resources, { path: "" }]);
     };
 
     // Handle updating a resource at a specific index
     const updateResource = (index: number, value: string) => {
         const updatedResources = [...resources];
-        updatedResources[index] = value;
+        updatedResources[index] = {
+            ...updatedResources[index],
+            path: value,
+            title: value // For manually added resources, use the path as the title
+        };
         setResources(updatedResources);
     };
 
@@ -236,9 +261,6 @@ const CreatePlanView = () => {
                                     onChange={(e) => setStartDate(e.target.value)}
                                     className="w-full p-3 border border-gray-300 rounded pr-10"
                                 />
-                                <span className="absolute right-3 top-3 text-gray-400">
-                                    {/* Calendar icon is shown by the date input itself */}
-                                </span>
                             </div>
                         </div>
 
@@ -255,9 +277,6 @@ const CreatePlanView = () => {
                                     className="w-full p-3 border border-gray-300 rounded pr-10"
                                     min={startDate}
                                 />
-                                <span className="absolute right-3 top-3 text-gray-400">
-                                    {/* Calendar icon is shown by the date input itself */}
-                                </span>
                             </div>
                         </div>
                     </div>
@@ -273,41 +292,52 @@ const CreatePlanView = () => {
                         </div>
                     )}
 
-                    {resources.length > 0 && (
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">
-                                Resources
-                            </label>
-                            {resources.map((resource, index) => (
+                    <div className="mb-4">
+                        <label className="block text-gray-700 mb-2">
+                            Resources
+                        </label>
+                        {resources.length > 0 ? (
+                            resources.map((resource, index) => (
                                 <div key={index} className="flex items-center mb-2">
-                                    <input
-                                        type="text"
-                                        value={resource}
-                                        onChange={(e) => updateResource(index, e.target.value)}
-                                        className="flex-1 p-3 border border-gray-300 rounded"
-                                        placeholder="Resource URL or description"
-                                        readOnly={!!(pendingPost && pendingPost.resourceUrl === resource)}
-                                    />
+                                    <div className="flex-1 p-3 border border-gray-300 rounded">
+                                        {resource.type === 'post' && resource.title ? (
+                                            <div className="flex items-center">
+                                                <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mr-2">Post</span>
+                                                <span>{resource.title}</span>
+                                            </div>
+                                        ) : (
+                                            <input
+                                                type="text"
+                                                value={resource.path}
+                                                onChange={(e) => updateResource(index, e.target.value)}
+                                                className="w-full outline-none"
+                                                placeholder="Resource URL or description"
+                                                readOnly={!!(pendingPost && pendingPost.resourceUrl === resource.path)}
+                                            />
+                                        )}
+                                    </div>
                                     <button
                                         type="button"
                                         onClick={() => removeResource(index)}
                                         className="ml-2 text-red-500 hover:text-red-700"
-                                        disabled={!!(pendingPost && pendingPost.resourceUrl === resource)}
+                                        disabled={!!(pendingPost && pendingPost.resourceUrl === resource.path)}
                                     >
                                         ×
                                     </button>
                                 </div>
-                            ))}
+                            ))
+                        ) : (
+                            <p className="text-gray-500 italic mb-2">No resources added yet.</p>
+                        )}
 
-                            <button
-                                type="button"
-                                onClick={addResource}
-                                className="mt-2 px-4 py-2 text-sm text-blue-600 hover:text-blue-800 border border-blue-600 rounded"
-                            >
-                                + Add Resource
-                            </button>
-                        </div>
-                    )}
+                        <button
+                            type="button"
+                            onClick={addResource}
+                            className="mt-2 px-4 py-2 text-sm text-blue-600 hover:text-blue-800 border border-blue-600 rounded"
+                        >
+                            + Add Resource
+                        </button>
+                    </div>
 
                     <div className="mb-6">
                         <label className="block text-gray-700 mb-2">
