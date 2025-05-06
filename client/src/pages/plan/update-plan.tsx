@@ -1,137 +1,95 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { PlanForm } from '../../sections/main/plan/plan-form';
-import { LearningPlan } from '../../types/learning-type';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+    getLearningPlanById,
+    updateLearningPlan,
+    LearningPlan,
+} from "../../api/learning-plan-api";
 
-// Extended type to track completed resources
-interface ExtendedPlan extends LearningPlan {
-    completedResources?: string[];
-}
-
-export default function UpdatePlanPage() {
-    const navigate = useNavigate();
+const UpdatePlanPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const [plan, setPlan] = useState<ExtendedPlan | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
+
+    const [formData, setFormData] = useState<Partial<LearningPlan>>({});
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        async function fetchPlan() {
-            if (!id) return;
-
-            try {
-                // Fetch plan from localStorage
-                const existingPlans = JSON.parse(localStorage.getItem('learning-plans') || '[]');
-                const foundPlan = existingPlans.find((p: LearningPlan) => p.id === id);
-
-                if (foundPlan) {
-                    // If completedResources isn't in the plan, initialize it
-                    if (!foundPlan.completedResources) {
-                        foundPlan.completedResources = [];
-                    }
-                    setPlan(foundPlan);
-                } else {
-                    setError('Learning plan not found');
-                }
-            } catch (err) {
-                console.error('Failed to fetch plan:', err);
-                setError('Failed to load the learning plan. Please try again.');
-            } finally {
-                setIsLoading(false);
-            }
+        if (id) {
+            getLearningPlanById(id)
+                .then((data) => setFormData(data))
+                .catch((err) => console.error("Failed to load plan", err))
+                .finally(() => setLoading(false));
         }
-
-        fetchPlan();
-        // Simulate network latency
-        const timer = setTimeout(() => setIsLoading(false), 500);
-        return () => clearTimeout(timer);
     }, [id]);
 
-    const handleSubmit = async (planData: Partial<LearningPlan>) => {
-        if (!plan || !id) return;
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
-        setIsSubmitting(true);
-        setError(null);
-
-        try {
-            // Ensure required fields
-            if (!planData.endDate) {
-                throw new Error('End date is required');
+    const handleUpdate = async () => {
+        if (id) {
+            try {
+                await updateLearningPlan(id, formData);
+                alert("Plan updated successfully.");
+                navigate(`/plans/${id}`);
+            } catch (error) {
+                console.error("Update failed:", error);
             }
-
-            // Preserve completedResources when updating the plan
-            const updatedPlan = {
-                ...plan,
-                ...planData,
-                completedResources: plan.completedResources,
-                updatedAt: new Date().toISOString()
-            };
-
-            // Update plan in localStorage
-            const existingPlans = JSON.parse(localStorage.getItem('learning-plans') || '[]');
-            const updatedPlans = existingPlans.map((p: LearningPlan) =>
-                p.id === id ? updatedPlan : p
-            );
-
-            localStorage.setItem('learning-plans', JSON.stringify(updatedPlans));
-
-            // Simulate network delay
-            await new Promise(resolve => setTimeout(resolve, 500));
-
-            navigate(`/plans/${id}`); // Redirect to view plan
-        } catch (err) {
-            console.error('Failed to update plan:', err);
-            setError(
-                err instanceof Error
-                    ? err.message
-                    : 'Failed to update learning plan. Please try again.'
-            );
-        } finally {
-            setIsSubmitting(false);
         }
     };
 
-    if (isLoading) {
-        return (
-            <div className="container mx-auto px-4 py-8">
-                <p className="text-center">Loading plan...</p>
-            </div>
-        );
-    }
-
-    if (!plan) {
-        return (
-            <div className="container mx-auto px-4 py-8">
-                <p className="text-center text-red-600">Plan not found or you don't have permission to edit it</p>
-                <div className="text-center mt-4">
-                    <button
-                        onClick={() => navigate('/plans')}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                    >
-                        Back to Plans
-                    </button>
-                </div>
-            </div>
-        );
-    }
+    if (loading) return <p>Loading...</p>;
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <h1 className="text-2xl font-bold mb-6">Update Learning Plan</h1>
-
-            {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    {error}
-                </div>
-            )}
-
-            <PlanForm
-                initialData={plan}
-                onSubmit={handleSubmit}
-                isSubmitting={isSubmitting}
-                buttonText="Update Plan"
+        <div className="max-w-2xl mx-auto p-4 shadow rounded bg-white">
+            <h2 className="text-2xl font-bold mb-4">Update Learning Plan</h2>
+            <input
+                type="text"
+                name="title"
+                value={formData.title || ""}
+                onChange={handleChange}
+                className="w-full mb-2 p-2 border rounded"
+                placeholder="Title"
             />
+            <textarea
+                name="description"
+                value={formData.description || ""}
+                onChange={handleChange}
+                className="w-full mb-2 p-2 border rounded"
+                placeholder="Description"
+            />
+            <input
+                type="text"
+                name="startDate"
+                value={formData.startDate || ""}
+                onChange={handleChange}
+                className="w-full mb-2 p-2 border rounded"
+                placeholder="Start Date"
+            />
+            <input
+                type="text"
+                name="endDate"
+                value={formData.endDate || ""}
+                onChange={handleChange}
+                className="w-full mb-4 p-2 border rounded"
+                placeholder="End Date"
+            />
+            <div className="flex gap-4">
+                <button
+                    onClick={handleUpdate}
+                    className="bg-green-600 text-white px-4 py-2 rounded"
+                >
+                    Save
+                </button>
+                <button
+                    onClick={() => navigate(`/plans/${id}`)}
+                    className="bg-gray-400 text-white px-4 py-2 rounded"
+                >
+                    Cancel
+                </button>
+            </div>
         </div>
     );
-}
+};
+
+export default UpdatePlanPage;
