@@ -1,0 +1,1 @@
+export { default as OverviewView } from '@/sections/profile/overview/view/overview-view';

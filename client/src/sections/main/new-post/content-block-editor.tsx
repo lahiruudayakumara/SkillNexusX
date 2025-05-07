@@ -157,7 +157,7 @@ const ContentBlockEditor: React.FC<Props> = ({
 
 const LoadingBar = () => (
   <div className="w-full bg-gray-200 rounded-full h-3 mt-2 overflow-hidden relative">
-    <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 animate-[loading_1.5s_linear_infinite]" />
+    <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary animate-[loading_1.5s_linear_infinite]" />
     <style>{`
       @keyframes loading {
         0% { transform: translateX(-100%); }

@@ -1,313 +1,234 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import { LearningPlan } from '../../types/learning-type';
-import { Check, X } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import {
+    getLearningPlanById,
+    deleteLearningPlan,
+    LearningPlan,
+} from "../../api/learning-plan-api";
 
-// Extended type to track completed resources
-interface ExtendedPlan extends LearningPlan {
-    completedResources?: string[];
-}
-
-export default function ViewPlanPage() {
-    const navigate = useNavigate();
+const ViewPlanPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const [plan, setPlan] = useState<ExtendedPlan | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const navigate = useNavigate();
+
+    const [plan, setPlan] = useState<LearningPlan | null>(null);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [completedResources, setCompletedResources] = useState<string[]>(() => {
+        const saved = localStorage.getItem(`completed-${id}`);
+        return saved ? JSON.parse(saved) : [];
+    });
+
+    const toggleResource = (resource: string) => {
+        const updated = completedResources.includes(resource)
+            ? completedResources.filter(r => r !== resource)
+            : [...completedResources, resource];
+
+        setCompletedResources(updated);
+        localStorage.setItem(`completed-${id}`, JSON.stringify(updated));
+    };
 
     useEffect(() => {
-        async function fetchPlan() {
-            if (!id) return;
-
-            try {
-                // Fetch plan from localStorage
-                const existingPlans = JSON.parse(localStorage.getItem('learning-plans') || '[]');
-                const foundPlan = existingPlans.find((p: LearningPlan) => p.id === id);
-
-                if (foundPlan) {
-                    // If completedResources isn't in the plan, initialize it
-                    if (!foundPlan.completedResources) {
-                        foundPlan.completedResources = [];
-                    }
-                    setPlan(foundPlan);
-                } else {
-                    setError('Learning plan not found');
-                }
-            } catch (err) {
-                console.error('Failed to fetch plan:', err);
-                setError('Failed to load the learning plan. Please try again.');
-            } finally {
-                setIsLoading(false);
-            }
+        if (id) {
+            getLearningPlanById(id)
+                .then((data) => {
+                    setPlan(data);
+                    setLoading(false);
+                })
+                .catch((err) => {
+                    console.error("Failed to load plan", err);
+                    setError("Failed to load learning plan.");
+                    setLoading(false);
+                });
         }
-
-        fetchPlan();
-        // Simulate network latency
-        const timer = setTimeout(() => setIsLoading(false), 500);
-        return () => clearTimeout(timer);
     }, [id]);
 
     const handleDelete = async () => {
-        if (!plan || !id) return;
-
-        if (window.confirm('Are you sure you want to delete this learning plan? This action cannot be undone.')) {
+        if (id && window.confirm("Are you sure you want to delete this plan?")) {
             try {
-                // Remove plan from localStorage
-                const existingPlans = JSON.parse(localStorage.getItem('learning-plans') || '[]');
-                const updatedPlans = existingPlans.filter((p: LearningPlan) => p.id !== id);
-
-                localStorage.setItem('learning-plans', JSON.stringify(updatedPlans));
-
-                // Simulate network delay
-                await new Promise(resolve => setTimeout(resolve, 300));
-
-                navigate('/plans'); // Redirect to plans list
-            } catch (err) {
-                console.error('Failed to delete plan:', err);
-                setError('Failed to delete learning plan. Please try again.');
+                await deleteLearningPlan(id);
+                alert("Plan deleted successfully.");
+                navigate("/plans");
+            } catch (error) {
+                console.error("Delete failed:", error);
+                setError("Failed to delete the plan.");
             }
         }
     };
 
-    // Toggle resource completion status
-    const toggleResourceCompletion = (resourceUrl: string) => {
-        if (!plan) return;
-
-        const isCompleted = plan.completedResources?.includes(resourceUrl);
-        let updatedCompletedResources: string[];
-
-        if (isCompleted) {
-            // Remove from completed resources
-            updatedCompletedResources = (plan.completedResources || []).filter(url => url !== resourceUrl);
-        } else {
-            // Add to completed resources
-            updatedCompletedResources = [...(plan.completedResources || []), resourceUrl];
-        }
-
-        // Update the plan locally
-        const updatedPlan = {
-            ...plan,
-            completedResources: updatedCompletedResources,
-            updatedAt: new Date().toISOString()
-        };
-
-        setPlan(updatedPlan);
-
-        // Update in localStorage
-        const existingPlans = JSON.parse(localStorage.getItem('learning-plans') || '[]');
-        const updatedPlans = existingPlans.map((p: LearningPlan) =>
-            p.id === id ? updatedPlan : p
-        );
-
-        localStorage.setItem('learning-plans', JSON.stringify(updatedPlans));
-
-        // Show success message
-        setSuccessMessage('Progress updated');
-        setTimeout(() => setSuccessMessage(null), 2000);
-    };
-
-    // Format date string for display
-    const formatDateString = (dateString?: string) => {
-        if (!dateString) return 'Not set';
-        try {
-            const date = new Date(dateString);
-            return date.toLocaleDateString();
-        } catch (error) {
-            return 'Invalid date';
-        }
-    };
-
-    // Calculate progress based on completed resources
-    const calculateProgress = () => {
-        if (!plan || !plan.resources || plan.resources.length === 0) return 0;
-
-        const totalResources = plan.resources.length;
-        const completedCount = plan.completedResources?.length || 0;
-
-        return Math.round((completedCount / totalResources) * 100);
-    };
-
-    // Get plan status based on resource completion
-    const getStatusText = () => {
-        if (!plan) return '';
-
-        if (!plan.resources || plan.resources.length === 0) return 'No resources added';
-
-        const progress = calculateProgress();
-
-        if (progress === 0) return 'Not started';
-        if (progress === 100) return 'Completed';
-        return 'In progress';
-    };
-
-    if (isLoading) {
-        return (
-            <div className="container mx-auto px-4 py-8">
-                <p className="text-center">Loading plan...</p>
+    if (loading) return (
+        <div className="min-h-screen bg-gray-50">
+            <Header />
+            <div className="max-w-6xl mx-auto p-6">
+                <p>Loading...</p>
             </div>
-        );
-    }
+            <Footer />
+        </div>
+    );
 
-    if (!plan) {
-        return (
-            <div className="container mx-auto px-4 py-8">
-                <p className="text-center text-red-600">Plan not found</p>
-                <div className="text-center mt-4">
-                    <button
-                        onClick={() => navigate('/plans')}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                    >
-                        Back to Plans
-                    </button>
-                </div>
+    if (error || !plan) return (
+        <div className="min-h-screen bg-gray-50">
+            <Header />
+            <div className="max-w-6xl mx-auto p-6">
+                <p className="text-red-500">{error || "Plan not found."}</p>
             </div>
-        );
-    }
+            <Footer />
+        </div>
+    );
 
-    const progress = calculateProgress();
+    // Calculate progress
+    const totalResources = plan.resources?.length || 0;
+    const completedCount = completedResources.length;
+    const progressPercentage = totalResources > 0 ? Math.round((completedCount / totalResources) * 100) : 0;
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            {successMessage && (
-                <div className="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50">
-                    {successMessage}
-                </div>
-            )}
-
-            <div className="mb-6 flex justify-between items-center">
-                <h1 className="text-2xl font-bold">{plan.title}</h1>
-                <div className="space-x-2">
-                    <Link
-                        to={`/plans/${id}/edit`}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                    >
-                        Edit
-                    </Link>
+        <div className="min-h-screen bg-gray-50">
+            <Header />
+            <div className="max-w-6xl mx-auto p-6">
+                {/* Back button */}
+                <div className="mb-4">
                     <button
-                        onClick={handleDelete}
-                        className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                        onClick={() => navigate('/plans')}
+                        className="text-blue-600 hover:text-blue-700 flex items-center"
                     >
-                        Delete
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                        </svg>
+                        Back to Learning Plans
                     </button>
                 </div>
-            </div>
 
-            {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    {error}
-                </div>
-            )}
-
-            <div className="bg-white shadow rounded-lg p-6 mb-6">
-                <div className="mb-4">
-                    <h2 className="text-lg font-semibold mb-2">Progress</h2>
-                    <div className="flex justify-between text-sm text-gray-600 mb-1">
-                        <span>{getStatusText()}</span>
-                        <span>{progress}% complete</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div
-                            className={`h-2.5 rounded-full ${progress === 100 ? 'bg-green-500' : 'bg-blue-500'}`}
-                            style={{ width: `${progress}%` }}
-                        ></div>
-                    </div>
-                </div>
-
-                <div className="mb-4">
-                    <h2 className="text-lg font-semibold mb-2">Schedule</h2>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <span className="text-gray-600 text-sm">Start Date:</span>
-                            <p>{formatDateString(plan.startDate)}</p>
-                        </div>
-                        <div>
-                            <span className="text-gray-600 text-sm">End Date:</span>
-                            <p>{formatDateString(plan.endDate)}</p>
-                        </div>
-                    </div>
-                </div>
-
-                {plan.description && (
-                    <div className="mb-4">
-                        <h2 className="text-lg font-semibold mb-2">Description</h2>
-                        <p className="text-gray-700">{plan.description}</p>
-                    </div>
-                )}
-
-                {Array.isArray(plan.topics) && plan.topics.length > 0 && (
-                    <div className="mb-4">
-                        <h2 className="text-lg font-semibold mb-2">Topics</h2>
-                        <div className="flex flex-wrap gap-2">
-                            {plan.topics.map((topic, index) => (
-                                <span
-                                    key={index}
-                                    className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
+                <div className="bg-white rounded-lg shadow overflow-hidden">
+                    {/* Plan Header */}
+                    <div className="p-6 border-b border-gray-200">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <h2 className="text-2xl font-bold mb-2">{plan.title}</h2>
+                                <p className="text-gray-600">{plan.description}</p>
+                            </div>
+                            <div className="flex gap-2">
+                                <Link
+                                    to={`/plans/${plan.id}/edit`}
+                                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                                 >
-                                    {topic}
-                                </span>
-                            ))}
+                                    Edit
+                                </Link>
+                                <button
+                                    onClick={handleDelete}
+                                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Progress bar */}
+                        <div className="mt-6">
+                            <div className="flex justify-between text-sm mb-1">
+                                <span>Progress</span>
+                                <span>{progressPercentage}%</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div
+                                    className="bg-green-500 h-2 rounded-full"
+                                    style={{ width: `${progressPercentage}%` }}
+                                ></div>
+                            </div>
+                        </div>
+
+                        {/* Plan metadata */}
+                        <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div>
+                                <p className="text-gray-500">Start Date</p>
+                                <p>{plan.startDate ? new Date(plan.startDate).toLocaleDateString() : 'Not set'}</p>
+                            </div>
+                            <div>
+                                <p className="text-gray-500">End Date</p>
+                                <p>{plan.endDate ? new Date(plan.endDate).toLocaleDateString() : 'Not set'}</p>
+                            </div>
+                            <div>
+                                <p className="text-gray-500">Resources</p>
+                                <p>{completedCount}/{totalResources} Completed</p>
+                            </div>
+                            <div>
+                                <p className="text-gray-500">Shared</p>
+                                <p>{plan.shared ? "Yes" : "No"}</p>
+                            </div>
                         </div>
                     </div>
-                )}
 
-                {Array.isArray(plan.resources) && plan.resources.length > 0 && (
-                    <div className="mb-4">
-                        <h2 className="text-lg font-semibold mb-2">Resources ({plan.completedResources?.length || 0}/{plan.resources.length})</h2>
-                        <ul className="space-y-2">
-                            {plan.resources.map((resource, index) => {
-                                const isCompleted = plan.completedResources?.includes(resource);
+                    {/* Plan content */}
+                    <div className="p-6">
+                        <div className="mb-6">
+                            <h3 className="text-xl font-semibold mb-3">Topics</h3>
+                            {plan.topics && plan.topics.length > 0 ? (
+                                <div className="flex flex-wrap gap-2">
+                                    {plan.topics.map((topic, index) => (
+                                        <span key={index} className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
+                                            {topic}
+                                        </span>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-gray-500">No topics listed.</p>
+                            )}
+                        </div>
 
-                                return (
-                                    <li
-                                        key={index}
-                                        className={`flex items-center p-2 rounded ${isCompleted ? 'bg-green-50' : 'bg-gray-50'}`}
-                                    >
-                                        <button
-                                            onClick={() => toggleResourceCompletion(resource)}
-                                            className={`mr-3 w-5 h-5 flex items-center justify-center rounded border ${isCompleted
-                                                    ? 'bg-green-500 border-green-600 text-white'
-                                                    : 'border-gray-400 hover:bg-gray-200'
-                                                }`}
-                                            aria-label={isCompleted ? "Mark as incomplete" : "Mark as completed"}
-                                        >
-                                            {isCompleted && <Check size={14} />}
-                                        </button>
-
-                                        <a
-                                            href={resource}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className={`flex-grow text-blue-600 hover:underline ${isCompleted ? 'line-through opacity-70' : ''}`}
-                                        >
-                                            {resource}
-                                        </a>
-                                    </li>
-                                );
-                            })}
-                        </ul>
+                        <div>
+                            <h3 className="text-xl font-semibold mb-3">Resources</h3>
+                            {plan.resources && plan.resources.length > 0 ? (
+                                <div className="space-y-2">
+                                    {plan.resources.map((resource, index) => (
+                                        <div key={index} className="flex items-center gap-2 p-3 border border-gray-200 rounded hover:bg-gray-50">
+                                            <input
+                                                type="checkbox"
+                                                checked={completedResources.includes(resource)}
+                                                onChange={() => toggleResource(resource)}
+                                                className="h-5 w-5 text-blue-600 rounded"
+                                                title={`Mark resource as ${completedResources.includes(resource) ? "incomplete" : "complete"}`}
+                                            />
+                                            <a
+                                                href={resource}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className={`hover:underline flex-1 ${completedResources.includes(resource) ? "line-through text-gray-500" : "text-blue-600"}`}
+                                            >
+                                                {resource}
+                                            </a>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-gray-500">No resources added.</p>
+                            )}
+                        </div>
                     </div>
-                )}
-
-                <div className="mt-4 text-sm text-gray-500">
-                    <div>Created: {formatDateString(plan.createdAt)}</div>
-                    <div>Last updated: {formatDateString(plan.updatedAt)}</div>
                 </div>
             </div>
+            <Footer />
+        </div>
+    );
+};
 
-            <div className="flex justify-between">
-                <button
-                    onClick={() => navigate('/plans')}
-                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
-                >
-                    Back to Plans
-                </button>
-                {plan.shared && (
-                    <span className="px-4 py-2 bg-green-100 text-green-800 rounded">
-                        This plan is shared with the community
-                    </span>
-                )}
+// Header Component
+const Header = () => {
+    return (
+        <div>
+            
+            <div className="bg-blue-600 text-white py-4 px-6">
+                <h1 className="text-xl font-bold">SkillNexus</h1>
+                <p className="text-sm">Connect. Learn. Grow.</p>
             </div>
         </div>
     );
-}
+};
+
+// Footer Component
+const Footer = () => {
+    return (
+        <footer className="bg-white py-4 text-center text-sm text-gray-600 mt-8">
+            © 2025 SkillNexus. All rights reserved.
+        </footer>
+    );
+};
+
+export default ViewPlanPage;
