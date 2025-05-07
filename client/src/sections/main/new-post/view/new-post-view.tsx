@@ -35,7 +35,6 @@ const CreatePost: React.FC = () => {
   };
 
   const addContentBlock = (type: ContentBlock["type"]) => {
-
     const newBlock: ContentBlock = {
       type,
       content: "",
@@ -129,8 +128,11 @@ const CreatePost: React.FC = () => {
               <button
                 key={type}
                 disabled={
-                  (type === "IMAGE" && contentBlocks.filter((b) => b.type === "IMAGE").length >= 3) ||
-                  (type === "VIDEO" && contentBlocks.filter((b) => b.type === "VIDEO").length >= 1)
+                  (type === "IMAGE" &&
+                    contentBlocks.filter((b) => b.type === "IMAGE").length >=
+                      3) ||
+                  (type === "VIDEO" &&
+                    contentBlocks.filter((b) => b.type === "VIDEO").length >= 1)
                 }
                 type="button"
                 className="flex w-full justify-center cursor-pointer items-center gap-2 bg-gray-200 hover:bg-gray-300 px-3 py-1.5 rounded"
@@ -141,13 +143,20 @@ const CreatePost: React.FC = () => {
               </button>
             ))}
           </div>
-
-          <button
-            type="submit"
-            className="w-full bg-primary cursor-pointer text-white py-3 rounded font-medium hover:bg-secondary"
-          >
-            Publish
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              className="w-[250px] shadow bg-slate-200 cursor-pointer text-primary py-3 rounded font-medium hover:bg-secondary"
+            >
+              Draft Save
+            </button>
+            <button
+              type="submit"
+              className="w-full bg-primary cursor-pointer text-white py-3 rounded font-medium hover:bg-secondary"
+            >
+              Publish
+            </button>
+          </div>
         </form>
       </main>
     </div>

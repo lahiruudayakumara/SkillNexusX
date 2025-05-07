@@ -103,13 +103,23 @@ const ContentBlockEditor: React.FC<Props> = ({
         <>
           <RichTextToolbar execCommand={execCommand} />
           <div
-            className="border p-3 rounded bg-white min-h-[100px] text-gray-800 prose max-w-none"
+            className="border p-3 rounded bg-white min-h-[100px] text-gray-800 prose max-w-none outline-none whitespace-pre-wrap text-left"
+            dir="ltr"
             contentEditable
-            dangerouslySetInnerHTML={{ __html: block.content }}
-            onInput={(e) =>
-              updateContentBlock(index, "content", e.currentTarget.innerHTML)
-            }
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                document.execCommand("insertText", false, "\n");
+              }
+            }}
+            onInput={(e) => {
+              const text = (e.target as HTMLDivElement).innerText;
+              updateContentBlock(index, "content", text);
+            }}
             suppressContentEditableWarning
+            dangerouslySetInnerHTML={
+              !block.content ? { __html: "" } : undefined
+            } // 👈 only first time
           />
         </>
       )}
