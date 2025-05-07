@@ -8,7 +8,6 @@ const HomePage = () => {
       <Helmet>
         <title>SkillNexus</title>
       </Helmet>
-     {/* <Hero /> */}
       <HomeView />
     </>
   );
