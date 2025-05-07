@@ -45,7 +45,26 @@ const Header = () => {
         </Link>
         <div className="flex items-center gap-2 cursor-pointer text-slate-400 hover:text-slate-600">
           <Bell />
-        </div>
+        
+        {showDropdown && (
+          <div className="absolute right-0 top-12 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
+            <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
+              <p className="font-medium">User Name</p>
+              <p className="text-gray-500 text-xs">user@example.com</p>
+            </div>
+            <a href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              Profile
+            </a>
+
+            <a href="/me/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              Settings
+            </a>
+            <button 
+              onClick={() => dispatch(logout())}
+              className="block w-full cursor-pointer text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            >
+              Logout
+            </button>
         <div
           className="user-info flex items-center gap-4 relative"
           ref={dropdownRef}
@@ -56,27 +75,6 @@ const Header = () => {
           >
             <img src={Avatar} alt="User" className="w-10 h-10 rounded-full" />
           </div>
-
-          {showDropdown && (
-            <div className="absolute right-0 top-12 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
-              {/* <div className="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
-                <p className="font-medium">User Name</p>
-                <p className="text-gray-500 text-xs">user@example.com</p>
-              </div> */}
-              <a
-                href="/me"
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              >
-                Profile
-              </a>
-              <button
-                onClick={() => dispatch(logout())}
-                className="block w-full cursor-pointer text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              >
-                Logout
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </header>
