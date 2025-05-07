@@ -8,6 +8,13 @@ import FeaturesSection from "./feature";
 import TestimonialsSection from "./testimonials";
 import PopularCoursesSection from "./courses";
 import PricingSection from "./pricing";
+import {   FAQSection,
+    CTASection,
+    NewsletterSection,
+    HowItWorksSection,
+    AuthModal,
+    CourseCategoriesSection,
+    PartnersSection } from "./other-features";
 
 // Lazy load the IntercomChat component
 const IntercomChat = lazy(() => import('./intercom'));
@@ -28,10 +35,16 @@ const LandingPage = () => {
       </Helmet>
       <Header />
       <Hero /> 
+      <HowItWorksSection />
       <FeaturesSection />
-      <TestimonialsSection />
+      <CourseCategoriesSection />
+      <PartnersSection />
       <PopularCoursesSection />
+      <TestimonialsSection />
       <PricingSection />
+      <FAQSection />
+      <CTASection />
+      <NewsletterSection />
       <Footer />
       
       {/* Intercom chat with Suspense */}
