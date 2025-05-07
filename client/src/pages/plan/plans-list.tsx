@@ -75,7 +75,7 @@ const PlansListPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
       <div className="max-w-6xl mx-auto p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Learning Plans Management</h2>
@@ -111,11 +111,17 @@ const PlansListPage = () => {
             {["All Plans", "In Progress", "Completed", "My Progress"].map((tab) => (
               <button
                 key={tab}
-                className={`mr-8 py-4 px-1 border-b-2 font-medium text-sm ${activeTab === tab
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
-                onClick={() => setActiveTab(tab)}
+                className={`mr-8 py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === tab
+                    ? "border-blue-600 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+                onClick={() => {
+                  setActiveTab(tab);
+                  if (tab === "My Progress") {
+                    navigate("/progress/view");
+                  }
+                }}
               >
                 {tab}
               </button>
@@ -174,6 +180,7 @@ const PlansListPage = () => {
                         View Plan
                       </button>
                       <button
+                         onClick={() => navigate(`/progress/create`, { state: { plan } })}
                         className="border border-green-600 text-green-600 px-4 py-2 rounded hover:bg-green-50 text-center"
                       >
                         Share Completion
