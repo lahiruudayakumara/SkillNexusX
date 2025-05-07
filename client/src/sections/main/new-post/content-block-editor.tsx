@@ -84,7 +84,7 @@ const ContentBlockEditor: React.FC<Props> = ({
       <button
         type="button"
         onClick={() => removeContentBlock(index)}
-        className="absolute right-0 top-0 text-gray-400 hover:text-red-500"
+        className="absolute right-5 top-0 bottom-0 text-gray-400 hover:text-red-500"
       >
         <Trash2 size={18} />
       </button>
@@ -95,7 +95,7 @@ const ContentBlockEditor: React.FC<Props> = ({
           value={block.content}
           onChange={(e) => updateContentBlock(index, "content", e.target.value)}
           placeholder="Section Heading"
-          className="w-full text-2xl font-semibold border-b pb-2 outline-none"
+          className="w-full text-2xl font-semibold  pb-2 outline-none"
         />
       )}
 
@@ -103,7 +103,7 @@ const ContentBlockEditor: React.FC<Props> = ({
         <>
           <RichTextToolbar execCommand={execCommand} />
           <div
-            className="border p-3 rounded bg-white min-h-[100px] text-gray-800 prose max-w-none outline-none whitespace-pre-wrap text-left"
+            className="border border-slate-300 p-3 rounded bg-white min-h-[100px] text-gray-800 prose max-w-none outline-none whitespace-pre-wrap text-left"
             dir="ltr"
             contentEditable
             onKeyDown={(e) => {
@@ -129,7 +129,7 @@ const ContentBlockEditor: React.FC<Props> = ({
           value={block.content}
           onChange={(e) => updateContentBlock(index, "content", e.target.value)}
           placeholder="Enter code..."
-          className="w-full font-mono text-sm bg-gray-100 p-3 rounded resize-y min-h-[100px]"
+          className="w-full font-mono border border-slate-300 outline-0 text-sm bg-gray-white p-3 rounded resize-y min-h-[100px]"
         />
       )}
 

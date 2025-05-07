@@ -1,6 +1,13 @@
-import React from "react";
-import { ThumbsUp, MessageCircle, Share2, ListPlus, Shapes } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import {
+  ThumbsUp,
+  MessageCircle,
+  Share2,
+  ListPlus,
+  Shapes,
+} from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import SharePopupBox from "@/components/share-popup-box";
 
 type ContentBlock = {
   id: number;
@@ -27,11 +34,12 @@ interface PostBoxProps {
 
 const PostBox: React.FC<PostBoxProps> = ({ post, onAddToList }) => {
   const navigate = useNavigate();
-  
+    const [open, setOpen] = useState<boolean>(false);
+
   const handleCollaborate = () => {
-    navigate('/mentor-collaboration-post');
+    navigate("/mentor-collaboration-post");
   };
-  
+
   const renderContentBlock = (block: ContentBlock) => {
     switch (block.type) {
       case "SECTION":
@@ -73,36 +81,39 @@ const PostBox: React.FC<PostBoxProps> = ({ post, onAddToList }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
-      <h1 className="text-2xl font-semibold text-gray-900">{post.title}</h1>
+      <Link to={`/post/${post.id}`}>
+        <h1 className="text-2xl font-semibold text-gray-900 mb-2">{post.title}</h1>
 
-      {post.contentBlocks
-        .sort((a, b) => a.position - b.position)
-        .map((block) => (
-          <div key={block.id}>{renderContentBlock(block)}</div>
-        ))}
+        {post.contentBlocks
+          .sort((a, b) => a.position - b.position)
+          .map((block) => (
+            <div key={block.id}>{renderContentBlock(block)}</div>
+          ))}
 
-      <div className="text-right text-sm text-gray-400">
-        Published on: {new Date(post.createdAt).toLocaleDateString()}
-      </div>
+        <div className="text-right text-sm text-gray-400">
+          Published on: {new Date(post.createdAt).toLocaleDateString()}
+        </div>
+      </Link>
 
       {/* Action buttons */}
       <div className="flex justify-between mt-4 pt-4 border-t border-gray-200">
         <button className="flex items-center gap-2 text-primary cursor-pointer">
           <ThumbsUp size={18} /> Like
         </button>
-        <button className="flex items-center gap-2 text-primary cursor-pointer">
+        <button onClick={() => navigate(`/comments/${post.id}`)} className="flex items-center gap-2 text-primary cursor-pointer">
           <MessageCircle size={18} /> Comment
         </button>
-        <button className="flex items-center gap-2 text-primary cursor-pointer">
+        <button onClick={() => setOpen(true)} className="flex items-center gap-2 text-primary cursor-pointer">
           <Share2 size={18} /> Share
         </button>
+        <SharePopupBox open={open} setOpen={() => setOpen(false)} postUrl={`http://localhost:5173/posts/${post.id}`} postTitle={post.title} />
         <button
           onClick={handleAddToList}
           className="flex items-center gap-2 text-primary cursor-pointer hover:text-blue-600"
         >
           <ListPlus size={18} /> Add to List
         </button>
-        <button 
+        <button
           className="flex items-center gap-2 text-primary cursor-pointer hover:text-blue-600"
           onClick={handleCollaborate}
         >

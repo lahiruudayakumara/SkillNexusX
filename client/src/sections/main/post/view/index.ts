@@ -1,0 +1,1 @@
+export { default as PostDetailsView } from '@/sections/main/post/view/post-details-view';

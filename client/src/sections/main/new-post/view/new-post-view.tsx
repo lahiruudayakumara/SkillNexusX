@@ -146,7 +146,7 @@ const CreatePost: React.FC = () => {
           <div className="flex gap-2">
             <button
               type="submit"
-              className="w-[250px] shadow bg-slate-200 cursor-pointer text-primary py-3 rounded font-medium hover:bg-secondary"
+              className="w-[250px] shadow hover:shadow-lg border border-slate-400 cursor-pointer text-primary py-3 rounded font-medium hover:bg-slate-50"
             >
               Draft Save
             </button>
