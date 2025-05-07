@@ -6,7 +6,7 @@ import {
   updateLearningPlan,
   createLearningPlan,
 } from "@/api/learning-plan-api";
-import { ListPlus, X } from "lucide-react";
+import { ListPlus, X, PlusCircle } from "lucide-react";
 import { LearningPlan } from "../../../../types/learning-type";
 import PostBox from "./post-card";
 
@@ -283,8 +283,9 @@ const HomeView = () => {
                   <button
                     type="button"
                     onClick={createNewPlanWithPost}
-                    className="w-full text-blue-600 hover:underline text-center"
+                    className="flex items-center justify-center w-full gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-blue-600 font-medium rounded-md transition-colors"
                   >
+                    <PlusCircle size={18} />
                     Create a new list instead
                   </button>
                 </div>
@@ -296,7 +297,5 @@ const HomeView = () => {
     </div>
   );
 };
-
-
 
 export default HomeView;
