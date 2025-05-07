@@ -9,6 +9,13 @@ const CreateProgressPage: React.FC = () => {
   const preFilledPlan = location.state?.plan;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null); // New success state
+
+  // New state variables for title and content
+  const [title, setTitle] = useState(preFilledPlan ? `${preFilledPlan.title}` : "");
+  const [content, setContent] = useState(preFilledPlan
+    ? `Hey, I just completed the “${preFilledPlan.title}” learning plan! 🎉\n\n**What I learned:**`
+    : "");
 
   const handleSubmit = async (formData: {
     title: string;
@@ -19,20 +26,31 @@ const CreateProgressPage: React.FC = () => {
   }) => {
     setIsSubmitting(true);
     setError(null);
+    setSuccess(null);
+
+    // Validate dates
+    const startDate = new Date(formData.startDate);
+    const endDate = new Date(formData.endDate);
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      setError("Please provide valid start and end dates.");
+      setIsSubmitting(false);
+      return;
+    }
+    if (startDate > endDate) {
+      setError("Start date cannot be after the end date.");
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
-      // Get the current user ID from your auth system
       const userId = "12345"; // Replace with your actual user ID from auth context/state
-      
-      // Format dates to match the expected backend format (ISO string)
-      const startDateISO = new Date(formData.startDate).toISOString();
-      const endDateISO = new Date(formData.endDate).toISOString();
-      
-      // Create the progress data object to match backend API
+      const startDateISO = startDate.toISOString();
+      const endDateISO = endDate.toISOString();
+
       const progressData: ProgressDTO = {
-        id: String(Date.now()), // Generate a temporary ID (backend might override this)
+        id: String(Date.now()),
         userId: userId,
-        planId: preFilledPlan?.id || "67890", // Use the plan ID if available or default
+        planId: preFilledPlan?.id || "67890",
         title: formData.title,
         content: formData.content,
         shared: formData.shared,
@@ -40,11 +58,16 @@ const CreateProgressPage: React.FC = () => {
         endDate: endDateISO,
       };
 
-      // Send the data to the API using the imported createProgress function
       await createProgress(progressData);
-      
-      // Navigate back to the progress overview
-      navigate('/progress/view');
+
+      // Store progress in localStorage for the home page
+      if (formData.shared) {
+        localStorage.setItem("sharedProgress", JSON.stringify(progressData));
+      }
+
+      // Show success message and redirect
+      setSuccess("Progress created successfully!");
+      setTimeout(() => navigate('/progress/view')); // Redirect to home after 2 seconds
     } catch (err) {
       console.error('Failed to create progress:', err);
       setError('Failed to create progress. Please try again.');
@@ -75,7 +98,7 @@ const CreateProgressPage: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
             </button>
-            <h2 className="text-2xl font-bold text-gray-800">Document Learning Progress</h2>
+            <h2 className="text-2xl font-bold text-gray-800">Share Your Learning Progress</h2>
           </div>
           
           <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
@@ -90,10 +113,16 @@ const CreateProgressPage: React.FC = () => {
             </div>
           )}
 
+          {success && (
+            <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded">
+              <p className="text-sm text-green-700">{success}</p>
+            </div>
+          )}
+
           <ProgressForm 
             initialData={{
-              title: preFilledPlan?.title || '',
-              content: preFilledPlan?.description || '',
+              title: title,
+              content: content,
               startDate: preFilledPlan?.startDate || '',
               endDate: preFilledPlan?.endDate || '',
               shared: false
