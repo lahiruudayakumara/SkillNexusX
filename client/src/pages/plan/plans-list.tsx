@@ -110,7 +110,7 @@ const PlansListPage = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-        </div>*/}
+        </div>*
 
         {/* Tab Navigation */}
         <div className="border-b border-gray-200 mb-6">
