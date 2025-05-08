@@ -1,5 +1,5 @@
 import { memo, FC, useState, useRef, useEffect } from "react";
-import { EyeIcon } from "lucide-react";
+import { EyeIcon, ListPlus } from "lucide-react";
 import { BookmarkIcon, DotsVerticalIcon, IconButton } from "./icon";
 import ReactMarkdown from "react-markdown";
 import { deletePost } from "@/api/api-post";
@@ -105,7 +105,7 @@ const PostCard: FC<Post> = memo(
             </span>
             <div className="ml-auto flex gap-2 relative" ref={dropdownRef}>
               <IconButton aria-label="Bookmark">
-                <BookmarkIcon className="h-5 w-5" />
+                <ListPlus className="h-5 w-5" />
               </IconButton>
               <IconButton aria-label="More options" onClick={toggleDropdown}>
                 <DotsVerticalIcon className="h-5 w-5 cursor-pointer" />

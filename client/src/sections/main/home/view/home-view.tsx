@@ -185,6 +185,7 @@ const HomeView = () => {
             .filter((post) =>
               post.title.toLowerCase().includes(searchQuery.toLowerCase())
             )
+            .reverse()
             .map((post) => (
               <div key={post.id} className="max-w-3xl mx-auto py-10 px-4 space-y-8">
                 <PostBox post={post} onAddToList={handleAddToList} />

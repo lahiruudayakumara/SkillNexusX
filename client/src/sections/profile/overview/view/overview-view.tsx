@@ -54,7 +54,26 @@ const Overview: FC = () => {
     }
   }, []);
 
-  const following: FollowItem[] = [];
+  type FollowItem = {
+    name: string;
+    avatar: string;
+  };
+  
+  const following: FollowItem[] = [
+    {
+      name: "Jane Doe",
+      avatar: "https://ntrepidcorp.com/wp-content/uploads/2016/06/team-1.jpg",
+    },
+    {
+      name: "John Smith",
+      avatar: "https://randomuser.me/api/portraits/men/35.jpg",
+    },
+    {
+      name: "Emily Chen",
+      avatar: "https://randomuser.me/api/portraits/women/68.jpg",
+    },
+  ];
+  
 
   const handlePostDelete = (postId: number) => {
     setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
@@ -93,7 +112,7 @@ const Overview: FC = () => {
           >
             Draft
           </button>
-          <button
+          {/* <button
             onClick={() => handleViewChange("plans")}
             className={clsx(
               "pb-2 font-medium cursor-pointer",
@@ -103,7 +122,7 @@ const Overview: FC = () => {
             )}
           >
             My Learning Plans
-          </button>
+          </button> */}
         </div>
       </nav>
 
