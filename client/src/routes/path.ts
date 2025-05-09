@@ -19,8 +19,10 @@ import MentorCollaborationPage from "@/pages/main/mentor-collaboration-post";
 import GetAllMentorCollaborationPage from "@/pages/main/mentor-collaboration-get";
 import PutMentorCollaborationPage from "@/pages/main/mentor-collaboration-put";
 import PlansListPage from "@/pages/plan/plans-list";
+import LandingPage from "@/pages/main/landing-page";
 import PostDetailsPage from "@/pages/main/post-details";
 import CommentsPage from "@/pages/main/comments";
+
 
 export const router = createBrowserRouter([
     {
@@ -38,6 +40,10 @@ export const router = createBrowserRouter([
     {
         path: "/callback",
         Component: OAuth2Callback,
+    },
+    {
+        path: "/landing",
+        Component: LandingPage,
     },
     {
         path: "/",
