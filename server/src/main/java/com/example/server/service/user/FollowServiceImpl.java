@@ -7,6 +7,8 @@ import com.example.server.repository.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -45,6 +47,7 @@ public class FollowServiceImpl implements FollowService {
         Follow follow = Follow.builder()
                 .follower(follower)
                 .following(following)
+                .followedAt(LocalDateTime.now())
                 .build();
         followRepository.save(follow);
     }

@@ -12,6 +12,7 @@ import com.example.server.repository.post.CommentRepository;
 import com.example.server.repository.post.LikeRepository;
 import com.example.server.repository.post.PostRepository;
 import com.example.server.repository.user.UserRepository;
+import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,7 +44,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public PostDTO createPost(PostCreateDTO postCreateDTO) {
+    public PostDTO createPost(PostCreateDTO postCreateDTO, boolean draft) {
         logger.debug("Received isPublished: {}", postCreateDTO.isPublished());
         if (postCreateDTO.getContentBlocks().size() > 0) {
             logger.debug("Creating post with {} content blocks", postCreateDTO.getContentBlocks().size());
@@ -54,7 +56,11 @@ public class PostServiceImpl implements PostService {
         Post post = new Post();
         post.setUser(user);
         post.setTitle(postCreateDTO.getTitle());
-        post.setPublished(postCreateDTO.isPublished());
+        if (draft) {
+            post.setPublished(false);
+        } else {
+            post.setPublished(postCreateDTO.isPublished());
+        }
         System.out.println(postCreateDTO);
 
         List<ContentBlock> contentBlocks = postCreateDTO.getContentBlocks().stream()
@@ -78,16 +84,29 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional(readOnly = true)
     public List<PostDTO> getAllPublishedPosts() {
+        Optional<User> currentUser = userRepository.findById(1);
         return postRepository.findByIsPublishedTrue().stream()
-                .map(this::mapToPostDTO)
+                .map(post -> mapToPostDTO(post))
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
+    public List<PostDTO> getAllDraftPosts() {
+        Long userId = 1L;
+        return postRepository.findByIsPublishedFalse().stream()
+                .filter(post -> post.getUser().getId().equals(userId)) // ensure the user owns the post
+                .map(this::mapToPostDTO) // method reference is valid here
+                .collect(Collectors.toList());
+    }
+
+
+
+    @Override
+    @Transactional(readOnly = true)
     public List<PostDTO> getPostsByUserId(Long userId) {
         return postRepository.findByUserId(userId).stream()
-                .map(this::mapToPostDTO)
+                .map(post -> mapToPostDTO(post))
                 .collect(Collectors.toList());
     }
 
@@ -133,6 +152,8 @@ public class PostServiceImpl implements PostService {
         dto.setCreatedAt(post.getCreatedAt());
         dto.setUpdatedAt(post.getUpdatedAt());
         dto.setPublished(post.isPublished());
+        dto.setFullName(post.getUser().getFullName());
+        dto.setUsername(post.getUser().getUsername());
         return dto;
     }
 

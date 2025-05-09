@@ -7,9 +7,10 @@ import com.example.server.model.post.Comment;
 import java.util.List;
 
 public interface PostService {
-    PostDTO createPost(PostCreateDTO postCreateDTO);
+    PostDTO createPost(PostCreateDTO postCreateDTO,boolean draft);
     PostDTO getPostById(Long id);
     List<PostDTO> getAllPublishedPosts();
+    List<PostDTO> getAllDraftPosts();
     List<PostDTO> getPostsByUserId(Long userId);
     PostDTO updatePost(Long id, PostCreateDTO postCreateDTO);
     void deletePost(Long id);

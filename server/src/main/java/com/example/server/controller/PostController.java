@@ -18,8 +18,11 @@ public class PostController {
     private PostService postService;
 
     @PostMapping
-    public ResponseEntity<PostDTO> createPost(@RequestBody PostCreateDTO postCreateDTO) {
-        PostDTO createdPost = postService.createPost(postCreateDTO);
+    public ResponseEntity<PostDTO> createPost(
+            @RequestBody PostCreateDTO postCreateDTO,
+            @RequestParam(value = "draft", required = false, defaultValue = "false") boolean draft
+    ) {
+        PostDTO createdPost = postService.createPost(postCreateDTO, draft);
         return ResponseEntity.ok(createdPost);
     }
 
@@ -32,6 +35,12 @@ public class PostController {
     @GetMapping
     public ResponseEntity<List<PostDTO>> getAllPublishedPosts() {
         List<PostDTO> posts = postService.getAllPublishedPosts();
+        return ResponseEntity.ok(posts);
+    }
+
+    @GetMapping("/draft")
+    public ResponseEntity<List<PostDTO>> getAllDraftPosts() {
+        List<PostDTO> posts = postService.getAllDraftPosts();
         return ResponseEntity.ok(posts);
     }
 

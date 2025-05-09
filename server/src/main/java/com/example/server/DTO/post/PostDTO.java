@@ -14,6 +14,8 @@ public class PostDTO {
     private List<ContentBlockDTO> contentBlocks;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String fullName;
+    private String username;
 
     @JsonProperty("isPublished")
     private boolean isPublished;
