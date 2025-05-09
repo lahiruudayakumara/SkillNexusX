@@ -283,7 +283,7 @@ const ViewProgress: React.FC = () => {
         </div>
       </div>
       
-      <Footer />
+      
     </div>
   );
 };

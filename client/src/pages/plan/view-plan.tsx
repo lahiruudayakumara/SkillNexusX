@@ -226,7 +226,7 @@ const Header = () => {
 const Footer = () => {
     return (
         <footer className="bg-white py-4 text-center text-sm text-gray-600 mt-8">
-            © 2025 SkillNexus. All rights reserved.
+            
         </footer>
     );
 };

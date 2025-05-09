@@ -163,6 +163,8 @@ const UpdatePlanPage: React.FC = () => {
                                     checked={formData.shared || false}
                                     onChange={handleChange}
                                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                    title="Share with community"
+                                    placeholder="Share with community"
                                 />
                                 <span className="ml-2 text-sm text-gray-700">Share with community</span>
                             </div>

@@ -133,12 +133,7 @@ const CreateProgressPage: React.FC = () => {
         </div>
       </div>
       
-      {/* Footer */}
-      <footer className="bg-gray-100 py-4 border-t border-gray-200">
-        <div className="container mx-auto px-4 text-center text-gray-600">
-          © 2025 SkillNexus. All rights reserved.
-        </div>
-      </footer>
+      
     </div>
   );
 };
