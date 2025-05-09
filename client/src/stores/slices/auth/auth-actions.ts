@@ -10,6 +10,8 @@ export const login = createAsyncThunk(
       const response = await loginUser(credentials);
       localStorage.setItem("token", response.token);
       localStorage.setItem("refreshToken", response.refresh_token);
+      localStorage.setItem("userId", String(response.user_id));
+      localStorage.setItem("userName", response.username)
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Login failed");

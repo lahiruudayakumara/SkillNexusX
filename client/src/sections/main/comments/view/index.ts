@@ -1,0 +1,1 @@
+export { default as CommentsView } from '@/sections/main/comments/view/comments-view';

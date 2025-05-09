@@ -20,6 +20,9 @@ import GetAllMentorCollaborationPage from "@/pages/main/mentor-collaboration-get
 import PutMentorCollaborationPage from "@/pages/main/mentor-collaboration-put";
 import PlansListPage from "@/pages/plan/plans-list";
 import LandingPage from "@/pages/main/landing-page";
+import PostDetailsPage from "@/pages/main/post-details";
+import CommentsPage from "@/pages/main/comments";
+
 
 export const router = createBrowserRouter([
     {
@@ -57,11 +60,19 @@ export const router = createBrowserRouter([
             {
                 path: "/new-post",
                 Component: NewPostPage,
-            }
-            ,  {
+            },
+            {
                 path: "/account/settings",
                 Component: ProfilePage,
-              },
+            },
+            {
+                path: "post/:id",
+                Component: PostDetailsPage
+            },
+            {
+                path: "comments/:id",
+                Component: CommentsPage
+            },
             {
                 path: "/me",
                 children: [

@@ -4,8 +4,10 @@ import { DotsVerticalIcon, IconButton } from "../icon";
 import ArticleCard from "../post-card";
 import FollowItem from "../follow-item";
 import Avatar from "@assets/avatar.svg";
-import { getAllPublishedPosts } from "@/api/api-post";
+import { getAllDraftPosts, getAllPublishedPosts } from "@/api/api-post";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { getUserById } from "@/api/api-user";
+import { User } from "@/types/user";
 
 const AboutView: FC = memo(() => (
   <section className="w-full">
@@ -13,48 +15,52 @@ const AboutView: FC = memo(() => (
   </section>
 ));
 
-// Icon Components
-
-
-
 const Overview: FC = () => {
   const [isFollowing, setIsFollowing] = useState(true);
-  const [activeView, setActiveView] = useState<"home" | "about" | "plans">("home");
+  const [activeView, setActiveView] = useState<"publish" | "draft">("publish");
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate(); // Initialize useNavigate
+  const [user, setUser] = useState<User>();
 
   const toggleFollow = useCallback(() => {
     setIsFollowing((prev) => !prev);
   }, []);
 
-  const handleViewChange = useCallback((view: "home" | "about" | "plans") => {
-    if (view === "plans") {
-      navigate("/plans"); // Navigate to /plans when the My Learning Plans tab is clicked
-    } else {
-      setActiveView(view);
-    }
-  }, [navigate]);
-
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const data = await getAllPublishedPosts();
-        setPosts(data);
-      } catch (e) {
-        setError("Failed to load posts");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (posts.length === 0) {
-      fetchPosts();
-    }
+  const handleViewChange = useCallback((view: "publish" | "draft") => {
+    setActiveView(view);
   }, []);
 
-  const following: FollowItem[] = [];
+  useEffect(() => {
+    fetchPosts();
+    fetchUser();
+  }, [activeView]);
+
+  const fetchUser = async () => {
+    try {
+      const user = await getUserById(1);
+      setUser(user);
+    } catch (error) {
+      console.error("Failed to fetch user", error);
+    }
+  };
+
+  const fetchPosts = async () => {
+    setLoading(true);
+    try {
+      const data =
+        activeView === "publish"
+          ? await getAllPublishedPosts()
+          : await getAllDraftPosts();
+      setPosts(data);
+    } catch (e) {
+      setError("Failed to load posts");
+    } finally {
+      setLoading(false);
+    }
+  };
+ 
 
   const handlePostDelete = (postId: number) => {
     setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
@@ -72,10 +78,10 @@ const Overview: FC = () => {
       <nav className="border-b border-gray-200 mb-8">
         <div className="flex space-x-6">
           <button
-            onClick={() => handleViewChange("home")}
+            onClick={() => handleViewChange("publish")}
             className={clsx(
               "pb-2 font-medium cursor-pointer",
-              activeView === "home"
+              activeView === "publish"
                 ? "text-black border-b-2 border-black"
                 : "text-gray-500 hover:text-black"
             )}
@@ -83,17 +89,17 @@ const Overview: FC = () => {
             Publish
           </button>
           <button
-            onClick={() => handleViewChange("about")}
+            onClick={() => handleViewChange("draft")}
             className={clsx(
               "pb-2 font-medium cursor-pointer",
-              activeView === "about"
+              activeView === "draft"
                 ? "text-black border-b-2 border-black"
                 : "text-gray-500 hover:text-black"
             )}
           >
             Draft
           </button>
-          <button
+          {/* <button
             onClick={() => handleViewChange("plans")}
             className={clsx(
               "pb-2 font-medium cursor-pointer",
@@ -103,18 +109,20 @@ const Overview: FC = () => {
             )}
           >
             My Learning Plans
-          </button>
+          </button> */}
         </div>
       </nav>
 
       <div className="flex flex-col md:flex-row gap-10">
         <section className="w-full md:w-2/3">
-          {activeView === "home" ? (
+          {activeView === "publish" ? (
             posts.map((post, index) => (
               <ArticleCard key={index} {...post} onDelete={handlePostDelete} />
             ))
           ) : (
-            <AboutView />
+            posts.map((post, index) => (
+              <ArticleCard key={index} {...post} onDelete={handlePostDelete} />
+            ))
           )}
         </section>
 
@@ -125,10 +133,10 @@ const Overview: FC = () => {
               alt="user-name"
               className="w-20 h-20 rounded-full mb-2"
             />
-            <h2 className="text-lg font-medium mb-1">Lahiru Udayakumara</h2>
-            <p className="text-gray-600 mb-2">4 Followers</p>
+            <h2 className="text-lg font-medium mb-1">{user?.fullName}</h2>
+            <p className="text-gray-600 mb-2">{user?.followers.length} Followers</p>
             <p className="text-gray-700 text-sm text-center mb-4"></p>
-            <div className="flex space-x-2">
+            {/* <div className="flex space-x-2">
               <button
                 className={clsx(
                   "px-4 py-1 rounded-full border cursor-pointer",
@@ -155,13 +163,13 @@ const Overview: FC = () => {
                   />
                 </svg>
               </IconButton>
-            </div>
+            </div> */}
           </div>
 
           <div className="mb-10">
             <h3 className="text-lg font-medium mb-4">Following</h3>
             <div className="space-y-4">
-              {following.map((item, index) => (
+              {user?.following.map((item, index) => (
                 <FollowItem key={index} {...item} />
               ))}
             </div>

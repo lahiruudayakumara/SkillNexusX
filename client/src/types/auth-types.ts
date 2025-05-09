@@ -13,6 +13,9 @@ export interface RegisterRequest {
 export interface AuthResponse {
     token: string;
     refresh_token: string;
+    user_id: number;
+    username: string;
+    email: string;
     user: {
         id: string;
         username: string;

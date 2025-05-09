@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import Logo from "@/assets/logo.png";
 import Avatar from "@/assets/avatar.svg";
-{/* import SearchField from "@/components/input-fields/search-fields/serch-field"; */}
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/stores/store";
 import { logout } from "@/stores/slices/auth/auth-slice";
@@ -34,7 +33,6 @@ const Header = () => {
             <img src={Logo} alt="Logo" className="w-24" />
           </div>
         </Link>
-        {/* <SearchField onChange={() => {}} value="" /> */}
       </div>
 
       <div className="flex items-center gap-4">
