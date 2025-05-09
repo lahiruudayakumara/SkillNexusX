@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-// Removed: import { FaCalendarAlt, FaClock, FaLightbulb, FaUser } from "react-icons/fa";
+import { useNavigate, useLocation } from "react-router-dom";
 
 // Define types
 interface Mentor {
@@ -9,12 +8,21 @@ interface Mentor {
   expertise: string[];
 }
 
+interface LocationState {
+  userId: number;
+  username: string;
+  fullName: string;
+  postId: number;
+  postTitle: string;
+}
+
 interface CollaborationFormData {
   mentorId: number;
   userId: number;
   scheduledTime: string;
   durationInMinutes: number;
   topic: string;
+  postId?: number; // Add postId to track which post this is related to
 }
 
 interface FormErrors {
@@ -44,6 +52,8 @@ const Icons = {
 
 const MentorCollaborationForm: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const mentorData = location.state as LocationState;
 
   // Current user ID would typically come from authentication context
   const currentUserId = 201; // This would be dynamic in a real app
@@ -58,39 +68,73 @@ const MentorCollaborationForm: React.FC = () => {
   const [selectedMentorDetails, setSelectedMentorDetails] = useState<Mentor | null>(null);
 
   const [formData, setFormData] = useState<CollaborationFormData>({
-    mentorId: 0,
+    mentorId: mentorData?.userId || 0,
     userId: currentUserId,
     scheduledTime: "",
     durationInMinutes: 60,
-    topic: "",
+    topic: mentorData?.postTitle ? `Regarding: ${mentorData.postTitle}` : "",
+    postId: mentorData?.postId
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [currentStep, setCurrentStep] = useState<number>(1);
 
-  // Mock function to fetch mentors - in a real app, this would be an API call
+  // Use mentor data passed from navigation state
   useEffect(() => {
-    // Simulating mentor data - replace with actual API call
-    const mockMentors: Mentor[] = [
-      {
-        id: 101,
-        name: "Jane Smith",
-        expertise: ["Java", "Python", "Data Structures"],
-      },
-      {
-        id: 102,
-        name: "John Doe",
-        expertise: ["JavaScript", "React", "Node.js"],
-      },
-      {
-        id: 103,
-        name: "Alice Johnson",
-        expertise: ["Machine Learning", "Python", "Statistics"],
-      },
-    ];
+    if (mentorData) {
+      // Create mentor object from passed data
+      const mentor: Mentor = {
+        id: mentorData.userId,
+        name: mentorData.fullName,
+        expertise: [mentorData.username] // Username could be used as a placeholder, or fetch additional details
+      };
+      
+      setMentors([mentor]);
+      
+      // Pre-select this mentor
+      setFormData(prev => ({
+        ...prev,
+        mentorId: mentorData.userId,
+        topic: mentorData.postTitle ? `Regarding: ${mentorData.postTitle}` : prev.topic,
+        postId: mentorData.postId
+      }));
+      
+      setSelectedMentorDetails(mentor);
+    } else {
+      // Fallback to fetch mentors if no mentor data was passed
+      fetchMentors();
+    }
+  }, [mentorData]);
 
-    setMentors(mockMentors);
-  }, []);
+  // Fetch mentors when no specific mentor is passed
+  const fetchMentors = async () => {
+    try {
+      // In a real app, this would be an API call
+      // Simulating mentor data - replace with actual API call
+      const mockMentors: Mentor[] = [
+        {
+          id: 101,
+          name: "Jane Smith",
+          expertise: ["Java", "Python", "Data Structures"],
+        },
+        {
+          id: 102,
+          name: "John Doe",
+          expertise: ["JavaScript", "React", "Node.js"],
+        },
+        {
+          id: 103,
+          name: "Alice Johnson",
+          expertise: ["Machine Learning", "Python", "Statistics"],
+        },
+      ];
+
+      setMentors(mockMentors);
+    } catch (err) {
+      console.error("Error fetching mentors:", err);
+      setError("Failed to load mentors. Please try again later.");
+    }
+  };
 
   // When mentor is selected, update the selected mentor details
   useEffect(() => {
