@@ -75,7 +75,7 @@ const MentorCollaborationUpdate: React.FC = () => {
     const fetchCollaborationData = async () => {
       setFetchingData(true);
       try {
-        const response = await fetch(`http://localhost:8082/api/mentor-collaboration/${collaborationId}`, {
+        const response = await fetch(`http://localhost:8082/api/mentor-collaboration/collaboration/${collaborationId}`, {
           method: 'GET',
           headers: {
             'Accept': 'application/json'
@@ -83,7 +83,8 @@ const MentorCollaborationUpdate: React.FC = () => {
         });
 
         if (!response.ok) {
-          throw new Error(`Failed to fetch collaboration data: ${response.status}`);
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || `Failed to fetch collaboration data: ${response.status}`);
         }
 
         const data: CollaborationResponse = await response.json();
@@ -199,6 +200,7 @@ const MentorCollaborationUpdate: React.FC = () => {
     }));
   };
 
+  // Corrected handleSubmit function
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -210,88 +212,60 @@ const MentorCollaborationUpdate: React.FC = () => {
     setError(null);
 
     try {
+      // Create a properly formatted data object for the API
+      const apiData = {
+        mentorId: formData.mentorId,
+        userId: formData.userId,
+        scheduledTime: formData.scheduledTime,
+        durationInMinutes: formData.durationInMinutes,
+        topic: formData.topic
+      };
+
       // Make the API request with PUT method for update
-      const response = await fetch(apiUrl, {
+      const response = await fetch(`http://localhost:8082/api/mentor-collaboration/${collaborationId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Accept: "application/json",
+          "Accept": "application/json"
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(apiData)
       });
 
       if (!response.ok) {
         let errorMessage = "Failed to update collaboration session";
 
-        // Get HTTP status code specific messages
-        if (response.status === 400) {
-          errorMessage = "Invalid request data. Please check your form inputs.";
-        } else if (response.status === 401) {
-          errorMessage = "Authentication required. Please log in again.";
-        } else if (response.status === 403) {
-          errorMessage = "You don't have permission to update this session.";
-        } else if (response.status === 404) {
-          errorMessage = "Collaboration session not found.";
-        } else if (response.status === 409) {
-          errorMessage =
-            "Schedule conflict. This time slot may not be available.";
-        } else if (response.status === 500) {
-          errorMessage = "Server error. Please try again later.";
-        }
-
         // Try to get more specific error from response body
         try {
-          const responseClone = response.clone();
-          const errorText = await responseClone.text();
+          const errorData = await response.json();
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          } else if (errorData.error) {
+            errorMessage = errorData.error;
+          }
 
-          if (errorText) {
-            try {
-              const errorData = JSON.parse(errorText);
-              if (errorData.message) {
-                errorMessage = errorData.message;
-              } else if (errorData.error) {
-                errorMessage = errorData.error;
+          // Check for field-specific validation errors
+          if (errorData.errors && typeof errorData.errors === "object") {
+            const fieldErrors: FormErrors = {};
+            Object.entries(errorData.errors).forEach(([field, message]) => {
+              if (field in formData) {
+                fieldErrors[field as keyof FormErrors] = message as string;
               }
+            });
 
-              // Check for field-specific validation errors
-              if (errorData.errors && typeof errorData.errors === "object") {
-                const fieldErrors: FormErrors = {};
-                Object.entries(errorData.errors).forEach(([field, message]) => {
-                  if (field in formData) {
-                    fieldErrors[field as keyof FormErrors] = message as string;
-                  }
-                });
-
-                if (Object.keys(fieldErrors).length > 0) {
-                  setErrors((prev) => ({ ...prev, ...fieldErrors }));
-                }
-              }
-            } catch (jsonError) {
-              console.error("Error parsing error response JSON:", jsonError);
+            if (Object.keys(fieldErrors).length > 0) {
+              setErrors((prev) => ({ ...prev, ...fieldErrors }));
             }
           }
-        } catch (textError) {
-          console.error("Error getting response text:", textError);
+        } catch (jsonError) {
+          console.error("Error parsing error response:", jsonError);
         }
 
         throw new Error(errorMessage);
       }
 
-      let data: CollaborationResponse;
-      try {
-        const responseClone = response.clone();
-        const responseText = await responseClone.text();
-
-        if (!responseText.trim()) {
-          throw new Error("Empty response received");
-        }
-
-        data = JSON.parse(responseText);
-      } catch (jsonError) {
-        console.error("Error parsing success response:", jsonError);
-        throw new Error("Invalid response from server: Unable to parse JSON");
-      }
-
+      // Parse successful response
+      const data = await response.json();
+      
       // Handle successful response
       setSuccess(true);
 

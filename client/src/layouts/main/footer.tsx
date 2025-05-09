@@ -50,9 +50,9 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/plans" className="flex items-center gap-2 text-gray-300 hover:text-white transition">
+                <Link to="https://intercom.help/skillnexus/en" className="flex items-center gap-2 text-gray-300 hover:text-white transition">
                   <FileText size={16} />
-                  <span>Learning Plans</span>
+                  <span>Help Center</span>
                 </Link>
               </li>
               <li>

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-// Removed: import { FaCalendarAlt, FaClock, FaLightbulb, FaUser } from "react-icons/fa";
+import { useNavigate, useLocation } from "react-router-dom";
 
 // Define types
 interface Mentor {
@@ -9,12 +8,21 @@ interface Mentor {
   expertise: string[];
 }
 
+interface LocationState {
+  userId: number;
+  username: string;
+  fullName: string;
+  postId: number;
+  postTitle: string;
+}
+
 interface CollaborationFormData {
   mentorId: number;
   userId: number;
   scheduledTime: string;
   durationInMinutes: number;
   topic: string;
+  postId?: number; // Add postId to track which post this is related to
 }
 
 interface FormErrors {
@@ -44,6 +52,8 @@ const Icons = {
 
 const MentorCollaborationForm: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const mentorData = location.state as LocationState;
 
   // Current user ID would typically come from authentication context
   const currentUserId = 201; // This would be dynamic in a real app
@@ -58,39 +68,75 @@ const MentorCollaborationForm: React.FC = () => {
   const [selectedMentorDetails, setSelectedMentorDetails] = useState<Mentor | null>(null);
 
   const [formData, setFormData] = useState<CollaborationFormData>({
-    mentorId: 0,
+    mentorId: mentorData?.userId || 0,
     userId: currentUserId,
     scheduledTime: "",
     durationInMinutes: 60,
-    topic: "",
+    topic: mentorData?.postTitle ? `Regarding: ${mentorData.postTitle}` : "",
+    postId: mentorData?.postId
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
+  // Start directly from schedule step since mentor is already selected
   const [currentStep, setCurrentStep] = useState<number>(1);
 
-  // Mock function to fetch mentors - in a real app, this would be an API call
+  // Use mentor data passed from navigation state
   useEffect(() => {
-    // Simulating mentor data - replace with actual API call
-    const mockMentors: Mentor[] = [
-      {
-        id: 101,
-        name: "Jane Smith",
-        expertise: ["Java", "Python", "Data Structures"],
-      },
-      {
-        id: 102,
-        name: "John Doe",
-        expertise: ["JavaScript", "React", "Node.js"],
-      },
-      {
-        id: 103,
-        name: "Alice Johnson",
-        expertise: ["Machine Learning", "Python", "Statistics"],
-      },
-    ];
+    if (mentorData) {
+      // Create mentor object from passed data
+      const mentor: Mentor = {
+        id: mentorData.userId,
+        name: mentorData.fullName,
+        expertise: [mentorData.username] // Username could be used as a placeholder, or fetch additional details
+      };
+      
+      setMentors([mentor]);
+      
+      // Pre-select this mentor
+      setFormData(prev => ({
+        ...prev,
+        mentorId: mentorData.userId,
+        topic: mentorData.postTitle ? `Regarding: ${mentorData.postTitle}` : prev.topic,
+        postId: mentorData.postId
+      }));
+      
+      setSelectedMentorDetails(mentor);
+    } else {
+      // Redirect to appropriate page if no mentor data was provided
+      navigate('/mentors');
+      setError("No mentor data provided. Redirecting...");
+    }
+  }, [mentorData, navigate]);
 
-    setMentors(mockMentors);
-  }, []);
+  // Fetch mentors when no specific mentor is passed
+  const fetchMentors = async () => {
+    try {
+      // In a real app, this would be an API call
+      // Simulating mentor data - replace with actual API call
+      const mockMentors: Mentor[] = [
+        {
+          id: 101,
+          name: "Jane Smith",
+          expertise: ["Java", "Python", "Data Structures"],
+        },
+        {
+          id: 102,
+          name: "John Doe",
+          expertise: ["JavaScript", "React", "Node.js"],
+        },
+        {
+          id: 103,
+          name: "Alice Johnson",
+          expertise: ["Machine Learning", "Python", "Statistics"],
+        },
+      ];
+
+      setMentors(mockMentors);
+    } catch (err) {
+      console.error("Error fetching mentors:", err);
+      setError("Failed to load mentors. Please try again later.");
+    }
+  };
 
   // When mentor is selected, update the selected mentor details
   useEffect(() => {
@@ -105,11 +151,8 @@ const MentorCollaborationForm: React.FC = () => {
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
-    // Check if mentor is selected
-    if (!formData.mentorId) {
-      newErrors.mentorId = "Please select a mentor";
-    }
-
+    // No need to check mentor selection since it's already passed
+    
     // Check if scheduledTime is provided and in the future
     if (!formData.scheduledTime) {
       newErrors.scheduledTime = "Please select a date and time";
@@ -275,17 +318,12 @@ const MentorCollaborationForm: React.FC = () => {
   };
 
   const nextStep = () => {
-    if (currentStep === 1 && !formData.mentorId) {
-      setErrors({ mentorId: "Please select a mentor to continue" });
-      return;
-    }
-    
-    if (currentStep === 2 && !formData.scheduledTime) {
+    if (currentStep === 1 && !formData.scheduledTime) {
       setErrors({ scheduledTime: "Please select a date and time to continue" });
       return;
     }
     
-    if (currentStep === 3 && !formData.topic.trim()) {
+    if (currentStep === 2 && !formData.topic.trim()) {
       setErrors({ topic: "Please enter a topic to continue" });
       return;
     }
@@ -321,7 +359,7 @@ const MentorCollaborationForm: React.FC = () => {
       {/* Progress indicator */}
       <div className="mb-8">
         <div className="flex justify-between items-center">
-          {[1, 2, 3, 4].map((step) => (
+          {[1, 2, 3].map((step) => (
             <div key={step} className="flex flex-col items-center">
               <div 
                 className={`w-10 h-10 rounded-full flex items-center justify-center font-medium text-lg
@@ -329,16 +367,14 @@ const MentorCollaborationForm: React.FC = () => {
                     ? 'bg-blue-600 text-white' 
                     : 'bg-gray-200 text-gray-500'}`}
               >
-                {step === 1 && <Icons.User />}
-                {step === 2 && <Icons.Calendar />}
-                {step === 3 && <Icons.Lightbulb />}
-                {step === 4 && <Icons.Clock />}
+                {step === 1 && <Icons.Calendar />}
+                {step === 2 && <Icons.Lightbulb />}
+                {step === 3 && <Icons.Clock />}
               </div>
               <div className={`text-sm mt-2 ${currentStep >= step ? 'text-blue-600 font-medium' : 'text-gray-500'}`}>
-                {step === 1 && "Mentor"}
-                {step === 2 && "Schedule"}
-                {step === 3 && "Topic"}
-                {step === 4 && "Confirm"}
+                {step === 1 && "Schedule"}
+                {step === 2 && "Topic"}
+                {step === 3 && "Confirm"}
               </div>
             </div>
           ))}
@@ -348,7 +384,7 @@ const MentorCollaborationForm: React.FC = () => {
           <div className="h-1 bg-gray-200 rounded-full">
             <div 
               className="h-1 bg-blue-600 rounded-full transition-all duration-300"
-              style={{ width: `${(currentStep - 1) * 33.33}%` }}
+              style={{ width: `${(currentStep - 1) * 50}%` }}
             ></div>
           </div>
         </div>
@@ -382,84 +418,38 @@ const MentorCollaborationForm: React.FC = () => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Step 1: Mentor Selection */}
-        {currentStep === 1 && (
-          <div className="transition-opacity duration-500 ease-in-out">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Select a Mentor</h2>
-            <p className="text-gray-600 mb-6">
-              Choose the mentor who best fits your learning goals and expertise requirements.
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {mentors.map((mentor) => (
-                <div 
-                  key={mentor.id} 
-                  className={`border rounded-lg p-4 cursor-pointer transition-all hover:shadow-md
-                    ${formData.mentorId === mentor.id 
-                      ? 'border-blue-500 bg-blue-50 shadow-md' 
-                      : 'border-gray-200 hover:border-blue-300'}`}
-                  onClick={() => setFormData(prev => ({ ...prev, mentorId: mentor.id }))}
-                >
-                  <div className="flex items-center mb-2">
-                    <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xl">
-                      {mentor.name.charAt(0)}
-                    </div>
-                    <h3 className="ml-3 font-medium">{mentor.name}</h3>
-                  </div>
-                  <div className="mt-2">
-                    <p className="text-sm text-gray-500 mb-2">Expertise:</p>
-                    <div className="flex flex-wrap gap-2">
-                      {mentor.expertise.map((skill, index) => (
-                        <span 
-                          key={index} 
-                          className="text-xs bg-gray-100 text-gray-700 py-1 px-2 rounded"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+        {/* Display selected mentor info */}
+        {selectedMentorDetails && (
+          <div className="bg-blue-50 rounded-lg p-4 mb-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-2">Selected Mentor</h2>
+            <div className="flex items-center">
+              <div className="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xl">
+                {selectedMentorDetails.name.charAt(0)}
+              </div>
+              <div className="ml-4">
+                <p className="font-medium text-lg">{selectedMentorDetails.name}</p>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {selectedMentorDetails.expertise.map((skill, index) => (
+                    <span 
+                      key={index} 
+                      className="text-xs bg-blue-100 text-blue-700 py-1 px-2 rounded"
+                    >
+                      {skill}
+                    </span>
+                  ))}
                 </div>
-              ))}
-            </div>
-            
-            {errors.mentorId && (
-              <p className="text-red-500 text-sm mt-2">{errors.mentorId}</p>
-            )}
-            
-            <div className="mt-8 flex justify-end">
-              <button
-                type="button"
-                onClick={nextStep}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors"
-              >
-                Continue
-              </button>
+              </div>
             </div>
           </div>
         )}
-
-        {/* Step 2: Schedule Selection */}
-        {currentStep === 2 && (
+        
+        {/* Step 1: Schedule Selection (formerly Step 2) */}
+        {currentStep === 1 && (
           <div className="transition-opacity duration-500 ease-in-out">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Choose a Date & Time</h2>
             <p className="text-gray-600 mb-6">
               Select a date and time that works for your schedule. Sessions must be booked at least 1 hour in advance.
             </p>
-            
-            {selectedMentorDetails && (
-              <div className="bg-blue-50 rounded-lg p-4 mb-6 flex items-center">
-                <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xl">
-                  {selectedMentorDetails.name.charAt(0)}
-                </div>
-                <div className="ml-3">
-                  <p className="font-medium">{selectedMentorDetails.name}</p>
-                  <p className="text-sm text-gray-600">
-                    {selectedMentorDetails.expertise.join(", ")}
-                  </p>
-                </div>
-              </div>
-            )}
             
             <div className="mb-6">
               <label htmlFor="scheduledTime" className="block text-gray-700 font-medium mb-2">
@@ -479,14 +469,7 @@ const MentorCollaborationForm: React.FC = () => {
               )}
             </div>
             
-            <div className="mt-8 flex justify-between">
-              <button
-                type="button"
-                onClick={prevStep}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition-colors"
-              >
-                Back
-              </button>
+            <div className="mt-8 flex justify-end">
               <button
                 type="button"
                 onClick={nextStep}
@@ -498,8 +481,8 @@ const MentorCollaborationForm: React.FC = () => {
           </div>
         )}
 
-        {/* Step 3: Topic */}
-        {currentStep === 3 && (
+        {/* Step 2: Topic (formerly Step 3) */}
+        {currentStep === 2 && (
           <div className="transition-opacity duration-500 ease-in-out">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">What would you like to discuss?</h2>
             <p className="text-gray-600 mb-6">
@@ -552,8 +535,8 @@ const MentorCollaborationForm: React.FC = () => {
           </div>
         )}
 
-        {/* Step 4: Duration & Confirmation */}
-        {currentStep === 4 && (
+        {/* Step 3: Duration & Confirmation (formerly Step 4) */}
+        {currentStep === 3 && (
           <div className="transition-opacity duration-500 ease-in-out">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Session Duration & Confirmation</h2>
             <p className="text-gray-600 mb-6">
@@ -645,7 +628,7 @@ const MentorCollaborationForm: React.FC = () => {
                     Scheduling...
                   </>
                 ) : (
-                  "Confirm Booking"
+                  "Confirm"
                 )}
               </button>
             </div>

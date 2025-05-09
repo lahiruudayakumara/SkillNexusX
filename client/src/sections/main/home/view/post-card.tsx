@@ -21,7 +21,15 @@ const PostBox: React.FC<PostBoxProps> = ({ post, onAddToList }) => {
   const [open, setOpen] = useState<boolean>(false);
 
   const handleCollaborate = () => {
-    navigate("/mentor-collaboration-post");
+    navigate("/mentor-collaboration-post", {
+      state: {
+        userId: post.userId,
+        username: post.username,
+        fullName: post.fullName,
+        postId: post.id,
+        postTitle: post.title
+      }
+    });
   };
 
   const renderContentBlock = (block: FeedContentBlock) => {

@@ -104,4 +104,12 @@ public class MentorCollaborationServiceImpl implements MentorCollaborationServic
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public MentorCollaborationResponseDTO getCollaborationById(Long collaborationId) {
+        MentorCollaboration collaboration = collaborationRepository.findById(collaborationId)
+                .orElseThrow(() -> new RuntimeException("Collaboration not found."));
+        return mapToResponseDTO(collaboration);
+    }
+
+
 }
