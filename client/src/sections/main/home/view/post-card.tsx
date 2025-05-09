@@ -10,6 +10,10 @@ import { Link, useNavigate } from "react-router-dom";
 import SharePopupBox from "@/components/share-popup-box";
 import Avater from "@/assets/avatar.svg";
 import { FeedContentBlock, FeedPost } from "@/types/post";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/stores/store";
+import { likeFeedPost } from "@/stores/slices/post/feed-action";
+import { likePost } from "@/stores/slices/post/feed-slice";
 
 interface PostBoxProps {
   post: FeedPost;
@@ -19,7 +23,9 @@ interface PostBoxProps {
 const PostBox: React.FC<PostBoxProps> = ({ post, onAddToList }) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState<boolean>(false);
-
+  const posts = useSelector((state: RootState) => state.feed.posts);
+  const dispatch =useDispatch<AppDispatch>();
+  const userId = useSelector((state: RootState) => state.auth.user_id);
   const handleCollaborate = () => {
     navigate("/mentor-collaboration-post", {
       state: {
@@ -71,6 +77,11 @@ const PostBox: React.FC<PostBoxProps> = ({ post, onAddToList }) => {
     }
   };
 
+  const handleLike = () => {
+    dispatch(likePost(post.id));
+    dispatch(likeFeedPost({ postId: post.id.toString(), userId: userId.toString() })); // Handles both optimistic update and backend call
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
       <div className="flex items-center gap-1 -mb-0">
@@ -99,14 +110,14 @@ const PostBox: React.FC<PostBoxProps> = ({ post, onAddToList }) => {
 
       {/* Action buttons */}
       <div className="flex justify-between mt-4 pt-4 border-t border-gray-200">
-        <button className="flex items-center gap-2 text-primary cursor-pointer">
-          <ThumbsUp size={18} /> Like
+        <button onClick={handleLike} className="flex items-center gap-2 text-primary cursor-pointer">
+          <ThumbsUp size={18} /> Like {post.likeCount === 0 ? "" : post.likeCount}
         </button>
         <button
           onClick={() => navigate(`/comments/${post.id}`)}
           className="flex items-center gap-2 text-primary cursor-pointer"
         >
-          <MessageCircle size={18} /> Comment
+          <MessageCircle size={18} /> Comment {post.likeCount === 0 ? "" : post.likeCount}
         </button>
         <button
           onClick={() => setOpen(true)}

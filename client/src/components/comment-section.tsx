@@ -1,79 +1,104 @@
-import { ReplyAll, Send, SendHorizontal, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { fetchComments, createComment, createReply, deleteComment, deleteReply } from "@/stores/slices/comments/comments-action";
+import { AppDispatch, RootState } from "@/stores/store";
+import { ReplyAll, Send, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 interface Comment {
-  id: string;
+  id: number;
   author: string;
-  text: string;
-  createdAt: Date;
+  content: string;
+  createdAt: string;
+  parentCommentId?: number;
   replies?: Comment[];
 }
 
 interface CommentSectionProps {
   postId: string;
+  userId: string;
 }
 
 const CommentSection = ({ postId }: CommentSectionProps) => {
-  const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [replyMap, setReplyMap] = useState<Record<string, string>>({});
+  const dispatch = useDispatch<AppDispatch>();
+  const { comments, loading, error } = useSelector((state: RootState) => state.comments);
+  const { user_id } = useSelector((state: RootState) => state.auth);
+
+
+  useEffect(() => {
+    dispatch(fetchComments(postId));
+  }, [dispatch,  postId]);
 
   const handleAddComment = () => {
     if (!newComment.trim()) return;
-
-    const newEntry: Comment = {
-      id: `${Date.now()}`,
-      author: "You", // Replace with actual user
-      text: newComment.trim(),
-      createdAt: new Date(),
-      replies: [],
+  
+    const newCommentPayload = {
+      postId,
+      userId: Number(user_id),
+      content: newComment.trim(),
     };
-
-    setComments((prev) => [...prev, newEntry]);
+  
+    dispatch(createComment(newCommentPayload))
+      .then((action) => {
+        if (action.payload) {
+          dispatch(fetchComments(postId));
+        }
+      });
+  
     setNewComment("");
   };
+  
 
-  const handleReplyChange = (commentId: string, text: string) => {
+  const handleReplyChange = (commentId: number, text: string) => {
     setReplyMap((prev) => ({ ...prev, [commentId]: text }));
   };
 
-  const handleAddReply = (parentId: string) => {
+  const handleAddReply = (parentId: number) => {
     const replyText = replyMap[parentId]?.trim();
     if (!replyText) return;
-
-    const reply: Comment = {
-      id: `${Date.now()}-${Math.random()}`,
-      author: "You", // Replace with actual user
-      text: replyText,
-      createdAt: new Date(),
+  
+    const newReplyPayload = {
+      postId,
+      parentCommentId: parentId,
+      userId: String(user_id),
+      content: replyText,
     };
-
-    setComments((prevComments) =>
-      prevComments.map((comment) =>
-        comment.id === parentId
-          ? { ...comment, replies: [...(comment.replies || []), reply] }
-          : comment
-      )
-    );
-
+  
+    dispatch(createReply(newReplyPayload))
+      .then((action) => {
+        if (action.payload) {
+          dispatch(fetchComments(postId));
+        }
+      });
+  
     setReplyMap((prev) => ({ ...prev, [parentId]: "" }));
   };
 
+  const handleDeleteComment = (commentId: number) => {
+    dispatch(deleteComment(commentId)).then(() => {
+      dispatch(fetchComments(postId));
+    });
+  };
+
+  const handleDeleteReply = (replyId: number) => {
+    dispatch(deleteReply(replyId)).then(() => {
+      dispatch(fetchComments(postId));
+    });
+  };  
+
   const renderComment = (comment: Comment) => (
-    <div
-      key={comment.id}
-      className="border border-gray-200 rounded p-3 bg-gray-50 space-y-1"
-    >
-      <div className="text-sm font-medium">{comment.author}</div>
-      <div className="text-sm text-gray-700">{comment.text}</div>
+    <div key={comment.id} className="border border-gray-200 rounded p-3 bg-gray-50 space-y-1">
+      <div className="text-sm font-medium">{comment.author || "Unknown"}</div>
+      <div className="text-sm text-gray-700">{comment.content}</div>
       <div className="flex items-center text-gray-400 gap-2">
         <div className="text-xs text-gray-400">
-          {comment.createdAt.toLocaleString()}
-        </div>{" "}
+          {new Date(comment.createdAt).toLocaleString()}
+        </div>
         <button className="cursor-pointer flex gap-1 items-center">
           <ReplyAll size={16} /> Reply
         </button>
-        <button className="cursor-pointer">
+        <button onClick={() => handleDeleteComment(comment.id)} className="cursor-pointer">
           <Trash2 size={16} />
         </button>
       </div>
@@ -89,7 +114,7 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
           onClick={() => handleAddReply(comment.id)}
           className="mt-2 text-sm items-center flex gap-2 text-white bg-primary hover:bg-secondary px-3 py-1 rounded cursor-pointer"
         >
-          <Send size={16}/>
+          <Send size={16} />
           Reply
         </button>
       </div>
@@ -102,12 +127,12 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
               className="border border-gray-200 bg-white rounded p-2"
             >
               <div className="text-sm font-medium">{reply.author}</div>
-              <div className="text-sm text-gray-700">{reply.text}</div>
+              <div className="text-sm text-gray-700">{reply.content}</div>
               <div className="flex items-center gap-2 text-gray-400">
                 <div className="text-xs text-gray-400">
-                  {reply.createdAt.toLocaleString()}
+                  {new Date(reply.createdAt).toLocaleString()}
                 </div>
-                <button className="cursor-pointer">
+                <button onClick={() => handleDeleteReply(reply.id)} className="cursor-pointer">
                   <Trash2 size={16} />
                 </button>
               </div>
@@ -121,11 +146,12 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
   return (
     <div className="w-full mt-6 space-y-4">
       <h3 className="text-lg font-semibold">Comments</h3>
+      {loading && <p className="text-sm text-gray-500">Loading comments...</p>}
+      {error && <p className="text-sm text-red-500">{error}</p>}
+
       <div className="space-y-4">
         {comments.length === 0 && (
-          <p className="text-gray-500 text-sm">
-            No comments yet. Be the first!
-          </p>
+          <p className="text-gray-500 text-sm">No comments yet. Be the first!</p>
         )}
         {comments.map(renderComment)}
       </div>

@@ -24,6 +24,7 @@ export interface AuthResponse {
 }
 
 export interface AuthState {
+    user_id: number;
     user: AuthResponse["user"] | null;
     token: string | null;
     loading: boolean;
