@@ -4,7 +4,7 @@ import Avatar from "@/assets/avatar.svg";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/stores/store";
 import { logout } from "@/stores/slices/auth/auth-slice";
-import { Bell, SquarePen, Home, FileText } from "lucide-react";
+import { Bell, SquarePen, Home, FileText, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Header = () => {
@@ -46,6 +46,12 @@ const Header = () => {
           <div className="flex items-center gap-2 cursor-pointer text-slate-400 hover:text-slate-600">
             <FileText size={20} />
             <p>My Plan</p>
+          </div>
+        </Link>
+        <Link to="/mentor-collaboration-get">
+          <div className="flex items-center gap-2 cursor-pointer text-slate-400 hover:text-slate-600">
+            <Users size={20} />
+            <p>Collaborations</p>
           </div>
         </Link>
         <Link to="/new-post">

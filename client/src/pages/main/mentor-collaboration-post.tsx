@@ -645,7 +645,7 @@ const MentorCollaborationForm: React.FC = () => {
                     Scheduling...
                   </>
                 ) : (
-                  "Confirm Booking"
+                  "Confirm"
                 )}
               </button>
             </div>
