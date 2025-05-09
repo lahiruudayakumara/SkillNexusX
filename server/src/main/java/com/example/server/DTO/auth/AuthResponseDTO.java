@@ -15,6 +15,9 @@ public class AuthResponseDTO {
     @JsonProperty("username")
     private String username;
 
+    @JsonProperty("user_id")
+    private Long userId;
+
     @JsonProperty("email")
     private String email;
 
