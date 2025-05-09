@@ -1,5 +1,6 @@
 import { useState, FormEvent } from "react";
 import { ArrowRight, CheckCircle, ChevronDown } from "lucide-react";
+import heroImage from "../../images/1.png";  // Import the hero image
 
 const Hero = () => {
   const [email, setEmail] = useState("");
@@ -28,7 +29,7 @@ const Hero = () => {
           <div className="space-y-8">
             <div>
               <span className="bg-blue-700 text-sm font-medium px-3 py-1 rounded-full">
-                Learning Platform
+                SkillNexus Learning Platform
               </span>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mt-4 leading-tight">
                 Accelerate Your Career With Expert-Led Courses
@@ -62,12 +63,12 @@ const Hero = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email address"
-                className="px-4 py-3 rounded-lg flex-grow text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-4 py-3 rounded-lg flex-grow text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
               <button
                 type="submit"
-                className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-medium transition flex items-center justify-center gap-2 whitespace-nowrap"
+                className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-medium transition flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer"
               >
                 Get Started <ArrowRight size={18} />
               </button>
@@ -94,32 +95,15 @@ const Hero = () => {
           <div className="relative">
             <div className="relative rounded-xl overflow-hidden shadow-2xl">
               <div className="aspect-[4/3] bg-blue-800 flex items-center justify-center">
-                {/* Replace with your actual hero image */}
-                <div className="w-full h-full bg-gradient-to-tr from-blue-700 to-indigo-600 p-8 flex items-center justify-center">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 w-full max-w-md">
-                    <div className="h-8 w-24 bg-blue-200/30 rounded mb-4"></div>
-                    <div className="space-y-2">
-                      <div className="h-4 bg-blue-200/30 rounded w-full"></div>
-                      <div className="h-4 bg-blue-200/30 rounded w-5/6"></div>
-                      <div className="h-4 bg-blue-200/30 rounded w-4/6"></div>
-                    </div>
-                    <div className="mt-6 grid grid-cols-2 gap-3">
-                      <div className="h-12 bg-blue-500/50 rounded"></div>
-                      <div className="h-12 bg-blue-500/50 rounded"></div>
-                      <div className="h-12 bg-blue-500/50 rounded"></div>
-                      <div className="h-12 bg-blue-500/50 rounded"></div>
-                    </div>
-                  </div>
-                </div>
+                {/* Hero image */}
+                <img 
+                  src={heroImage} 
+                  alt="SkillNexusX Learning Platform" 
+                  className="w-full h-full object-cover"
+                />
               </div>
               
-              {/* Feature badges floating on the image */}
-              <div className="absolute -bottom-0 -left-[-10] bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-2 rounded-lg shadow-lg">
-                <p className="font-bold">Interactive Learning</p>
-              </div>
-              <div className="absolute -top-0 -right-0 bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 rounded-lg shadow-lg">
-                <p className="font-bold">Industry Experts</p>
-              </div>
+              
             </div>
           </div>
         </div>

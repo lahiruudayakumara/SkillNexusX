@@ -82,23 +82,7 @@ const Footer = () => {
                 <Phone size={16} />
                 <span>+1 (555) 123-4567</span>
               </div>
-              {/* Newsletter Signup */}
-              <div className="mt-4">
-                <h4 className="text-sm font-medium mb-2">Subscribe to our newsletter</h4>
-                <form className="flex">
-                  <input
-                    type="email"
-                    placeholder="Your email"
-                    className="px-3 py-2 text-sm text-gray-800 rounded-l-md focus:outline-none w-full"
-                  />
-                  <button 
-                    type="submit" 
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-r-md text-sm transition"
-                  >
-                    Subscribe
-                  </button>
-                </form>
-              </div>
+              
             </div>
           </div>
         </div>

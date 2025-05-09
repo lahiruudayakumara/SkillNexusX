@@ -1,5 +1,9 @@
 import { useState } from "react";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
+import Image10 from "../../images/10.jpg";  
+import Image11 from "../../images/11.jpg";  
+import Image12 from "../../images/12.jpg";  
+import Image13 from "../../images/13.jpg";  
 
 const TestimonialsSection = () => {
   const testimonials = [
@@ -7,7 +11,7 @@ const TestimonialsSection = () => {
       name: "Sarah Johnson",
       role: "UX Designer",
       company: "CreativeTech",
-      image: "/api/placeholder/150/150", // Replace with actual image in production
+      image: Image10, // Using imported image
       quote: "SkillNexusX helped me transition from graphic design to UX in just 3 months. The structured curriculum and mentor feedback were exactly what I needed to build my portfolio and land my dream job.",
       rating: 5
     },
@@ -15,7 +19,7 @@ const TestimonialsSection = () => {
       name: "Michael Chen",
       role: "Data Analyst",
       company: "FinancePro",
-      image: "/api/placeholder/150/150", // Replace with actual image in production
+      image: Image11, // Using imported image
       quote: "After completing the Data Analytics course, I was able to automate key processes at my company, saving us over 20 hours per week. The practical projects were incredibly relevant to real-world challenges.",
       rating: 5
     },
@@ -23,7 +27,7 @@ const TestimonialsSection = () => {
       name: "Emma Wilson",
       role: "Project Manager",
       company: "TechSolutions",
-      image: "/api/placeholder/150/150", // Replace with actual image in production
+      image: Image12, // Using imported image
       quote: "The project management certification from SkillNexusX gave me the confidence to lead larger teams. Within 6 months of completing the course, I received a promotion and a 30% salary increase.",
       rating: 5
     },
@@ -31,7 +35,7 @@ const TestimonialsSection = () => {
       name: "David Rodriguez",
       role: "Software Developer",
       company: "InnovateSoft",
-      image: "/api/placeholder/150/150", // Replace with actual image in production
+      image: Image13, // Using imported image
       quote: "The coding bootcamp was intense but worth every minute. The instructors were excellent at breaking down complex concepts, and the peer collaboration made learning enjoyable. Highly recommended!",
       rating: 4
     }
@@ -54,7 +58,7 @@ const TestimonialsSection = () => {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-            Success Stories From Our <span className="text-blue-600">Community</span>
+            Success Stories From Our <span className="text-[#3B58C0]">Community</span>
           </h2>
           <p className="mt-4 text-lg text-gray-600">
             See how SkillNexusX has helped professionals like you transform their careers and achieve their goals.
@@ -88,7 +92,7 @@ const TestimonialsSection = () => {
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
             <div className="grid grid-cols-1 lg:grid-cols-3">
               {/* Testimonial Image - Hidden on mobile */}
-              <div className="hidden lg:block bg-gradient-to-br from-blue-700 to-indigo-800 p-8 flex items-center justify-center">
+              <div className="hidden lg:block bg-gradient-to-br from-[#3B58C0] to-indigo-800 p-25 flex items-center justify-center">
                 <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg mx-auto">
                   <img 
                     src={testimonials[currentIndex].image} 
@@ -142,7 +146,7 @@ const TestimonialsSection = () => {
                 key={index}
                 onClick={() => setCurrentIndex(index)}
                 className={`h-2 rounded-full transition-all ${
-                  index === currentIndex ? 'w-8 bg-blue-600' : 'w-2 bg-gray-300'
+                  index === currentIndex ? 'w-8 bg-[#3B58C0]' : 'w-2 bg-gray-300'
                 }`}
                 aria-label={`Go to testimonial ${index + 1}`}
               />
@@ -154,7 +158,7 @@ const TestimonialsSection = () => {
         <div className="text-center mt-16">
           <a 
             href="#" 
-            className="text-blue-600 hover:text-blue-800 font-medium underline underline-offset-4"
+            className="text-[#3B58C0] hover:text-blue-800 font-medium underline underline-offset-4"
           >
             Read more success stories
           </a>

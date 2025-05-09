@@ -104,7 +104,7 @@ const PricingSection = () => {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-            Simple, Transparent <span className="text-blue-600">Pricing</span>
+            Simple, Transparent <span className="text-[#3B58C0]">Pricing</span>
           </h2>
           <p className="mt-4 text-lg text-gray-600">
             Choose the perfect plan to accelerate your learning journey and advance your career.
@@ -116,7 +116,7 @@ const PricingSection = () => {
               onClick={() => setBillingPeriod("monthly")}
               className={`px-4 py-2 text-sm font-medium rounded-md transition ${
                 billingPeriod === "monthly"
-                  ? "bg-white text-blue-600 shadow-sm"
+                  ? "bg-white text-[#3B58C0] shadow-sm"
                   : "text-gray-700 hover:text-gray-900"
               }`}
             >
@@ -126,7 +126,7 @@ const PricingSection = () => {
               onClick={() => setBillingPeriod("yearly")}
               className={`px-4 py-2 text-sm font-medium rounded-md transition ${
                 billingPeriod === "yearly"
-                  ? "bg-white text-blue-600 shadow-sm"
+                  ? "bg-white text-[#3B58C0] shadow-sm"
                   : "text-gray-700 hover:text-gray-900"
               }`}
             >
@@ -142,18 +142,18 @@ const PricingSection = () => {
               key={plan.id}
               className={`rounded-2xl overflow-hidden ${
                 plan.popular
-                  ? "border-2 border-blue-600 shadow-xl relative"
+                  ? "border-2 border-[#3B58C0] shadow-xl relative"
                   : "border border-gray-200 shadow-lg"
               }`}
             >
               {plan.popular && (
-                <div className="bg-blue-600 text-white text-center py-1 text-sm font-medium">
+                <div className="bg-[#3B58C0] text-white text-center py-1 text-sm font-medium">
                   Most Popular
                 </div>
               )}
               
               <div className="p-8">
-                <h3 className={`text-2xl font-bold ${plan.popular ? "text-blue-600" : "text-gray-900"}`}>
+                <h3 className={`text-2xl font-bold ${plan.popular ? "text-[#3B58C0]" : "text-gray-900"}`}>
                   {plan.name}
                 </h3>
                 <p className="text-gray-600 mt-2 min-h-12">{plan.description}</p>
@@ -173,7 +173,7 @@ const PricingSection = () => {
                 <button
                   className={`w-full py-3 px-4 rounded-lg font-medium transition ${
                     plan.popular
-                      ? "bg-blue-600 hover:bg-blue-700 text-white"
+                      ? "bg-[#3B58C0] hover:bg-blue-700 text-white"
                       : "bg-gray-100 hover:bg-gray-200 text-gray-900"
                   }`}
                 >
@@ -203,7 +203,7 @@ const PricingSection = () => {
 
         {/* FAQs Link */}
         <div className="text-center mt-6">
-          <a href="#faq" className="text-blue-600 hover:text-blue-800 font-medium">
+          <a href="#faq" className="text-[#3B58C0] hover:text-blue-800 font-medium">
             Have questions? Check our FAQ section
           </a>
         </div>

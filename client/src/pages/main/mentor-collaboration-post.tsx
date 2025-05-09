@@ -315,7 +315,7 @@ const MentorCollaborationForm: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 md:p-8 bg-white rounded-lg shadow-lg">
+    <div className="max-w-4xl mx-auto p-6 m-10 md:p-8 bg-white rounded-lg shadow-lg">
       <h1 className="text-3xl font-bold text-blue-700 mb-8 text-center">Schedule a Mentoring Session</h1>
 
       {/* Progress indicator */}

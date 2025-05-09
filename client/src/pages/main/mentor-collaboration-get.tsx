@@ -132,7 +132,7 @@ const MentorCollaborationList: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-6 md:p-8 bg-white rounded-lg shadow-lg">
+    <div className="m-10 max-w-7xl mx-auto p-6 md:p-8 bg-white rounded-lg shadow-lg">
       <h1 className="text-3xl font-bold text-blue-700 mb-8">All Mentoring Sessions</h1>
 
       {/* Error message */}

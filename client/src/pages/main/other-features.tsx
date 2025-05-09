@@ -48,7 +48,7 @@ const FAQSection = () => {
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-            Frequently Asked <span className="text-blue-600">Questions</span>
+            Frequently Asked <span className="text-[#3B58C0]">Questions</span>
           </h2>
           <p className="mt-4 text-lg text-gray-600">
             Find answers to common questions about our platform, courses, and subscription plans.
@@ -90,7 +90,7 @@ const FAQSection = () => {
  */
 const CTASection = () => {
   return (
-    <section className="py-20 bg-blue-600 text-white">
+    <section className="py-20 bg-[#3B58C0] text-white">
       <div className="container mx-auto px-4 text-center">
         <h2 className="text-3xl md:text-4xl font-bold mb-6">
           Start Your Learning Journey Today
@@ -99,10 +99,10 @@ const CTASection = () => {
           Join thousands of learners already advancing their careers with our expert-led courses.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <button className="bg-white text-blue-600 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition">
+          <button className="bg-white text-[#3B58C0] hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition cursor-pointer">
             Get Started For Free
           </button>
-          <button className="bg-transparent border-2 border-white hover:bg-blue-700 font-bold py-3 px-8 rounded-lg transition">
+          <button className="bg-transparent border-2 border-white hover:bg-[#3d3bc0] font-bold py-3 px-8 rounded-lg transition cursor-pointer">
             View Courses
           </button>
         </div>
@@ -151,7 +151,7 @@ const NewsletterSection = () => {
             </div>
             <button 
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg transition"
+              className="bg-[#3B58C0] hover:bg-blue-900 text-white font-medium px-6 py-3 rounded-lg transition cursor-pointer"
             >
               Subscribe
             </button>
@@ -170,49 +170,80 @@ const NewsletterSection = () => {
  * Explaining the learning process
  */
 const HowItWorksSection = () => {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  
   const steps = [
     {
-      icon: <Search className="w-12 h-12 text-blue-600" />,
+      icon: <Search className="w-10 h-10 text-[#1A3AA4]" />,
       title: "Find Your Course",
       description: "Browse our extensive library of courses across multiple disciplines and skill levels."
     },
     {
-      icon: <Calendar className="w-12 h-12 text-blue-600" />,
+      icon: <Calendar className="w-10 h-10 text-[#1A3AA4]" />,
       title: "Learn At Your Pace",
       description: "Access course content anytime, anywhere, and learn at a schedule that works for you."
     },
     {
-      icon: <Award className="w-12 h-12 text-blue-600" />,
+      icon: <Award className="w-10 h-10 text-[#1A3AA4]" />,
       title: "Earn Certification",
       description: "Complete assessments and projects to earn recognized certificates for your profile."
     },
     {
-      icon: <GraduationCap className="w-12 h-12 text-blue-600" />,
+      icon: <GraduationCap className="w-10 h-10 text-[#1A3AA4]" />,
       title: "Advance Your Career",
       description: "Apply your new skills to real-world challenges and take your career to the next level."
     }
   ];
 
   return (
-    <section id="how-it-works" className="py-20 bg-white">
+    <section id="how-it-works" className="py-24 bg-gradient-to-b from-white to-gray-50">
       <div className="container mx-auto px-4">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-            How It <span className="text-blue-600">Works</span>
+        <div className="text-center max-w-2xl mx-auto mb-20">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+            How It <span className="text-[#1A3AA4] relative">
+              Works
+              <span className="absolute -bottom-2 left-0 w-full h-1 bg-[#1A3AA4] rounded-full opacity-40"></span>
+            </span>
           </h2>
-          <p className="mt-4 text-lg text-gray-600">
+          <p className="mt-6 text-xl text-gray-600">
             Our simple four-step process makes learning new skills easier than ever.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 max-w-6xl mx-auto">
           {steps.map((step, index) => (
-            <div key={index} className="text-center">
-              <div className="bg-blue-50 rounded-full p-6 w-24 h-24 flex items-center justify-center mx-auto mb-6">
-                {step.icon}
+            <div 
+              key={index} 
+              className="relative p-6 rounded-2xl transition-all duration-300"
+              style={{
+                transform: hoveredIndex === index ? 'translateY(-8px)' : 'none'
+              }}
+              onMouseEnter={() => setHoveredIndex(index)}
+              onMouseLeave={() => setHoveredIndex(null)}
+            >
+              <div className={`absolute inset-0 rounded-2xl bg-white shadow-lg transition-all duration-300 ${hoveredIndex === index ? 'shadow-xl opacity-100' : 'opacity-90'}`}></div>
+              
+              <div className="relative z-10">
+                <div className={`rounded-2xl bg-blue-50 p-5 w-20 h-20 flex items-center justify-center mx-auto mb-6 transition-all duration-300 ${hoveredIndex === index ? 'bg-blue-100' : ''}`}>
+                  {step.icon}
+                </div>
+                
+                <h3 className="text-xl font-bold text-gray-900 mb-4">
+                  {step.title}
+                </h3>
+                
+                <p className="text-gray-600 leading-relaxed">
+                  {step.description}
+                </p>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">{step.title}</h3>
-              <p className="text-gray-600">{step.description}</p>
+              
+              {index < steps.length - 1 && (
+                <div className="hidden lg:block absolute -right-5 top-1/2 transform -translate-y-1/2 z-20">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-blue-300">
+                    <path d="M5 12h14M12 5l7 7-7 7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -220,6 +251,7 @@ const HowItWorksSection = () => {
     </section>
   );
 };
+
 
 /**
  * Authentication Components (Login/Signup)
@@ -384,65 +416,60 @@ const CourseCategoriesSection = () => {
     {
       icon: <BookOpen className="w-10 h-10" />,
       title: "Web Development",
-      courseCount: 42,
-      color: "bg-blue-100 text-blue-600"
+      courseCount: 42
     },
     {
       icon: <Book className="w-10 h-10" />,
       title: "Data Science",
-      courseCount: 38,
-      color: "bg-purple-100 text-purple-600"
+      courseCount: 38
     },
     {
       icon: <BookOpen className="w-10 h-10" />,
       title: "Business",
-      courseCount: 56,
-      color: "bg-yellow-100 text-yellow-600"
+      courseCount: 56
     },
     {
       icon: <Book className="w-10 h-10" />,
       title: "Design",
-      courseCount: 29,
-      color: "bg-green-100 text-green-600"
+      courseCount: 29
     },
     {
       icon: <BookOpen className="w-10 h-10" />,
       title: "Marketing",
-      courseCount: 32,
-      color: "bg-red-100 text-red-600"
+      courseCount: 32
     },
     {
       icon: <Book className="w-10 h-10" />,
       title: "Personal Development",
-      courseCount: 45,
-      color: "bg-teal-100 text-teal-600"
+      courseCount: 45
     }
   ];
 
   return (
-    <section id="categories" className="py-20 bg-white">
+    <section id="categories" className="py-16 bg-white">
       <div className="container mx-auto px-4">
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-            Browse <span className="text-blue-600">Categories</span>
+            Browse <span className="text-[#3B58C0]">Categories</span>
           </h2>
-          <p className="mt-4 text-lg text-gray-600">
+          <p className="mt-3 text-lg text-gray-600">
             Explore our wide range of courses across different categories
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {categories.map((category, index) => (
             <a 
               key={index}
-              href="#" 
-              className="block group bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition overflow-hidden"
+              href={`/categories/${category.title.toLowerCase().replace(/\s+/g, '-')}`}
+              className="block group bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition duration-300 overflow-hidden"
+              aria-label={`View ${category.title} courses`}
             >
               <div className="p-6">
-                <div className={`rounded-full w-16 h-16 flex items-center justify-center ${category.color} mb-4`}>
+                <div className="rounded-full w-16 h-16 flex items-center justify-center bg-[#3B58C0]/10 text-[#3B58C0] mb-4">
                   {category.icon}
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition">
+                <h3 className="text-xl font-bold text-gray-900 mb-1 group-hover:text-[#3B58C0] transition">
                   {category.title}
                 </h3>
                 <p className="text-gray-600">
@@ -453,10 +480,14 @@ const CourseCategoriesSection = () => {
           ))}
         </div>
 
-        <div className="text-center mt-12">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition">
+        <div className="text-center mt-10">
+          <a 
+            href="/categories" 
+            className="bg-[#3B58C0] hover:bg-[#3B58C0]/90 text-white font-medium py-3 px-8 rounded-lg transition inline-block"
+            aria-label="View all course categories"
+          >
             View All Categories
-          </button>
+          </a>
         </div>
       </div>
     </section>
@@ -467,24 +498,98 @@ const CourseCategoriesSection = () => {
  * Partners/Trusted By Section
  */
 const PartnersSection = () => {
+  const partners = [
+    { name: "ACME Inc", logo: "ACME" },
+    { name: "TechCorp", logo: "TechCorp" },
+    { name: "GlobalSoft", logo: "GlobalSoft" },
+    { name: "FutureTech", logo: "FutureTech" },
+    { name: "InnovateCo", logo: "InnovateCo" },
+    { name: "LeadEdge", logo: "LeadEdge" }
+  ];
+
   return (
-    <section className="py-12 bg-gray-50">
-      <div className="container mx-auto px-4">
-        <h2 className="text-center text-lg font-medium text-gray-600 mb-8">
-          Trusted by leading companies worldwide
-        </h2>
+    <section className="py-24 bg-white relative overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-5 pointer-events-none">
+        <div className="absolute -top-20 -left-20 w-64 h-64 rounded-full bg-[#1A3AA4]"></div>
+        <div className="absolute -bottom-32 -right-20 w-96 h-96 rounded-full bg-[#1A3AA4]"></div>
+      </div>
+      
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="flex flex-col items-center mb-16">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-blue-50 text-[#1A3AA4] font-medium text-sm mb-4">
+            OUR PARTNERS
+          </span>
+          
+          <h2 className="text-center text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+            Trusted by leading companies worldwide
+          </h2>
+          
+          <div className="w-16 h-1 bg-[#1A3AA4] rounded-full mb-6"></div>
+          
+          <p className="text-center text-gray-600 max-w-2xl">
+            Join the growing network of industry leaders who rely on our platform to upskill their teams and drive innovation.
+          </p>
+        </div>
         
-        <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-6 opacity-70">
-          {/* These would typically be actual logos, but for demo purposes we're using text */}
-          <div className="text-xl font-bold text-gray-400">ACME Inc</div>
-          <div className="text-xl font-bold text-gray-400">TechCorp</div>
-          <div className="text-xl font-bold text-gray-400">GlobalSoft</div>
-          <div className="text-xl font-bold text-gray-400">FutureTech</div>
-          <div className="text-xl font-bold text-gray-400">InnovateCo</div>
-          <div className="text-xl font-bold text-gray-400">LeadEdge</div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center">
+          {partners.map((partner, index) => (
+            <PartnerLogo key={index} partner={partner} />
+          ))}
+        </div>
+        
+        <div className="mt-16 text-center">
+          <a 
+            href="#become-partner" 
+            className="inline-flex items-center text-[#1A3AA4] font-medium hover:underline group"
+          >
+            Become a partner
+            <svg 
+              className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
         </div>
       </div>
     </section>
+  );
+};
+
+interface Partner {
+  name: string;
+  logo: string;
+}
+
+const PartnerLogo = ({ partner }: { partner: Partner }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  return (
+    <div 
+      className="flex items-center justify-center"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div 
+        className={`w-full h-24 rounded-xl flex items-center justify-center transition-all duration-300 px-4 py-6 ${
+          isHovered 
+            ? 'bg-white shadow-lg transform scale-105' 
+            : 'bg-gray-50'
+        }`}
+      >
+        {/* This would normally be an actual logo image */}
+        <div 
+          className={`text-xl font-bold transition-all duration-300 ${
+            isHovered ? 'text-[#1A3AA4]' : 'text-gray-400'
+          }`}
+        >
+          {partner.logo}
+        </div>
+      </div>
+    </div>
   );
 };
 

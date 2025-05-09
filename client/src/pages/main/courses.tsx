@@ -1,5 +1,11 @@
 import { Clock, Users, Star, ArrowRight } from "lucide-react";
 import { useState } from "react";
+import Image03 from "../../images/3.jpg";  
+import Image04 from "../../images/4.jpg";  
+import Image05 from "../../images/5.jpg";  
+import Image06 from "../../images/6.jpg";  
+import Image07 from "../../images/7.jpg";  
+import Image08 from "../../images/8.jpg";  
 
 const PopularCoursesSection = () => {
   const [activeCategory, setActiveCategory] = useState("all");
@@ -17,7 +23,7 @@ const PopularCoursesSection = () => {
       id: 1,
       title: "Modern Web Development Bootcamp",
       instructor: "Alex Morgan",
-      image: "/api/placeholder/400/250", // Replace with actual image
+      image: Image03, // Using imported image
       rating: 4.9,
       students: 4328,
       duration: "8 weeks",
@@ -29,7 +35,7 @@ const PopularCoursesSection = () => {
       id: 2,
       title: "UI/UX Design Masterclass",
       instructor: "Jessica Chen",
-      image: "/api/placeholder/400/250", // Replace with actual image
+      image: Image04, // Using imported image
       rating: 4.8,
       students: 3150,
       duration: "6 weeks",
@@ -41,7 +47,7 @@ const PopularCoursesSection = () => {
       id: 3,
       title: "Data Analytics for Business Decisions",
       instructor: "Michael Johnson",
-      image: "/api/placeholder/400/250", // Replace with actual image
+      image: Image05, // Using imported image
       rating: 4.7,
       students: 2875,
       duration: "10 weeks",
@@ -53,7 +59,7 @@ const PopularCoursesSection = () => {
       id: 4,
       title: "Project Management Professional",
       instructor: "Sarah Williams",
-      image: "/api/placeholder/400/250", // Replace with actual image
+      image: Image06, // Using imported image
       rating: 4.9,
       students: 5120,
       duration: "12 weeks",
@@ -65,7 +71,7 @@ const PopularCoursesSection = () => {
       id: 5,
       title: "Machine Learning Fundamentals",
       instructor: "David Lee",
-      image: "/api/placeholder/400/250", // Replace with actual image
+      image: Image07, // Using imported image
       rating: 4.8,
       students: 2560,
       duration: "8 weeks",
@@ -77,7 +83,7 @@ const PopularCoursesSection = () => {
       id: 6,
       title: "Advanced React Development",
       instructor: "Emily Rodriguez",
-      image: "/api/placeholder/400/250", // Replace with actual image
+      image: Image08, // Using imported image
       rating: 4.9,
       students: 3250,
       duration: "6 weeks",
@@ -98,7 +104,7 @@ const PopularCoursesSection = () => {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-            Most Popular <span className="text-blue-600">Courses</span>
+            Most Popular <span className="text-[#3B58C0]">Courses</span>
           </h2>
           <p className="mt-4 text-lg text-gray-600">
             Explore our top-rated courses designed to help you master in-demand skills and advance your career.
@@ -113,7 +119,7 @@ const PopularCoursesSection = () => {
               onClick={() => setActiveCategory(category.id)}
               className={`px-5 py-2 rounded-full text-sm font-medium transition ${
                 activeCategory === category.id 
-                  ? 'bg-blue-600 text-white' 
+                  ? 'bg-[#3B58C0] text-white' 
                   : 'bg-white text-gray-700 hover:bg-gray-100'
               }`}
             >
@@ -134,7 +140,7 @@ const PopularCoursesSection = () => {
                   className="w-full h-48 object-cover"
                 />
                 {course.badge && (
-                  <span className="absolute top-4 left-4 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded">
+                  <span className="absolute top-4 left-4 bg-[#3B58C0] text-white text-xs font-bold px-2 py-1 rounded">
                     {course.badge}
                   </span>
                 )}
@@ -158,7 +164,7 @@ const PopularCoursesSection = () => {
                     <Clock className="h-4 w-4 mr-1" />
                     {course.duration}
                   </div>
-                  <div className="text-blue-600 font-bold">${course.price}</div>
+                  <div className="text-[#3B58C0] font-bold">${course.price}</div>
                 </div>
                 
                 <a 
@@ -176,7 +182,7 @@ const PopularCoursesSection = () => {
         <div className="text-center mt-12">
           <a 
             href="/courses" 
-            className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium"
+            className="inline-flex items-center text-[#3B58C0] hover:text-blue-800 font-medium"
           >
             View all courses
             <ArrowRight className="ml-2 h-4 w-4" />
