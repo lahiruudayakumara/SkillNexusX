@@ -6,6 +6,11 @@ export const createPost = async (postData: FormData): Promise<{ message: string,
   return response.data;
 };
 
+export const createDraftPost = async (postData: FormData): Promise<{ message: string, postId: string }> => {
+  const response = await API.post<{ message: string, postId: string }>("/posts?draft=true", postData);
+  return response.data;
+};
+
 export const getPostById = async (postId: string): Promise<any[]> => {
   const response = await API.get(`posts/${postId}`);
   return response.data;
@@ -13,6 +18,11 @@ export const getPostById = async (postId: string): Promise<any[]> => {
 
 export const getAllPublishedPosts = async (): Promise<any[]> => {
   const response = await API.get("/posts");
+  return response.data;
+};
+
+export const getAllDraftPosts = async (): Promise<any[]> => {
+  const response = await API.get("/posts/draft");
   return response.data;
 };
 
