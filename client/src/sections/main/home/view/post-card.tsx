@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import SharePopupBox from "@/components/share-popup-box";
+import Avater from "@/assets/avatar.svg";
 
 type ContentBlock = {
   id: number;
@@ -22,6 +23,8 @@ type Post = {
   id: number;
   userId: number;
   title: string;
+  fullName: string;
+  username: string;
   contentBlocks: ContentBlock[];
   createdAt: string;
   isPublished: boolean;
@@ -34,7 +37,7 @@ interface PostBoxProps {
 
 const PostBox: React.FC<PostBoxProps> = ({ post, onAddToList }) => {
   const navigate = useNavigate();
-    const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
 
   const handleCollaborate = () => {
     navigate("/mentor-collaboration-post");
@@ -81,9 +84,19 @@ const PostBox: React.FC<PostBoxProps> = ({ post, onAddToList }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
+      <div className="flex items-center gap-1 -mb-0">
+        <img src={Avater} className="w-8 h-8" />
+        <h1 className="text-xl font-semibold text-gray-900">
+          {post.fullName}{" "}
+          <span className="text-base text-slate-400 font-normal">
+            @{post.username}
+          </span>
+        </h1>
+      </div>
       <Link to={`/post/${post.id}`}>
-        <h1 className="text-2xl font-semibold text-gray-900 mb-2">{post.title}</h1>
-
+        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+          {post.title}
+        </h1>
         {post.contentBlocks
           .sort((a, b) => a.position - b.position)
           .map((block) => (
@@ -100,13 +113,24 @@ const PostBox: React.FC<PostBoxProps> = ({ post, onAddToList }) => {
         <button className="flex items-center gap-2 text-primary cursor-pointer">
           <ThumbsUp size={18} /> Like
         </button>
-        <button onClick={() => navigate(`/comments/${post.id}`)} className="flex items-center gap-2 text-primary cursor-pointer">
+        <button
+          onClick={() => navigate(`/comments/${post.id}`)}
+          className="flex items-center gap-2 text-primary cursor-pointer"
+        >
           <MessageCircle size={18} /> Comment
         </button>
-        <button onClick={() => setOpen(true)} className="flex items-center gap-2 text-primary cursor-pointer">
+        <button
+          onClick={() => setOpen(true)}
+          className="flex items-center gap-2 text-primary cursor-pointer"
+        >
           <Share2 size={18} /> Share
         </button>
-        <SharePopupBox open={open} setOpen={() => setOpen(false)} postUrl={`http://localhost:5173/posts/${post.id}`} postTitle={post.title} />
+        <SharePopupBox
+          open={open}
+          setOpen={() => setOpen(false)}
+          postUrl={`http://localhost:5173/posts/${post.id}`}
+          postTitle={post.title}
+        />
         <button
           onClick={handleAddToList}
           className="flex items-center gap-2 text-primary cursor-pointer hover:text-blue-600"

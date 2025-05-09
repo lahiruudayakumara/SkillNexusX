@@ -9,6 +9,7 @@ import {
 import { ListPlus, X, PlusCircle } from "lucide-react";
 import { LearningPlan } from "../../../../types/learning-type";
 import PostBox from "./post-card";
+import PostCardSkeleton from "../post-card-skeleton";
 
 // Header Component
 const Header = ({ searchQuery, setSearchQuery }: { searchQuery: string; setSearchQuery: (query: string) => void }) => {
@@ -178,7 +179,7 @@ const HomeView = () => {
             </div>
           )}
 
-          {loading && <p>Loading posts...</p>}
+          {loading && <div className="max-w-3xl mx-auto py-10 px-4 space-y-8"><PostCardSkeleton /></div>}
           {error && <p className="text-red-500">{error}</p>}
 
           {posts

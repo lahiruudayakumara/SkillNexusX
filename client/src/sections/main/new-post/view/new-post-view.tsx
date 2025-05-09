@@ -2,7 +2,7 @@ import { ContentBlock, FormData } from "@/types/post";
 import React, { ChangeEvent, FormEvent, useState } from "react";
 import ContentBlockEditor from "../content-block-editor";
 import { Code, Heading, ImageIcon, Text, Video } from "lucide-react";
-import { createPost } from "@/api/api-post";
+import { createDraftPost, createPost } from "@/api/api-post";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -14,6 +14,7 @@ const CreatePost: React.FC = () => {
   });
 
   const [contentBlocks, setContentBlocks] = useState<ContentBlock[]>([]);
+  const [isDraft, setIsDraft] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const blockIcons: Record<ContentBlock["type"], React.ReactNode> = {
@@ -72,6 +73,7 @@ const CreatePost: React.FC = () => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     if (!formData.title.trim()) {
       toast.error("Title is required.");
       return;
@@ -82,16 +84,14 @@ const CreatePost: React.FC = () => {
       contentBlocks,
     };
 
-    createPost(payload)
-      .then((response) => {
-        console.log("Post created successfully:", response);
-        toast.success("Post created successfully!");
-        navigate("/me");
-      })
-      .catch((error) => {
-        console.error("Error creating post:", error);
-        toast.error("Failed to create post. Please try again.");
-      });
+    try {
+      isDraft ? await createDraftPost(payload) : await createPost(payload);
+      toast.success("Post created successfully!");
+      navigate("/me");
+    } catch (error) {
+      console.error("Error creating post:", error);
+      toast.error("Failed to create post. Please try again.");
+    }
   };
 
   return (
@@ -146,13 +146,15 @@ const CreatePost: React.FC = () => {
           <div className="flex gap-2">
             <button
               type="submit"
-              className="w-[250px] shadow hover:shadow-lg border border-slate-400 cursor-pointer text-primary py-3 rounded font-medium hover:bg-slate-50"
+              onClick={() => setIsDraft(true)}
+              className="w-[250px] cursor-pointer shadow hover:shadow-lg border border-slate-400 text-primary py-3 rounded font-medium hover:bg-slate-50"
             >
               Draft Save
             </button>
             <button
               type="submit"
-              className="w-full bg-primary cursor-pointer text-white py-3 rounded font-medium hover:bg-secondary"
+              onClick={() => setIsDraft(false)}
+              className="w-full bg-primary text-white py-3 rounded font-medium hover:bg-secondary"
             >
               Publish
             </button>

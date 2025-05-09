@@ -9,7 +9,7 @@ interface FollowItem {
 const FollowItem: FC<FollowItem> = memo(({ name, avatar }) => (
   <div className="flex items-center justify-between">
     <div className="flex items-center gap-2">
-      <img src={avatar} alt={name} className="w-6 h-6 rounded-full" />
+      <img src={"https://ntrepidcorp.com/wp-content/uploads/2016/06/team-1.jpg"} alt={name} className="w-6 h-6 rounded-full" />
       <span>{name}</span>
     </div>
     <IconButton aria-label="More options">
