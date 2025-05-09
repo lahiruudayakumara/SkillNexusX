@@ -23,3 +23,32 @@ export interface ContentBlock {
     title: string;
     isPublished: boolean;
   }
+
+  export interface FeedContentBlock {
+    id: number;
+    type: string;
+    content: string | null;
+    url: string | null;
+    videoDuration: string | null;
+    position: number;
+  };
+  
+  export interface FeedPost  {
+    id: number;
+    userId: number;
+    title: string;
+    fullName: string;
+    username: string;
+    contentBlocks: FeedContentBlock[];
+    createdAt: string;
+    isPublished: boolean;
+    liked: boolean,
+    likeCount: number,
+    followedByUser: boolean,
+  };
+
+  export interface FeedState {
+    posts: FeedPost[];
+    loading: boolean;
+    error: string | null;
+  }

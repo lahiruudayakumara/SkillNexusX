@@ -16,6 +16,9 @@ public class PostDTO {
     private LocalDateTime updatedAt;
     private String fullName;
     private String username;
+    private boolean liked;
+    private Number likeCount;
+    private boolean follwedByUser;
 
     @JsonProperty("isPublished")
     private boolean isPublished;

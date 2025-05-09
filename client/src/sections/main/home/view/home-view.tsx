@@ -10,6 +10,9 @@ import { ListPlus, X, PlusCircle } from "lucide-react";
 import { LearningPlan } from "../../../../types/learning-type";
 import PostBox from "./post-card";
 import PostCardSkeleton from "../post-card-skeleton";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/stores/store";
+import { fetchFeedPosts } from "@/stores/slices/post/feed-action";
 
 // Header Component
 const Header = ({ searchQuery, setSearchQuery }: { searchQuery: string; setSearchQuery: (query: string) => void }) => {
@@ -51,8 +54,6 @@ const HomeView = () => {
   const [plans, setPlans] = useState<LearningPlan[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [selectedPost, setSelectedPost] = useState<any>(null);
-  const [posts, setPosts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -152,21 +153,16 @@ const HomeView = () => {
     // Redirect to the plan creation page
     navigate('/plans/create');
   };
+    const dispatch = useDispatch<AppDispatch>();
+const { posts, loading } = useSelector((state: RootState) => state.feed);
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const data = await getAllPublishedPosts();
-        setPosts(data);
-      } catch (e) {
-        setError("Failed to load posts");
-      } finally {
-        setLoading(false);
-      }
-    };
+    dispatch(fetchFeedPosts(undefined)); // or pass userId if needed
+  }, [dispatch]);
+  
 
-    if (posts.length === 0) fetchPosts();
-  }, []);
+
+
 
   return (
     <div className="flex flex-col relative">
@@ -182,7 +178,7 @@ const HomeView = () => {
           {loading && <div className="max-w-3xl mx-auto py-10 px-4 space-y-8"><PostCardSkeleton /></div>}
           {error && <p className="text-red-500">{error}</p>}
 
-          {posts
+          {[...posts]
             .filter((post) =>
               post.title.toLowerCase().includes(searchQuery.toLowerCase())
             )

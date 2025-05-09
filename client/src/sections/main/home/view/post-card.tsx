@@ -9,30 +9,11 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import SharePopupBox from "@/components/share-popup-box";
 import Avater from "@/assets/avatar.svg";
-
-type ContentBlock = {
-  id: number;
-  type: string;
-  content: string | null;
-  url: string | null;
-  videoDuration: string | null;
-  position: number;
-};
-
-type Post = {
-  id: number;
-  userId: number;
-  title: string;
-  fullName: string;
-  username: string;
-  contentBlocks: ContentBlock[];
-  createdAt: string;
-  isPublished: boolean;
-};
+import { FeedContentBlock, FeedPost } from "@/types/post";
 
 interface PostBoxProps {
-  post: Post;
-  onAddToList?: (post: Post) => void;
+  post: FeedPost;
+  onAddToList?: (post: FeedPost) => void;
 }
 
 const PostBox: React.FC<PostBoxProps> = ({ post, onAddToList }) => {
@@ -43,7 +24,7 @@ const PostBox: React.FC<PostBoxProps> = ({ post, onAddToList }) => {
     navigate("/mentor-collaboration-post");
   };
 
-  const renderContentBlock = (block: ContentBlock) => {
+  const renderContentBlock = (block: FeedContentBlock) => {
     switch (block.type) {
       case "SECTION":
         return <h2 className="text-xl font-bold mb-2">{block.content}</h2>;
@@ -97,7 +78,7 @@ const PostBox: React.FC<PostBoxProps> = ({ post, onAddToList }) => {
         <h1 className="text-2xl font-semibold text-gray-900 mb-2">
           {post.title}
         </h1>
-        {post.contentBlocks
+        {[...post.contentBlocks]
           .sort((a, b) => a.position - b.position)
           .map((block) => (
             <div key={block.id}>{renderContentBlock(block)}</div>

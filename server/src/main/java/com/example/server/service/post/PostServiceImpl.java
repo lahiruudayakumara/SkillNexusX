@@ -70,7 +70,7 @@ public class PostServiceImpl implements PostService {
 
         Post savedPost = postRepository.save(post);
         logger.info("Post saved with ID: {}, isPublished: {}", savedPost.getId(), savedPost.isPublished());
-        return mapToPostDTO(savedPost);
+        return mapToPostDTO(savedPost, null);
     }
 
     @Override
@@ -78,35 +78,48 @@ public class PostServiceImpl implements PostService {
     public PostDTO getPostById(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found with ID: " + id));
-        return mapToPostDTO(post);
+        return mapToPostDTO(post, null);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<PostDTO> getAllPublishedPosts() {
-        Optional<User> currentUser = userRepository.findById(1);
+    public List<PostDTO> getAllPublishedPosts(@Nullable Long userId) {
+        if(userId != null) {
+            return postRepository.findByIsPublishedFalse().stream()
+                    .map(post -> mapToPostDTO(post, userId))
+                    .collect(Collectors.toList());
+        }
         return postRepository.findByIsPublishedTrue().stream()
-                .map(post -> mapToPostDTO(post))
+                .map(post -> mapToPostDTO(post, null))
+                .collect(Collectors.toList());
+    }
+
+    public List<PostDTO> getAllUserPublishedPosts(Long userId) {
+        return postRepository.findByIsPublishedFalse().stream()
+                .filter(post -> post.getUser().getId().equals(userId))
+                .map(post -> mapToPostDTO(post, userId))
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<PostDTO> getAllDraftPosts() {
-        Long userId = 1L;
+    public List<PostDTO> getAllDraftPosts(@Nullable Long userId) {
+        if(userId != null) {
+            return postRepository.findByIsPublishedFalse().stream()
+                    .filter(post -> post.getUser().getId().equals(userId))
+                    .map(post -> mapToPostDTO(post, userId))
+                    .collect(Collectors.toList());
+        }
         return postRepository.findByIsPublishedFalse().stream()
-                .filter(post -> post.getUser().getId().equals(userId)) // ensure the user owns the post
-                .map(this::mapToPostDTO) // method reference is valid here
+                .map(post -> mapToPostDTO(post, null))
                 .collect(Collectors.toList());
     }
-
-
 
     @Override
     @Transactional(readOnly = true)
     public List<PostDTO> getPostsByUserId(Long userId) {
         return postRepository.findByUserId(userId).stream()
-                .map(post -> mapToPostDTO(post))
+                .map(post -> mapToPostDTO(post, null))
                 .collect(Collectors.toList());
     }
 
@@ -129,7 +142,7 @@ public class PostServiceImpl implements PostService {
 
         Post updatedPost = postRepository.save(post);
         logger.info("Post updated with ID: {}", updatedPost.getId());
-        return mapToPostDTO(updatedPost);
+        return mapToPostDTO(updatedPost, null);
     }
 
     @Override
@@ -141,7 +154,7 @@ public class PostServiceImpl implements PostService {
         logger.info("Post deleted with ID: {}", id);
     }
 
-    private PostDTO mapToPostDTO(Post post) {
+    private PostDTO mapToPostDTO(Post post, @Nullable Long userId) {
         PostDTO dto = new PostDTO();
         dto.setId(post.getId());
         dto.setUserId(post.getUser().getId());
@@ -154,6 +167,12 @@ public class PostServiceImpl implements PostService {
         dto.setPublished(post.isPublished());
         dto.setFullName(post.getUser().getFullName());
         dto.setUsername(post.getUser().getUsername());
+        if(userId != null) {
+            dto.setLiked(likeRepository.existsByPostIdAndUserId(post.getId(), userId));
+        } else {
+            dto.setLiked(false);
+        }
+        dto.setLikeCount(likeRepository.countByPostId(post.getId()));
         return dto;
     }
 

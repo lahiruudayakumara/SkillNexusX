@@ -33,14 +33,14 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PostDTO>> getAllPublishedPosts() {
-        List<PostDTO> posts = postService.getAllPublishedPosts();
+    public ResponseEntity<List<PostDTO>> getAllPublishedPosts(@RequestParam(value = "user", required = false) Long userId) {
+        List<PostDTO> posts = postService.getAllPublishedPosts(userId);
         return ResponseEntity.ok(posts);
     }
 
     @GetMapping("/draft")
-    public ResponseEntity<List<PostDTO>> getAllDraftPosts() {
-        List<PostDTO> posts = postService.getAllDraftPosts();
+    public ResponseEntity<List<PostDTO>> getAllDraftPosts(@RequestParam(value = "user", required = false) Long userId) {
+        List<PostDTO> posts = postService.getAllDraftPosts(userId);
         return ResponseEntity.ok(posts);
     }
 
