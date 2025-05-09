@@ -1,5 +1,7 @@
 package com.example.server.controller;
 
+import com.example.server.DTO.post.CommentRequestDTO;
+import com.example.server.DTO.post.CommentResponseDTO;
 import com.example.server.DTO.post.PostCreateDTO;
 import com.example.server.DTO.post.PostDTO;
 import com.example.server.model.post.Comment;
@@ -33,13 +35,13 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PostDTO>> getAllPublishedPosts(@RequestParam(value = "user", required = false) Long userId) {
+    public ResponseEntity<List<PostDTO>> getAllPublishedPosts(@RequestParam(value = "userId", required = false) Long userId) {
         List<PostDTO> posts = postService.getAllPublishedPosts(userId);
         return ResponseEntity.ok(posts);
     }
 
     @GetMapping("/draft")
-    public ResponseEntity<List<PostDTO>> getAllDraftPosts(@RequestParam(value = "user", required = false) Long userId) {
+    public ResponseEntity<List<PostDTO>> getAllDraftPosts(@RequestParam(value = "userId", required = false) Long userId) {
         List<PostDTO> posts = postService.getAllDraftPosts(userId);
         return ResponseEntity.ok(posts);
     }
@@ -64,20 +66,20 @@ public class PostController {
 
     @PostMapping("/{postId}/like")
     public ResponseEntity<?> likePost(@PathVariable Long postId, @RequestParam Long userId) {
-        postService.likePost(postId, userId);
-        return ResponseEntity.ok("Post liked");
+        return postService.likePost(postId, userId);
+
     }
 
     @PostMapping("/{postId}/comments")
     public ResponseEntity<Comment> addComment(@PathVariable Long postId,
                                               @RequestParam Long userId,
-                                              @RequestBody String content) {
-        Comment comment = postService.addComment(postId, userId, content);
+                                              @RequestBody CommentRequestDTO content) {
+        Comment comment = postService.addComment(postId, userId, content.getContent());
         return ResponseEntity.ok(comment);
     }
 
     @GetMapping("/{postId}/comments")
-    public ResponseEntity<List<Comment>> getComments(@PathVariable Long postId) {
+    public ResponseEntity<List<CommentResponseDTO>> getComments(@PathVariable Long postId) {
         return ResponseEntity.ok(postService.getComments(postId));
     }
 
@@ -90,8 +92,28 @@ public class PostController {
     public ResponseEntity<Comment> replyToComment(@PathVariable Long postId,
                                                   @PathVariable Long commentId,
                                                   @RequestParam Long userId,
-                                                  @RequestBody String content) {
-        Comment reply = postService.replyToComment(postId, commentId, userId, content);
+                                                  @RequestBody CommentRequestDTO content) {
+        Comment reply = postService.replyToComment(postId, commentId, userId, content.getContent());
         return ResponseEntity.ok(reply);
+    }
+
+    @DeleteMapping("/comments/{commentId}")
+    public ResponseEntity<String> deleteComment(@PathVariable Long commentId) {
+        try {
+            postService.deleteComment(commentId);
+            return ResponseEntity.ok("Comment deleted successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Comment not found");
+        }
+    }
+
+    @DeleteMapping("/comments/replies/{replyId}")
+    public ResponseEntity<String> deleteReply(@PathVariable Long replyId) {
+        try {
+            postService.deleteReply(replyId);
+            return ResponseEntity.ok("Reply deleted successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Reply not found");
+        }
     }
 }

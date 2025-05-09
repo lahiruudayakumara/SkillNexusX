@@ -1,5 +1,6 @@
 package com.example.server.service.post;
 
+import com.example.server.DTO.post.CommentResponseDTO;
 import com.example.server.DTO.post.ContentBlockDTO;
 import com.example.server.DTO.post.PostCreateDTO;
 import com.example.server.DTO.post.PostDTO;
@@ -16,13 +17,13 @@ import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -85,7 +86,7 @@ public class PostServiceImpl implements PostService {
     @Transactional(readOnly = true)
     public List<PostDTO> getAllPublishedPosts(@Nullable Long userId) {
         if(userId != null) {
-            return postRepository.findByIsPublishedFalse().stream()
+            return postRepository.findByIsPublishedTrue().stream()
                     .map(post -> mapToPostDTO(post, userId))
                     .collect(Collectors.toList());
         }
@@ -173,6 +174,7 @@ public class PostServiceImpl implements PostService {
             dto.setLiked(false);
         }
         dto.setLikeCount(likeRepository.countByPostId(post.getId()));
+        dto.setCommentCount(commentRepository.countByPostId(post.getId()));
         return dto;
     }
 
@@ -198,14 +200,17 @@ public class PostServiceImpl implements PostService {
         return block;
     }
 
-    public void likePost(Long postId, Long userId) {
+    public ResponseEntity<String> likePost(Long postId, Long userId) {
         if (likeRepository.existsByPostIdAndUserId(postId, userId)) {
-            throw new RuntimeException("Already liked");
+            Like existingLike = likeRepository.findByPostIdAndUserId(postId, userId);
+            likeRepository.delete(existingLike);
+            return ResponseEntity.ok("Post Unliked");
         }
         Post post = postRepository.findById(postId).orElseThrow();
         User user = userRepository.findById(userId).orElseThrow();
         Like like = new Like(null, post, user, null);
         likeRepository.save(like);
+        return ResponseEntity.ok("Post liked");
     }
 
     public Comment addComment(Long postId, Long userId, String content) {
@@ -223,8 +228,13 @@ public class PostServiceImpl implements PostService {
         return commentRepository.save(comment);
     }
 
-    public List<Comment> getComments(Long postId) {
-        return commentRepository.findByPostId(postId);
+    public List<CommentResponseDTO> getComments(Long postId) {
+        List<Comment> comments = commentRepository.findByPostId(postId);
+
+        // Convert list of Comment entities to list of CommentResponseDTOs
+        return comments.stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 
     public long getLikeCount(Long postId) {
@@ -251,5 +261,40 @@ public class PostServiceImpl implements PostService {
         reply.setUser(user);
         reply.setParent(parent);
         return commentRepository.save(reply);
+    }
+
+
+    private CommentResponseDTO toDto(Comment comment) {
+        CommentResponseDTO dto = new CommentResponseDTO();
+        dto.setId(comment.getId());
+        dto.setContent(comment.getContent());
+        dto.setAuthor(comment.getUser().getUsername());
+        dto.setCreatedAt(comment.getCreatedAt());
+
+        List<CommentResponseDTO> replies = comment.getReplies()
+                .stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+
+        dto.setReplies(replies);
+        return dto;
+    }
+
+    public void deleteComment(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("Comment not found with ID: " + commentId));
+
+        comment.getReplies().forEach(reply -> commentRepository.delete(reply));
+
+        commentRepository.delete(comment);
+        logger.info("Comment deleted with ID: {}", commentId);
+    }
+
+    public void deleteReply(Long replyId) {
+        Comment reply = commentRepository.findById(replyId)
+                .orElseThrow(() -> new IllegalArgumentException("Reply not found with ID: " + replyId));
+
+        commentRepository.delete(reply);
+        logger.info("Reply deleted with ID: {}", replyId);
     }
 }

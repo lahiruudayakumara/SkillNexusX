@@ -18,6 +18,7 @@ public class PostDTO {
     private String username;
     private boolean liked;
     private Number likeCount;
+    private Number commentCount;
     private boolean follwedByUser;
 
     @JsonProperty("isPublished")
