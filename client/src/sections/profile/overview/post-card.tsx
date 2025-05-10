@@ -4,6 +4,7 @@ import { BookmarkIcon, DotsVerticalIcon, IconButton } from "./icon";
 import ReactMarkdown from "react-markdown";
 import { deletePost } from "@/api/api-post";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
 type ContentBlock = {
   id: number;
@@ -81,10 +82,13 @@ const PostCard: FC<Post> = memo(
       };
     }, [isDropdownOpen]);
 
+
     return (
       <article className="mb-12 flex gap-4 relative">
         <div className="flex-grow">
-          <h2 className="text-2xl font-bold mb-2">{title}</h2>
+          <Link to={`/post/${id}`}>
+            <h2 className="text-2xl font-bold mb-2">{title}</h2>
+          </Link>
           <p className="text-gray-700 mb-2">
             {new Date(createdAt).toLocaleDateString()}
           </p>
@@ -112,12 +116,12 @@ const PostCard: FC<Post> = memo(
               </IconButton>
               {isDropdownOpen && (
                 <div className="absolute right-0 top-full mt-2 bg-white shadow-lg rounded-md py-2 w-32 z-10">
-                  <button
+                  {/* <button
                     onClick={handleEdit}
                     className="block w-full cursor-pointer text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
                   >
                     Edit
-                  </button>
+                  </button> */}
                   <button
                     onClick={handleDelete}
                     className="block w-full cursor-pointer text-left px-4 py-2 text-gray-700 hover:bg-gray-100"

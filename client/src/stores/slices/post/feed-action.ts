@@ -8,7 +8,7 @@ export const fetchFeedPosts = createAsyncThunk<FeedPost[], number | undefined>(
     'feed/fetchFeedPosts',
     async (userId, thunkAPI) => {
       try {
-        const response = await getAllPublishedPosts();
+        const response = await getAllPublishedPosts(userId?.toString() || '');
         return response;
       } catch (err: any) {
         return thunkAPI.rejectWithValue(err.response?.data?.message || 'Failed to fetch posts');

@@ -5,10 +5,13 @@ import { Code, Heading, ImageIcon, Text, Video } from "lucide-react";
 import { createDraftPost, createPost } from "@/api/api-post";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
+import { RootState } from "@/stores/store";
 
 const CreatePost: React.FC = () => {
+  const userId = useSelector((state: RootState) => state.auth.user_id);
   const [formData, setFormData] = useState<FormData>({
-    userId: 1,
+    userId: userId,
     title: "",
     isPublished: true,
   });
@@ -154,7 +157,7 @@ const CreatePost: React.FC = () => {
             <button
               type="submit"
               onClick={() => setIsDraft(false)}
-              className="w-full bg-primary text-white py-3 rounded font-medium hover:bg-secondary"
+              className="w-full bg-primary cursor-pointer text-white py-3 rounded font-medium hover:bg-secondary"
             >
               Publish
             </button>

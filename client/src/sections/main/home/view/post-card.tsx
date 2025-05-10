@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/stores/store";
 import { likeFeedPost } from "@/stores/slices/post/feed-action";
 import { likePost } from "@/stores/slices/post/feed-slice";
+import { createNotification } from "@/api/api-notification";
 
 interface PostBoxProps {
   post: FeedPost;
@@ -77,9 +78,15 @@ const PostBox: React.FC<PostBoxProps> = ({ post, onAddToList }) => {
     }
   };
 
-  const handleLike = () => {
+  const handleLike = async () => {
     dispatch(likePost(post.id));
-    dispatch(likeFeedPost({ postId: post.id.toString(), userId: userId.toString() })); // Handles both optimistic update and backend call
+    dispatch(likeFeedPost({ postId: post.id.toString(), userId: userId.toString() }));
+    await createNotification({
+      recipientId: post.userId,
+      actorId: userId,
+      type: "LIKE",
+      message: `User ${post.title} liked your post`,
+    });
   };
 
   return (
@@ -117,7 +124,7 @@ const PostBox: React.FC<PostBoxProps> = ({ post, onAddToList }) => {
           onClick={() => navigate(`/comments/${post.id}`)}
           className="flex items-center gap-2 text-primary cursor-pointer"
         >
-          <MessageCircle size={18} /> Comment {post.likeCount === 0 ? "" : post.likeCount}
+          <MessageCircle size={18} /> Comment
         </button>
         <button
           onClick={() => setOpen(true)}
