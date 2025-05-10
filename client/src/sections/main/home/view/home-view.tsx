@@ -17,10 +17,16 @@ import NotificationPanel from "@/components/notification-panel";
 import { User } from "@/types/user";
 import { getUserById } from "@/api/api-user";
 import FollowItem from "@/sections/profile/overview/follow-item";
-import Banner from '@/assets/banner.jpg'
+import Banner from "@/assets/banner.jpg";
 
 // Header Component
-const Header = ({ searchQuery, setSearchQuery }: { searchQuery: string; setSearchQuery: (query: string) => void }) => {
+const Header = ({
+  searchQuery,
+  setSearchQuery,
+}: {
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+}) => {
   return (
     <div>
       <div className="bg-blue-600 text-white py-4 px-6">
@@ -33,8 +39,16 @@ const Header = ({ searchQuery, setSearchQuery }: { searchQuery: string; setSearc
           <div className="w-full md:w-96">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-blue-300" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                <svg
+                  className="h-5 w-5 text-blue-300"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
               <input
@@ -116,17 +130,19 @@ const HomeView = () => {
 
       // Store both the post path and title
       const postResource = {
-        path: `${window.location.origin}/comments/${selectedPost.id || Date.now()}`,
+        path: `${window.location.origin}/comments/${
+          selectedPost.id || Date.now()
+        }`,
         title: selectedPost.title,
         type: "post",
       };
 
-
       const updatedPlan = {
         ...selectedPlan,
         resources: [
-          ...(selectedPlan.resources || []).map((res: { path: string } | string) =>
-            typeof res === "string" ? res : res.path
+          ...(selectedPlan.resources || []).map(
+            (res: { path: string } | string) =>
+              typeof res === "string" ? res : res.path
           ),
           postResource.path,
         ],
@@ -143,22 +159,24 @@ const HomeView = () => {
     }
   };
 
-
   const createNewPlanWithPost = () => {
     if (!selectedPost) return;
 
     // Store the selected post details in session storage to use it on the create plan page
-    sessionStorage.setItem('pendingPostToAdd', JSON.stringify({
-      id: selectedPost.id || Date.now(),
-      title: selectedPost.title,
-      type: 'post'
-    }));
+    sessionStorage.setItem(
+      "pendingPostToAdd",
+      JSON.stringify({
+        id: selectedPost.id || Date.now(),
+        title: selectedPost.title,
+        type: "post",
+      })
+    );
 
     // Close the modal
     setShowPlanSelector(false);
 
     // Redirect to the plan creation page
-    navigate('/plans/create');
+    navigate("/plans/create");
   };
   const dispatch = useDispatch<AppDispatch>();
   const { posts, loading } = useSelector((state: RootState) => state.feed);
@@ -180,8 +198,6 @@ const HomeView = () => {
     }
   };
 
-
-
   return (
     <div className="flex flex-col relative">
       <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
@@ -193,7 +209,11 @@ const HomeView = () => {
             </div>
           )}
 
-          {loading && <div className="max-w-3xl mx-auto py-10 px-4 space-y-8"><PostCardSkeleton /></div>}
+          {loading && (
+            <div className="max-w-3xl mx-auto py-10 px-4 space-y-8">
+              <PostCardSkeleton />
+            </div>
+          )}
           {error && <p className="text-red-500">{error}</p>}
 
           {[...posts]
@@ -202,24 +222,36 @@ const HomeView = () => {
             )
             .reverse()
             .map((post) => (
-              <div key={post.id} className="max-w-3xl mx-auto py-10 px-4 space-y-8">
+              <div
+                key={post.id}
+                className="max-w-3xl mx-auto py-10 px-4 space-y-8"
+              >
                 <PostBox post={post} onAddToList={handleAddToList} />
               </div>
             ))}
         </div>
 
-        
         <div className="mb-10 mt-16 w-[250px]">
-              <h3 className="text-lg font-medium mb-4">Following</h3>
-              <div className="space-y-4">
-                {user?.following.map((item, index) => (
-                  <FollowItem key={index} {...item} />
-                ))}
-                <p>{user?.following.length === 0 ? "No followers yet." : ""}</p>
-              </div>
-              <img className="mt-8" src={Banner} alt="logo" />
-              <img className="mt-8" src={"https://static.sliit.lk/wp-content/uploads/2019/09/11072727/SLIIT-the-next-you-slider-5.jpg"} alt="logo" />
-            </div>
+          <h3 className="text-lg font-medium mb-4">Following</h3>
+          <div className="space-y-4">
+            {user?.following.map((item, index) => (
+              <FollowItem key={index} {...item} />
+            ))}
+            <p>{user?.following.length === 0 ? "No followers yet." : ""}</p>
+          </div>
+          <a href="https://www.sliit.lk/" target="_blank">
+            <img className="mt-8" src={Banner} alt="logo" />
+          </a>
+          <a href="https://www.sliit.lk/" target="_blank">
+            <img
+              className="mt-8"
+              src={
+                "https://static.sliit.lk/wp-content/uploads/2019/09/11072727/SLIIT-the-next-you-slider-5.jpg"
+              }
+              alt="logo"
+            />
+          </a>
+        </div>
 
         {showPlanSelector && (
           <div
@@ -296,7 +328,9 @@ const HomeView = () => {
                 </>
               ) : (
                 <div className="text-center py-4">
-                  <p className="text-gray-600 mb-4">You don't have any lists yet.</p>
+                  <p className="text-gray-600 mb-4">
+                    You don't have any lists yet.
+                  </p>
                   <button
                     type="button"
                     onClick={createNewPlanWithPost}
