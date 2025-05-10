@@ -13,6 +13,7 @@ import PostCardSkeleton from "../post-card-skeleton";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/stores/store";
 import { fetchFeedPosts } from "@/stores/slices/post/feed-action";
+import NotificationPanel from "@/components/notification-panel";
 
 // Header Component
 const Header = ({ searchQuery, setSearchQuery }: { searchQuery: string; setSearchQuery: (query: string) => void }) => {
