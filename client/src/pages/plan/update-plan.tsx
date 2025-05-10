@@ -15,6 +15,7 @@ const UpdatePlanPage: React.FC = () => {
         resources: [],
     });
     const [loading, setLoading] = useState(true);
+    const [dateError, setDateError] = useState<string | null>(null);
 
     useEffect(() => {
         if (id) {
@@ -29,6 +30,19 @@ const UpdatePlanPage: React.FC = () => {
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
         const { name, value, type, checked } = e.target as HTMLInputElement;
+
+        // Validate end date when it changes
+        if (name === "endDate") {
+            const startDate = new Date(formData.startDate || "");
+            const endDate = new Date(value);
+
+            if (endDate <= startDate) {
+                setDateError("End date must be after start date");
+            } else {
+                setDateError(null);
+            }
+        }
+
         setFormData({
             ...formData,
             [name]: type === "checkbox" ? checked : value,
@@ -58,6 +72,12 @@ const UpdatePlanPage: React.FC = () => {
 
     const handleUpdate = async () => {
         if (id) {
+            // Check if end date is valid before submitting
+            if (dateError) {
+                alert("Please fix the date error before updating.");
+                return;
+            }
+
             try {
                 await updateLearningPlan(id, formData);
                 alert("Plan updated successfully.");
@@ -66,6 +86,15 @@ const UpdatePlanPage: React.FC = () => {
                 console.error("Update failed:", error);
             }
         }
+    };
+
+    // Calculate minimum end date (day after start date)
+    const getMinEndDate = () => {
+        if (!formData.startDate) return "";
+
+        const startDate = new Date(formData.startDate);
+        startDate.setDate(startDate.getDate() + 1); // Add one day
+        return startDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
     };
 
     if (loading) return (
@@ -83,7 +112,7 @@ const UpdatePlanPage: React.FC = () => {
                         <h1 className="text-xl font-bold">SkillNexus</h1>
                         <p className="text-sm text-blue-200">Connect. Learn. Grow.</p>
                     </div>
-                    
+
                 </div>
             </header>
 
@@ -138,9 +167,10 @@ const UpdatePlanPage: React.FC = () => {
                                     type="date"
                                     name="startDate"
                                     value={formData.startDate || ""}
-                                    onChange={handleChange}
-                                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    disabled={true}
+                                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-100"
                                 />
+                                <p className="text-xs text-gray-500 mt-1">Start date cannot be changed</p>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
@@ -149,8 +179,13 @@ const UpdatePlanPage: React.FC = () => {
                                     name="endDate"
                                     value={formData.endDate || ""}
                                     onChange={handleChange}
-                                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    min={getMinEndDate()}
+                                    className={`w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 ${dateError ? "border-red-500" : "border-gray-300"
+                                        }`}
                                 />
+                                {dateError && (
+                                    <p className="text-xs text-red-500 mt-1">{dateError}</p>
+                                )}
                             </div>
                         </div>
 
