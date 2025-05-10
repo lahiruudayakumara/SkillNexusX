@@ -1,54 +1,47 @@
-# React + TypeScript + Vite
+# SkillNexus – Skill Sharing & Learning Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+*SkillNexus* is a collaborative web-based platform that enables users to share their skills and learn from a community of like-minded individuals. Through interactive features and progress tracking tools, users can engage in meaningful knowledge exchange, document their learning journey, and stay motivated via social engagement.
 
-Currently, two official plugins are available:
+Users can upload visual content to demonstrate their expertise, follow others with similar interests, and build structured learning plans. With real-time feedback, notifications, and a personalized feed, SkillNexus transforms learning into an enjoyable and socially enriched experience.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 🌟 Core Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 🔐 User Authentication and Authorization
+- OAuth 2.0 social media login (Google, Facebook, Twitter)
+- User registration, login/logout, and session management
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+### 👤 User Profile Management
+- Create profile with personal details
+- Public profiles displaying skills, learning plans, and activity
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 📚 Skill Sharing Posts
+- Create posts with up to 3 images or videos
+- Rich text editor for detailed descriptions
+- Edit, delete, and preview posts before submission
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 📈 Learning Progress Tracking
+- Post updates using learning templates
+- Visual charts and percentages to track progress
+- Timeline view of learning journey
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+### 🧠 Learning Plan Management
+- Create structured plans with topics, resources, and timelines
+- Edit/update plans and monitor completion status
+- Generate and share plan links
+
+### 💬 Social Interaction
+- Like and comment on posts and updates
+- Edit/delete comments
+- Follow/unfollow users and view activity feeds
+
+### 🔔 Notification System
+- Real-time notifications for likes, comments, follows
+- Manage notifications (mark as read, delete)
+- Set email preferences
+
+### 🔍 Search and Discovery
+- Search for users, skills, and learning plans
+- Browse by category or trending topics
+- Receive content recommendations based on interests
