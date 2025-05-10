@@ -14,6 +14,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/stores/store";
 import { fetchFeedPosts } from "@/stores/slices/post/feed-action";
 import NotificationPanel from "@/components/notification-panel";
+import { User } from "@/types/user";
+import { getUserById } from "@/api/api-user";
+import FollowItem from "@/sections/profile/overview/follow-item";
+import Banner from '@/assets/banner.jpg'
 
 // Header Component
 const Header = ({ searchQuery, setSearchQuery }: { searchQuery: string; setSearchQuery: (query: string) => void }) => {
@@ -161,9 +165,20 @@ const HomeView = () => {
 
   useEffect(() => {
     dispatch(fetchFeedPosts(undefined)); // or pass userId if needed
+    fetchUser();
   }, [dispatch]);
 
+  const [user, setUser] = useState<User>();
+  const userId = useSelector((state: RootState) => state.auth.user_id);
 
+  const fetchUser = async () => {
+    try {
+      const user = await getUserById(userId);
+      setUser(user);
+    } catch (error) {
+      console.error("Failed to fetch user", error);
+    }
+  };
 
 
 
@@ -192,6 +207,19 @@ const HomeView = () => {
               </div>
             ))}
         </div>
+
+        
+        <div className="mb-10 mt-16 w-[250px]">
+              <h3 className="text-lg font-medium mb-4">Following</h3>
+              <div className="space-y-4">
+                {user?.following.map((item, index) => (
+                  <FollowItem key={index} {...item} />
+                ))}
+                <p>{user?.following.length === 0 ? "No followers yet." : ""}</p>
+              </div>
+              <img className="mt-8" src={Banner} alt="logo" />
+              <img className="mt-8" src={"https://static.sliit.lk/wp-content/uploads/2019/09/11072727/SLIIT-the-next-you-slider-5.jpg"} alt="logo" />
+            </div>
 
         {showPlanSelector && (
           <div
