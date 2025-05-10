@@ -112,7 +112,7 @@ const HomeView = () => {
 
       // Store both the post path and title
       const postResource = {
-        path: `/posts/${selectedPost.id || Date.now()}`,
+        path: `${window.location.origin}/posts/${selectedPost.id || Date.now()}`,
         title: selectedPost.title,
         type: 'post'
       };
@@ -154,13 +154,13 @@ const HomeView = () => {
     // Redirect to the plan creation page
     navigate('/plans/create');
   };
-    const dispatch = useDispatch<AppDispatch>();
-const { posts, loading } = useSelector((state: RootState) => state.feed);
+  const dispatch = useDispatch<AppDispatch>();
+  const { posts, loading } = useSelector((state: RootState) => state.feed);
 
   useEffect(() => {
     dispatch(fetchFeedPosts(undefined)); // or pass userId if needed
   }, [dispatch]);
-  
+
 
 
 
