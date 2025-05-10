@@ -28,4 +28,7 @@ export default defineConfig({
       '@utils': path.resolve(__dirname, './src/utils'),
     },
   },
+  define: {
+    global: 'window', // Polyfill `global` to `window` for browser compatibility
+  },
 });
