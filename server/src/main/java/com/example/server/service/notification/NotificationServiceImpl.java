@@ -32,7 +32,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     public List<Notification> getUserNotifications(Long userId) {
-        List<Notification> notifications = notificationRepository.findByRecipientId(userId);
+        List<Notification> notifications = notificationRepository.findByRecipientIdOrderByCreatedAtDesc(userId);
         return notifications.stream().map(this::enrichNotificationWithUsername).collect(Collectors.toList());
     }
 

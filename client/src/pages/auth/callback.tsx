@@ -68,9 +68,10 @@ const OAuth2Callback = () => {
   if (loading) return <div>Loading...</div>;
   if (error)
     return (
-      <div>
-        <p>Error: {error}</p>
-        <button onClick={() => navigate("/login")}>Back to Login</button>
+      <div className="flex flex-col justify-center mx-auto w-full h-screen my-auto">
+        <p className="text-center text-2xl font-semibold">{error}</p>
+        <p className="text-center text font-semibold">Please Try Again Later</p>
+        <button className="bg-primary text-white cursor-pointer max-w-40 mx-auto p-2 mt-4 rounded" onClick={() => navigate("/login")}>Back to Login</button>
       </div>
     );
 

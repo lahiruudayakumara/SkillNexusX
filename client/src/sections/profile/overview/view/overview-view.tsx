@@ -8,6 +8,8 @@ import { getAllDraftPosts, getAllPublishedPosts } from "@/api/api-post";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { getUserById } from "@/api/api-user";
 import { User } from "@/types/user";
+import { RootState } from "@/stores/store";
+import { useSelector } from "react-redux";
 
 const AboutView: FC = memo(() => (
   <section className="w-full">
@@ -23,6 +25,7 @@ const Overview: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate(); // Initialize useNavigate
   const [user, setUser] = useState<User>();
+  const userId = useSelector((state: RootState) => state.auth.user_id);
 
   const toggleFollow = useCallback(() => {
     setIsFollowing((prev) => !prev);
@@ -39,7 +42,7 @@ const Overview: FC = () => {
 
   const fetchUser = async () => {
     try {
-      const user = await getUserById(1);
+      const user = await getUserById(userId);
       setUser(user);
     } catch (error) {
       console.error("Failed to fetch user", error);
@@ -51,8 +54,8 @@ const Overview: FC = () => {
     try {
       const data =
         activeView === "publish"
-          ? await getAllPublishedPosts()
-          : await getAllDraftPosts();
+          ? (await getAllPublishedPosts(userId?.toString() || '')).filter(post => post.userId === userId)
+          : await (await getAllDraftPosts()).filter(post => post.userId === userId)
       setPosts(data);
     } catch (e) {
       setError("Failed to load posts");
@@ -69,7 +72,7 @@ const Overview: FC = () => {
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 font-sans">
       <header className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">Lahiru Udayakumara</h1>
+        <h1 className="text-4xl font-bold">{user?.fullName}</h1>
         <IconButton aria-label="More options">
           <DotsVerticalIcon className="h-6 w-6" />
         </IconButton>
