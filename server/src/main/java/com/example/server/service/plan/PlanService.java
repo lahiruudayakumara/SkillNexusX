@@ -35,6 +35,12 @@ public interface PlanService {
     List<PlanDTO> getSharedPlans();
     
     /**
+     * Get all plans
+     * @return List of all plans
+     */
+    List<PlanDTO> getAllPlans();
+    
+    /**
      * Update an existing plan
      * @param id The plan ID
      * @param planDTO The updated plan data

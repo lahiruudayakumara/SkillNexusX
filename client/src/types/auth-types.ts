@@ -13,6 +13,9 @@ export interface RegisterRequest {
 export interface AuthResponse {
     token: string;
     refresh_token: string;
+    user_id: number;
+    username: string;
+    email: string;
     user: {
         id: string;
         username: string;
@@ -21,6 +24,7 @@ export interface AuthResponse {
 }
 
 export interface AuthState {
+    user_id: number;
     user: AuthResponse["user"] | null;
     token: string | null;
     loading: boolean;

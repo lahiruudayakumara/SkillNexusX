@@ -1,198 +1,248 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { LearningPlan } from '../../types/learning-type';
-import PlanCard from '../../sections/main/plan/plan-card';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { getAllLearningPlans } from "@/api/learning-plan-api";
+import { LearningPlan } from "@../../stores/slices/learning-plan/learning-slice";
 
-interface ExtendedPlan extends LearningPlan {
-  completedResources?: string[];
-}
-
-export default function PlansListPage() {
-  const [plans, setPlans] = useState<ExtendedPlan[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+const PlansListPage = () => {
+  const [plans, setPlans] = useState<LearningPlan[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<'all' | 'inProgress' | 'completed' | 'notStarted'>('all');
+  const [activeTab, setActiveTab] = useState<string>("All Plans");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const navigate = useNavigate();
+
+  const getProgress = (plan: LearningPlan) => {
+    const total = plan.resources?.length || 0;
+    const completed = localStorage.getItem(`completed-${plan.id}`)
+      ? JSON.parse(localStorage.getItem(`completed-${plan.id}`) || '[]')
+      : [];
+    return total > 0 ? Math.round((completed.length / total) * 100) : 0;
+  };
 
   useEffect(() => {
-    async function fetchPlans() {
+    const fetchPlans = async () => {
       try {
-        const storedPlans = JSON.parse(localStorage.getItem('learning-plans') || '[]');
-        const plansWithCompletedResources = storedPlans.map((plan: LearningPlan) => ({
-          ...plan,
-          completedResources: (plan as ExtendedPlan).completedResources || [],
-        }));
-        const sortedPlans = plansWithCompletedResources.sort((a: ExtendedPlan, b: ExtendedPlan) => {
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        });
-        setPlans(sortedPlans);
-      } catch (err) {
-        console.error('Failed to fetch plans:', err);
-        setError('Failed to load learning plans. Please try again.');
+        const data = await getAllLearningPlans();
+        setPlans(data);
+      } catch (err: any) {
+        setError(err.message || "Failed to fetch plans");
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
-    }
+    };
 
     fetchPlans();
   }, []);
 
-  const getPlanStatus = (plan: ExtendedPlan): 'inProgress' | 'completed' | 'notStarted' => {
-    if (!plan.resources || plan.resources.length === 0) return 'notStarted';
-    if (!plan.completedResources || plan.completedResources.length === 0) return 'notStarted';
-    if (plan.completedResources.length === plan.resources.length) return 'completed';
-    return 'inProgress';
-  };
-
-  const filteredPlans = plans.filter((plan) => {
-    if (filter === 'all') return true;
-    return getPlanStatus(plan) === filter;
-  });
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <header className="bg-blue-600 py-4">
-          <div className="container mx-auto px-4">
-            <h1 className="text-2xl font-bold text-white">SkillNexus</h1>
-            <p className="text-blue-100">Connect. Learn. Grow.</p>
-          </div>
-        </header>
-        <div className="container mx-auto px-4 py-16">
-          <div className="flex justify-center items-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
-          </div>
-          <p className="text-center mt-4 text-gray-600">Loading your learning plans...</p>
-        </div>
+  if (loading) return (
+    <div className="min-h-screen bg-gray-50">
+      <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      <div className="max-w-6xl mx-auto p-6">
+        <p>Loading...</p>
       </div>
-    );
-  }
+      <Footer />
+    </div>
+  );
+
+  if (error) return (
+    <div className="min-h-screen bg-gray-50">
+      <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      <div className="max-w-6xl mx-auto p-6">
+        <p>Error: {error}</p>
+      </div>
+      <Footer />
+    </div>
+  );
+
+  // Filter plans based on active tab and search query
+  const filteredPlans = plans.filter(plan => {
+    // First apply search filter
+    const matchesSearch =
+      searchQuery === "" ||
+      plan.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      plan.description?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    if (!matchesSearch) return false;
+
+    // Then apply tab filters
+    const progress = getProgress(plan);
+    if (activeTab === "All Plans") return true;
+    if (activeTab === "In Progress") return progress > 0 && progress < 100;
+    if (activeTab === "Completed") return progress === 100;
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-blue-600 py-4">
-        <div className="container mx-auto px-4">
-          <h1 className="text-2xl font-bold text-white">SkillNexus</h1>
-          <p className="text-blue-100">Connect. Learn. Grow.</p>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">Learning Plans Management</h2>
-            <Link
-              to="/plans/create"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+      <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">Learning Plans Management</h2>
+          <div className="flex space-x-4">
+            <button
+              className="border border-green-600 text-green-600 px-4 py-2 rounded hover:bg-green-50"
+              onClick={() => navigate('/progress/view')}
+            >
+              My Progress
+            </button>
+            <button
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              onClick={() => navigate('/plans/create')}
             >
               Create New Plan
-            </Link>
+            </button>
           </div>
+        </div>
 
-          {/* Filters */}
-          <div className="mb-8 border-b border-gray-200">
-            <nav className="flex space-x-8">
-              <button
-                onClick={() => setFilter('all')}
-                className={`pb-4 px-1 ${
-                  filter === 'all'
-                    ? 'border-b-2 border-blue-600 text-blue-600 font-medium'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                All Plans
-              </button>
-              <button
-                onClick={() => setFilter('inProgress')}
-                className={`pb-4 px-1 ${
-                  filter === 'inProgress'
-                    ? 'border-b-2 border-blue-600 text-blue-600 font-medium'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                In Progress
-              </button>
-              <button
-                onClick={() => setFilter('completed')}
-                className={`pb-4 px-1 ${
-                  filter === 'completed'
-                    ? 'border-b-2 border-blue-600 text-blue-600 font-medium'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Completed
-              </button>
-              <button
-                onClick={() => setFilter('notStarted')}
-                className={`pb-4 px-1 ${
-                  filter === 'notStarted'
-                    ? 'border-b-2 border-blue-600 text-blue-600 font-medium'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Not Started
-              </button>
-            </nav>
-          </div>
-
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-              {error}
-            </div>
-          )}
-
-          {filteredPlans.length === 0 ? (
-            <div className="text-center py-12">
-              <svg
-                className="mx-auto h-12 w-12 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
+        {/* Search Bar 
+        <div className="mb-6">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
               </svg>
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No learning plans found</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                {filter === 'all'
-                  ? "You haven't created any learning plans yet."
-                  : filter === 'inProgress'
-                  ? "You don't have any in-progress plans."
-                  : filter === 'completed'
-                  ? "You haven't completed any plans yet."
-                  : "You don't have any plans ready to start."}
-              </p>
-              <div className="mt-6">
-                <Link
-                  to="/plans/create"
-                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-                >
-                  Create your first plan
-                </Link>
-              </div>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPlans.map((plan) => (
-                <PlanCard key={plan.id} plan={plan} status={getPlanStatus(plan)} />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+            <input
+              type="text"
+              placeholder="Search plans by title or description..."
+              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>*
 
-      {/* Footer */}
-      <footer className="bg-gray-100 py-4 border-t border-gray-200">
-        <div className="container mx-auto px-4 text-center text-gray-600">
-          © 2025 SkillNexus. All rights reserved.
+        {/* Tab Navigation */}
+        <div className="border-b border-gray-200 mb-6">
+          <nav className="flex -mb-px">
+            {["All Plans", "In Progress", "Completed"].map((tab) => (
+              <button
+                key={tab}
+                className={`mr-8 py-4 px-1 border-b-2 font-medium text-lg ${
+                  activeTab === tab
+                    ? "border-blue-600 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+                onClick={() => {
+                  setActiveTab(tab);
+                  
+                }}
+              >
+                {tab}
+              </button>
+            ))}
+          </nav>
         </div>
-      </footer>
+
+        {filteredPlans.length === 0 ? (
+          <p className="text-center py-8 text-gray-500">
+            {searchQuery ? "No plans found matching your search." : "No plans found."}
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {filteredPlans.map((plan) => {
+              const progress = getProgress(plan);
+              const isCompleted = progress === 100;
+              const isOverdue = plan.endDate ? new Date(plan.endDate) < new Date() && !isCompleted : false;
+
+              return (
+                <div key={plan.id} className="bg-white rounded-lg shadow overflow-hidden">
+                  <div className={`px-4 py-2 text-xs ${isCompleted ? 'bg-green-100 text-green-800' : isOverdue ? 'bg-red-100 text-red-800' : ''}`}>
+                    {isCompleted ? 'Completed' : isOverdue ? 'Overdue' : `${plan.resources?.length || 0} days remaining`}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-semibold text-lg">{plan.title}</h3>
+
+                    <div className="mt-3">
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Progress</span>
+                        <span>{progress}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-green-500 h-2 rounded-full"
+                          style={{ width: `${progress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-gray-500">Start Date</p>
+                        <p>{plan.startDate ? new Date(plan.startDate).toLocaleDateString() : '4/26/2025'}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">End Date</p>
+                        <p>{plan.endDate ? new Date(plan.endDate).toLocaleDateString() : '5/2/2025'}</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-2 gap-4">
+                      <button
+                        onClick={() => navigate(`/plans/${plan.id}`)}
+                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-center"
+                      >
+                        View Plan
+                      </button>
+                      <button
+                         onClick={() => navigate(`/progress/create`, { state: { plan } })}
+                        className="border border-green-600 text-green-600 px-4 py-2 rounded hover:bg-green-50 text-center"
+                      >
+                        Share Completion
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+      <Footer />
     </div>
   );
-}
+};
+
+// Header Component
+const Header = ({ searchQuery, setSearchQuery }: { searchQuery: string; setSearchQuery: React.Dispatch<React.SetStateAction<string>> }) => {
+  return (
+    <div>
+      <div className="bg-blue-600 text-white py-4 px-6">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div>
+            <h1 className="text-xl font-bold">SkillNexus</h1>
+            <p className="text-sm">Connect. Learn. Grow.</p>
+          </div>
+
+          <div className="w-full md:w-96">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="h-5 w-5 text-blue-300" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                placeholder="Search plans by title or description..."
+                className="block w-full pl-10 pr-3 py-2 border border-blue-400 bg-blue-500 rounded-md shadow-sm placeholder-blue-200 focus:outline-none focus:ring-white focus:border-transparent"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Footer Component
+const Footer = () => {
+  return (
+    <footer className="bg-white py-4 text-center text-sm text-gray-600 mt-8">
+      
+    </footer>
+  );
+};
+
+export default PlansListPage;

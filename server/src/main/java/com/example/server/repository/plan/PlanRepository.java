@@ -1,4 +1,4 @@
-package com.example.server.repository;
+package com.example.server.repository.plan;
 
 import java.util.List;
 

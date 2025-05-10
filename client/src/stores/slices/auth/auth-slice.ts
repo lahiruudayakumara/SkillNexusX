@@ -4,6 +4,7 @@ import { login, refreshUserToken, register, socialLogin } from "@/stores/slices/
 
 const initialState: AuthState = {
   user: null,
+  user_id: localStorage.getItem("token") ? parseInt(localStorage.getItem("userId")!, 10) : 0,
   token: localStorage.getItem("token") ?? null,
   loading: false,
   error: null,

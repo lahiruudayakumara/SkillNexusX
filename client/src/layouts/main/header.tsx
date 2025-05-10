@@ -1,17 +1,20 @@
 import { useState, useRef, useEffect } from "react";
 import Logo from "@/assets/logo.png";
 import Avatar from "@/assets/avatar.svg";
-import SearchField from "@/components/input-fields/search-fields/serch-field";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/stores/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/stores/store";
 import { logout } from "@/stores/slices/auth/auth-slice";
-import { Bell, SquarePen } from "lucide-react";
+import { Bell, SquarePen, Home, FileText, Users } from "lucide-react";
 import { Link } from "react-router-dom";
+import NotificationPanel from "@/components/notification-panel";
 
 const Header = () => {
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const notificationDropdownRef = useRef(null);
   const dispatch = useDispatch<AppDispatch>();
+  const userId = useSelector((state: RootState) => state.auth.user_id);
 
   useEffect(() => {
     const handleClickOutside = (event: { target: any }) => {
@@ -34,18 +37,54 @@ const Header = () => {
             <img src={Logo} alt="Logo" className="w-24" />
           </div>
         </Link>
-        <SearchField onChange={() => {}} value="" />
       </div>
+
       <div className="flex items-center gap-4">
+        <Link to="/">
+          <div className="flex items-center gap-2 cursor-pointer text-slate-400 hover:text-slate-600">
+            <Home size={20} />
+            <p>Home</p>
+          </div>
+        </Link>
+        <Link to="/plans">
+          <div className="flex items-center gap-2 cursor-pointer text-slate-400 hover:text-slate-600">
+            <FileText size={20} />
+            <p>My Plan</p>
+          </div>
+        </Link>
+        <Link to="/mentor-collaboration-get">
+          <div className="flex items-center gap-2 cursor-pointer text-slate-400 hover:text-slate-600">
+            <Users size={20} />
+            <p>Collaborations</p>
+          </div>
+        </Link>
         <Link to="/new-post">
           <div className="flex items-center gap-2 cursor-pointer text-slate-400 hover:text-slate-600">
-            <SquarePen />
+            <SquarePen size={20} />
             <p>Write</p>
           </div>
         </Link>
-        <div className="flex items-center gap-2 cursor-pointer text-slate-400 hover:text-slate-600">
-          <Bell />
+
+        <div 
+          className="flex items-center gap-2 cursor-pointer text-slate-400 hover:text-slate-600 relative"
+          ref={notificationDropdownRef}
+        >
+          <div
+            className="relative"
+            onClick={() => {
+              setShowNotifications(!showNotifications);
+
+            }}
+          >
+            <Bell />
+          </div>
+          {showNotifications && (
+            <div className="absolute right-0 top-10 w-80 rounded-md  py-1 z-10">
+              <NotificationPanel userId={userId} />
+            </div>
+          )}
         </div>
+
         <div
           className="user-info flex items-center gap-4 relative"
           ref={dropdownRef}
@@ -76,6 +115,7 @@ const Header = () => {
                 Logout
               </button>
             </div>
+
           )}
         </div>
       </div>

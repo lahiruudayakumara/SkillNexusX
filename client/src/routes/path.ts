@@ -15,8 +15,14 @@ import CreatePlanPage from "@/pages/plan/create-plan";
 import UpdatePlanPage from "@/pages/plan/update-plan";
 import ViewPlanPage from "@/pages/plan/view-plan";
 import { createBrowserRouter } from "react-router-dom";
-import MentorCollaborationPage from "@/pages/main/mentor-collaboration";
+import MentorCollaborationPage from "@/pages/main/mentor-collaboration-post";
+import GetAllMentorCollaborationPage from "@/pages/main/mentor-collaboration-get";
+import PutMentorCollaborationPage from "@/pages/main/mentor-collaboration-put";
 import PlansListPage from "@/pages/plan/plans-list";
+import LandingPage from "@/pages/main/landing-page";
+import PostDetailsPage from "@/pages/main/post-details";
+import CommentsPage from "@/pages/main/comments";
+
 
 export const router = createBrowserRouter([
     {
@@ -36,6 +42,10 @@ export const router = createBrowserRouter([
         Component: OAuth2Callback,
     },
     {
+        path: "/landing",
+        Component: LandingPage,
+    },
+    {
         path: "/",
         Component: Main,
         children: [
@@ -50,11 +60,19 @@ export const router = createBrowserRouter([
             {
                 path: "/new-post",
                 Component: NewPostPage,
-            }
-            ,  {
+            },
+            {
                 path: "/account/settings",
                 Component: ProfilePage,
-              },
+            },
+            {
+                path: "post/:id",
+                Component: PostDetailsPage
+            },
+            {
+                path: "comments/:id",
+                Component: CommentsPage
+            },
             {
                 path: "/me",
                 children: [
@@ -78,7 +96,7 @@ export const router = createBrowserRouter([
                         Component: CreateProgress, // Create Progress
                     },
                     {
-                        path: "update/:id",
+                        path: "update",
                         Component: UpdateProgress, // Update Progress
                     },
                     {
@@ -110,8 +128,20 @@ export const router = createBrowserRouter([
                 ]
             },
             {
-                path: "/mentor-collaboration",
+                path: "/mentor-collaboration-post",
                 Component: MentorCollaborationPage,
+            },
+            {
+                path: "/mentor-collaboration-get",
+                Component: GetAllMentorCollaborationPage,
+            },
+            {
+                path: "mentor-collaboration-put/:collaborationId",
+                Component: PutMentorCollaborationPage,
+            },
+            {
+                path: "mentor-collaboration-del/:collaborationId",
+                Component: PutMentorCollaborationPage,
             }
         ]
     }

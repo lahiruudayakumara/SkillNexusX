@@ -94,6 +94,8 @@ public class AuthController {
             // Return the authentication response
             return ResponseEntity.ok(AuthResponseDTO.builder()
                     .email(user.getEmail())
+                    .username(user.getUsername())
+                    .userId(user.getId())
                     .token(token)
                     .expiresIn(jwtTokenProvider.getExpirationDateFromToken(token))
                     .refreshToken(refreshToken)

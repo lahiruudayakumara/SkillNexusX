@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.server.DTO.plan.PlanDTO;
 import com.example.server.model.plan.Plan;
-import com.example.server.repository.PlanRepository;
+import com.example.server.repository.plan.PlanRepository;
 
 @Service
 public class PlanServiceImpl implements PlanService {
@@ -295,5 +295,13 @@ public class PlanServiceImpl implements PlanService {
                 .createdAt(planDTO.getCreatedAt())
                 .updatedAt(planDTO.getUpdatedAt())
                 .build();
+    }
+
+    @Override
+    public List<PlanDTO> getAllPlans() {
+        List<Plan> plans = planRepository.findAll();
+        return plans.stream()
+            .map(this::convertToDTO)
+            .collect(Collectors.toList());
     }
 }
