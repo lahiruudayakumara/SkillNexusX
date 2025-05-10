@@ -13,7 +13,7 @@ const CreatePlanView = () => {
     const [isPublic, setIsPublic] = useState(false);
     const [tags, setTags] = useState<string[]>([]);
     const [tagInput, setTagInput] = useState("");
-    const [resources, setResources] = useState<Array<{path: string, title?: string, type?: string}>>([]);
+    const [resources, setResources] = useState<Array<{ path: string, title?: string, type?: string }>>([]);
     const [pendingPost, setPendingPost] = useState<{ post?: { username: string; content?: string }; resourceUrl?: string } | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,17 +45,17 @@ const CreatePlanView = () => {
                 // Clear the pending post data
                 sessionStorage.removeItem('pending-post-for-plan');
             }
-            
+
             // Check for any post added via the addPostToExistingPlan function
             const pendingPostToAdd = sessionStorage.getItem('pendingPostToAdd');
             if (pendingPostToAdd) {
                 const postToAdd = JSON.parse(pendingPostToAdd);
                 setResources([{
-                    path: `/posts/${postToAdd.id}`,
+                    path: `/comments/${postToAdd.id}`,
                     title: postToAdd.title,
                     type: postToAdd.type
                 }]);
-                
+
                 // Clear the pending post data
                 sessionStorage.removeItem('pendingPostToAdd');
             }
