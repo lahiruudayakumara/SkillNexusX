@@ -192,7 +192,41 @@ const ViewPlanPage: React.FC = () => {
                                                 rel="noopener noreferrer"
                                                 className={`hover:underline flex-1 ${completedResources.includes(resource) ? "line-through text-gray-500" : "text-blue-600"}`}
                                             >
-                                                {resource}
+                                                {(() => {
+                                                    try {
+                                                        const url = new URL(resource);
+
+                                                        // Check if it's an internal application URL
+                                                        if (url.hostname === 'localhost' || url.hostname.includes('skillnexus')) {
+                                                            // Parse the path segments
+                                                            const pathSegments = url.pathname.split('/').filter(Boolean);
+
+                                                            if (pathSegments.length >= 2) {
+                                                                // Format: /resourceType/resourceId
+                                                                const resourceType = pathSegments[0];
+                                                                const resourceId = pathSegments[1];
+
+                                                                // Capitalize the resource type
+                                                                const formattedType = resourceType.charAt(0).toUpperCase() +
+                                                                    resourceType.slice(1).toLowerCase();
+
+                                                                // Remove trailing 's' if it exists (e.g., "comments" -> "Comment")
+                                                                const singularType = formattedType.endsWith('s') ?
+                                                                    formattedType.slice(0, -1) :
+                                                                    formattedType;
+
+                                                                return `${singularType} #${resourceId}`;
+                                                            }
+                                                        }
+
+                                                        // Fallback for external URLs: show the hostname without "www."
+                                                        return url.hostname.replace('www.', '');
+
+                                                    } catch (e) {
+                                                        // If parsing fails, return a truncated version of the original URL
+                                                        return resource.length > 40 ? resource.substring(0, 37) + '...' : resource;
+                                                    }
+                                                })()}
                                             </a>
                                         </div>
                                     ))}
@@ -213,7 +247,7 @@ const ViewPlanPage: React.FC = () => {
 const Header = () => {
     return (
         <div>
-            
+
             <div className="bg-blue-600 text-white py-4 px-6">
                 <h1 className="text-xl font-bold">SkillNexus</h1>
                 <p className="text-sm">Connect. Learn. Grow.</p>
@@ -226,7 +260,7 @@ const Header = () => {
 const Footer = () => {
     return (
         <footer className="bg-white py-4 text-center text-sm text-gray-600 mt-8">
-            
+
         </footer>
     );
 };

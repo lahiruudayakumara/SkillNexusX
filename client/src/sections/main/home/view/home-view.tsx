@@ -112,10 +112,11 @@ const HomeView = () => {
 
       // Store both the post path and title
       const postResource = {
-        path: `${window.location.origin}/posts/${selectedPost.id || Date.now()}`,
+        path: `${window.location.origin}/comments/${selectedPost.id || Date.now()}`,
         title: selectedPost.title,
-        type: 'post'
+        type: "post",
       };
+
 
       const updatedPlan = {
         ...selectedPlan,
@@ -137,6 +138,7 @@ const HomeView = () => {
       setError("Failed to update plan");
     }
   };
+
 
   const createNewPlanWithPost = () => {
     if (!selectedPost) return;
